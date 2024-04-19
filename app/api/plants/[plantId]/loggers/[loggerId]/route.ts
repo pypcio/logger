@@ -2,7 +2,14 @@ import { loggerSchema } from "@/app/_validationSchemas/schema";
 import prisma from "@/prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+interface Props {
+	params: {
+		plantId: string;
+		inverterId: string;
+	};
+}
+
+export async function PATCH(request: NextRequest, { params }: Props) {
 	const body = await request.json();
 	const loggerValidation = loggerSchema.safeParse(body);
 
@@ -10,7 +17,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 		return NextResponse.json(loggerValidation.error.errors, { status: 400 });
 
 	const logger = await prisma.logger.findUnique({
-		where: { id: params.id },
+		where: { id: params.inverterId },
 	});
 	if (!logger) return NextResponse.json({ error: "Logger not found" }, { status: 404 });
 
