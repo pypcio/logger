@@ -1,0 +1,141 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Plant {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  description String?    @db.Text
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  location    Location?
+  loggers     Logger[]
+  meters      Meter[]
+  inverters   Inverter[]
+}
+
+model Logger {
+  id          String      @id @default(cuid())
+  plant_id    String
+  name        String
+  model       String?
+  producent   String?
+  description String?     @db.Text
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  plant       Plant       @relation(fields: [plant_id], references: [id], onDelete: Cascade)
+  loggs       LoggerLog[]
+}
+
+model Location {
+  id             Int     @id @default(autoincrement())
+  plant_id       String
+  street_address String? @db.VarChar(255)
+  postal_code    String? @db.VarChar(255)
+  city           String? @db.VarChar(255)
+  district       String? @db.VarChar(255)
+  county         String? @db.VarChar(255)
+  state_province String? @db.VarChar(255)
+  country        String?
+  plant          Plant   @relation(fields: [plant_id], references: [id], onDelete: Cascade)
+
+  @@unique([plant_id])
+}
+
+model LoggerLog {
+  id                  Int       @id @default(autoincrement())
+  logger_id           String
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  sys_state           SysState?
+  temp_env            Float?
+  temp_heat_sink      Float?
+  temp_inv            Float?
+  insulation_res      Float?
+  pv_generation_today Float?
+  pv_generation_total Float?
+
+  logger Logger @relation(fields: [logger_id], references: [id])
+}
+
+model Meter {
+  id          String     @id @default(cuid())
+  plant_id    String
+  name        String
+  model       String?
+  producent   String?
+  description String?    @db.Text
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  meterLogs   MeterLog[]
+  plant       Plant      @relation(fields: [plant_id], references: [id], onDelete: Cascade)
+}
+
+model MeterLog {
+  id         Int      @id @default(autoincrement())
+  meter_id   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  voltage_l1 Float?
+  voltage_l2 Float?
+  voltage_l3 Float?
+  current_l1 Float?
+  current_l2 Float?
+  current_l3 Float?
+  a_power_l1 Float?
+  a_power_l2 Float?
+  a_power_l3 Float?
+  r_power_l1 Float?
+  r_power_l2 Float?
+  r_power_l3 Float?
+  meter      Meter    @relation(fields: [meter_id], references: [id])
+}
+
+model Inverter {
+  id          String        @id @default(cuid())
+  plant_id    String
+  name        String
+  model       String?
+  producent   String?
+  description String?       @db.Text
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  inverterLog InverterLog[]
+  plant       Plant         @relation(fields: [plant_id], references: [id], onDelete: Cascade)
+}
+
+model InverterLog {
+  id          Int      @id @default(autoincrement())
+  inverter_id String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  frequency   Float?
+  voltage_l1  Float?
+  current_l2  Float?
+  a_power_l1  Float?
+  r_power_l1  Float?
+
+  inverter Inverter @relation(fields: [inverter_id], references: [id])
+}
+
+enum SysState {
+  WAITING
+  CHECKING
+  ON_GRID
+  EMERGENCY_MODE
+  RECOVERY_FAULT
+  PERMAMENT_FAILURE
+  UPGRADING
+  SELF_CHARGING
+}
