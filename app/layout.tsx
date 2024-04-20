@@ -21,9 +21,7 @@ export default function RootLayout({
 			<body className={inter.variable}>
 				<Theme accentColor='blue' radius='none' scaling='95%'>
 					<NavBar />
-					<main className='p-5 '>
-						<Container>{children}</Container>
-					</main>
+					<main>{children}</main>
 					{/* <ThemePanel /> */}
 				</Theme>
 			</body>
