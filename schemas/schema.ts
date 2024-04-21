@@ -29,4 +29,11 @@ const meterSchema = z.object({
 	producent: z.string().min(1).max(191).nullish(),
 });
 
-export { plantSchema, loggerSchema, inverterSchema, meterSchema };
+const loginUserSchema = z.object({
+	email: z.string().email(),
+	password: z
+		.string()
+		.regex(/^(?=.*[A-Z])(?=.*[!@#$&*]).{8,}$/, { message: "At least 8 characters" }),
+});
+
+export { plantSchema, loggerSchema, inverterSchema, meterSchema, loginUserSchema };

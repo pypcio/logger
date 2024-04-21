@@ -5,13 +5,13 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { SIDENAV_ITEMS } from "@/utils/sideNavList";
-import { SideNavItem } from "@/utils/types/sideNavItem";
+import { SIDENAV_ITEMS } from "@/lib/utils/sideNavList";
+import { SideNavItem } from "@/lib/types/NavItems";
 import { ChevronDownIcon } from "@radix-ui/themes";
 import classnames from "classnames";
 import { useSelectedLayoutSegment } from "next/navigation";
 import useScroll from "@/hooks/use-scroll";
-import { cn } from "@/utils/utils";
+import { cn } from "@/lib/utils/utils";
 const iconClass =
 	" border border-x-gray-300 border-gray h-14 sm:h-16 md:h-20 w-2 lg:w-3 absolute inset-y-1/3 -right-1 lg:-right-2 rounded bg-white center hover:bg-slate-100 transition-colors duration-1000 ease-in-out m-0 p-0 shadow-2xl cursor-pointer hover:scale-105";
 
@@ -34,7 +34,7 @@ const SideNav = () => {
 					"bg-accent-5 h-screen": true,
 					"transition-width duration-500 ease-in-out": true,
 					"w-20 sm:w-20 md:w-36 lg:w-40": open,
-					"w-7 sm:w-9 md:w-11 lg:w-14": !open,
+					"w-10 sm:w-12  lg:w-14": !open,
 				})}>
 				<Box pt='2' position='relative' className='h-full'>
 					<div className='absolute -right-1 lg:-right-2 top-0 h-full w-1 lg:w-2 bg-accent-a6'></div>

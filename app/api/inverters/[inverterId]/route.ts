@@ -1,4 +1,4 @@
-import { inverterSchema } from "@/app/_validationSchemas/schema";
+import { inverterSchema } from "@/schemas/schema";
 import prisma from "@/prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 

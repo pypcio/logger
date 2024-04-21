@@ -1,4 +1,4 @@
-import { loggerSchema } from "@/app/_validationSchemas/schema";
+import { loggerSchema } from "@/schemas/schema";
 import prisma from "@/prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 

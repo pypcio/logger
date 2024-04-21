@@ -1,4 +1,4 @@
-import { SideNavItem } from "./types/sideNavItem";
+import { SideNavItem } from "../types/NavItems";
 import {
 	HomeIcon,
 	FileIcon,

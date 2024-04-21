@@ -1,4 +1,4 @@
-import { plantSchema } from "@/app/_validationSchemas/schema";
+import { plantSchema } from "@/schemas/schema";
 import prisma from "@/prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 

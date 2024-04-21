@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { loggerSchema } from "@/app/_validationSchemas/schema";
+import { loggerSchema } from "@/schemas/schema";
 import prisma from "@/prisma/client";
 
 export async function POST(request: NextRequest, { params }: { params: { plantId: string } }) {

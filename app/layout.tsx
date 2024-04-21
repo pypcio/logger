@@ -5,6 +5,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import "./theme-config.css";
 import NavBar from "./NavBar";
+// import AuthProvider from "./Provider";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 export const metadata: Metadata = {
 	title: "Create Next App",
@@ -19,11 +20,13 @@ export default function RootLayout({
 	return (
 		<html lang='en'>
 			<body className={inter.variable}>
+				{/* <AuthProvider> */}
 				<Theme accentColor='blue' radius='none' scaling='95%'>
 					<NavBar />
 					<main>{children}</main>
 					{/* <ThemePanel /> */}
 				</Theme>
+				{/* </AuthProvider> */}
 			</body>
 			{/* <ThemePanel /> */}
 		</html>

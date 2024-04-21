@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { meterSchema } from "@/app/_validationSchemas/schema";
+import { meterSchema } from "@/schemas/schema";
 import prisma from "@/prisma/client";
 
 export async function POST(request: NextRequest, { params }: { params: { plantId: string } }) {
