@@ -5,6 +5,14 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import "./theme-config.css";
 import NavBar from "./NavBar";
+import { Inter as FontSans } from "next/font/google";
+
+import { cn } from "@/lib/utils";
+
+const fontSans = FontSans({
+	subsets: ["latin"],
+	variable: "--font-sans",
+});
 // import AuthProvider from "./Provider";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 export const metadata: Metadata = {
@@ -19,13 +27,13 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang='en'>
-			<body className={inter.variable}>
+			<body className={cn("min-h-screen bg-background font-sans antialiased", fontSans.variable)}>
 				{/* <AuthProvider> */}
-				<Theme accentColor='blue' radius='none' scaling='95%'>
-					<NavBar />
-					<main>{children}</main>
-					{/* <ThemePanel /> */}
-				</Theme>
+				{/* <Theme accentColor='blue' radius='none' scaling='95%'> */}
+				<NavBar />
+				<main>{children}</main>
+				{/* <ThemePanel /> */}
+				{/* </Theme> */}
 				{/* </AuthProvider> */}
 			</body>
 			{/* <ThemePanel /> */}

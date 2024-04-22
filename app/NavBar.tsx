@@ -1,7 +1,7 @@
 "use client";
 import useScroll from "@/hooks/use-scroll";
 import { MAIN_NAV_ITEMS } from "@/lib/utils/mainNavList";
-import { cn } from "@/lib/utils/utils";
+import { cn } from "@/lib/utils";
 import {
 	Avatar,
 	Box,
@@ -24,7 +24,7 @@ const NavBar = () => {
 	return (
 		<nav
 			className={cn(
-				` lg:p-2 sticky inset-x-0 top-0 z-30 h-full transition-all border-b border-gray-200 bg-accent-1 opacity-1`,
+				` lg:p-2 sticky inset-x-0 top-0 z-30 h-full transition-all border-b border-gray-200 bg-background opacity-1`,
 				{
 					"border-b border-gray-200  backdrop-blur-lg": scrolled,
 					"border-b border-gray-200 ": selectedLayout,
@@ -95,7 +95,7 @@ const NavLinks = () => {
 						<Link
 							className={classnames({
 								"nav-link": true,
-								"!text-accent-9 font-semibold": link.path === currentPath,
+								"!text-primary font-semibold": link.path === currentPath,
 							})}
 							href={link.path}>
 							{link.title}

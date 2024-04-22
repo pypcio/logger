@@ -31,9 +31,22 @@ const meterSchema = z.object({
 
 const loginUserSchema = z.object({
 	email: z.string().email(),
-	password: z
-		.string()
-		.regex(/^(?=.*[A-Z])(?=.*[!@#$&*]).{8,}$/, { message: "At least 8 characters" }),
+	password: z.string().min(1, {
+		message: "Password is required",
+	}),
+});
+const registerUserSchema = z.object({
+	email: z.string().email(),
+	password: z.string().regex(/^(?=.*[A-Z])(?=.*[!@#$&*]).{8,}$/, {
+		message: "At least one special, number and 8 characters",
+	}),
 });
 
-export { plantSchema, loggerSchema, inverterSchema, meterSchema, loginUserSchema };
+export {
+	plantSchema,
+	loggerSchema,
+	inverterSchema,
+	meterSchema,
+	loginUserSchema,
+	registerUserSchema,
+};
