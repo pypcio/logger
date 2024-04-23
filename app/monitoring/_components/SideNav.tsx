@@ -23,20 +23,16 @@ const SideNav = () => {
 	return (
 		<div className=' inset-x-0 top-12 h-1/4  sticky  transition-all border-b border-gray-200'>
 			<div
-				className={cn(
-					"bg-secondary  h-screen",
-					"transition-width duration-500 ease-in-out",
-					{
-						"w-20 sm:w-20 md:w-36 lg:w-40": open,
-						"w-10 sm:w-12  lg:w-14": !open,
-					}
-				)}>
+				className={cn("bg-secondary  h-screen", "duration-500 ease-in-out ", {
+					"max-w-20 sm:max-w-20 md:max-w-36 lg:max-w-44": open,
+					"max-w-10 sm:max-w-12  lg:max-w-14": !open,
+				})}>
 				<div className='h-full relative pt-4'>
 					<div className='absolute -right-1 lg:-right-2 top-0 h-full w-1 lg:w-2 bg-secondary-foreground'></div>
 					<button onClick={toggleOpen} className={iconClass}>
 						<ChevronIcon isOpen={open} />
 					</button>
-					<div className='flex flex-col space-y-2  md:px-2 '>
+					<div className='flex flex-col space-y-2 px-0  md:px-2 '>
 						{SIDENAV_ITEMS.map((item, idx) => {
 							return <MenuItem isOpen={open} key={idx} item={item} />;
 						})}
@@ -78,7 +74,7 @@ const MenuItem = ({ item, isOpen }: { item: SideNavItem; isOpen: boolean }) => {
 	};
 	if (!isOpen && subMenuOpen) setSubMenuOpen(false);
 	return (
-		<div className=''>
+		<div className=' scale-75 pr-1 md:scale-90 lg:scale-100 lg:pr-2 overflow-hidden'>
 			{item.submenu ? (
 				<>
 					<button
@@ -131,13 +127,10 @@ const MenuItem = ({ item, isOpen }: { item: SideNavItem; isOpen: boolean }) => {
 					<Flex gap='0'>
 						{item.icon}
 						<span
-							className={cn(
-								`sm:scale-75 sm:p-0 md:scale-75 lg:scale-100 font-semibold text-base flex shrink  pl-4`,
-								{
-									"transition-width duration-300 ease-in-out scale-0": !isOpen,
-									"transition-width duration-300 ease-in-out scale-1": isOpen,
-								}
-							)}>
+							className={cn(`font-semibold text-base flex shrink  pl-4`, {
+								"transition-width duration-300 ease-in-out scale-0": !isOpen,
+								"transition-width duration-300 ease-in-out scale-1": isOpen,
+							})}>
 							{item.title}
 						</span>
 					</Flex>

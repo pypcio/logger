@@ -62,3 +62,12 @@
 		@apply bg-background text-foreground;
 	}
 }
+
+@keyframes scaleRightToLeftMove {
+	from {
+		transform: scaleX(0) translateX(50%);
+	}
+	to {
+		transform: scaleX(1) translateX(0%);
+	}
+}
