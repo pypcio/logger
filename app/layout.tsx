@@ -36,7 +36,7 @@ export default function RootLayout({
 				<AuthProvider>
 					{/* <Theme accentColor='blue' radius='none' scaling='95%'> */}
 					<NavBar />
-					<main>{children}</main>
+					<main className='flex'>{children}</main>
 					{/* <ThemePanel /> */}
 					{/* </Theme> */}
 				</AuthProvider>
@@ -45,4 +45,3 @@ export default function RootLayout({
 		</html>
 	);
 }
-

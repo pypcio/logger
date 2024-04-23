@@ -1,4 +1,4 @@
-import { Flex } from "@radix-ui/themes";
+import { Container, Flex } from "@radix-ui/themes";
 import { PropsWithChildren } from "react";
 import SideNav from "./_components/SideNav";
 const Layout = ({ children }: PropsWithChildren) => {

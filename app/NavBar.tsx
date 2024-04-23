@@ -24,7 +24,7 @@ const NavBar = () => {
 	return (
 		<nav
 			className={cn(
-				` lg:p-2 sticky inset-x-0 top-0 z-30 h-full transition-all border-b border-gray-200 bg-background opacity-1`,
+				` lg:p-2 sticky inset-x-0  top-0 w-full transition-all border-b border-gray-200 bg-background opacity-1`,
 				{
 					"border-b border-gray-200  backdrop-blur-lg": scrolled,
 					"border-b border-gray-200 ": selectedLayout,
