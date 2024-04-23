@@ -8,6 +8,7 @@ import NavBar from "./NavBar";
 import { Inter as FontSans } from "next/font/google";
 
 import { cn } from "@/lib/utils";
+import AuthProvider from "@/Provider";
 
 const fontSans = FontSans({
 	subsets: ["latin"],
@@ -27,14 +28,18 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang='en'>
-			<body className={cn("min-h-screen bg-background font-sans antialiased", fontSans.variable)}>
-				{/* <AuthProvider> */}
-				{/* <Theme accentColor='blue' radius='none' scaling='95%'> */}
-				<NavBar />
-				<main>{children}</main>
-				{/* <ThemePanel /> */}
-				{/* </Theme> */}
-				{/* </AuthProvider> */}
+			<body
+				className={cn(
+					"min-h-screen bg-background font-sans antialiased",
+					fontSans.variable
+				)}>
+				<AuthProvider>
+					{/* <Theme accentColor='blue' radius='none' scaling='95%'> */}
+					<NavBar />
+					<main>{children}</main>
+					{/* <ThemePanel /> */}
+					{/* </Theme> */}
+				</AuthProvider>
 			</body>
 			{/* <ThemePanel /> */}
 		</html>

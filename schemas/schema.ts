@@ -35,12 +35,22 @@ const loginUserSchema = z.object({
 		message: "Password is required",
 	}),
 });
-const registerUserSchema = z.object({
-	email: z.string().email(),
-	password: z.string().regex(/^(?=.*[A-Z])(?=.*[!@#$&*]).{8,}$/, {
-		message: "At least one special, number and 8 characters",
-	}),
-});
+const registerUserSchema = z
+	.object({
+		email: z.string().email({ message: "Email is required" }),
+		password: z
+			.string()
+			.regex(/^(?=.*[A-Z])(?=.*[!@#$&*]).{8,}$/, {
+				message: "At least one special, number and 8 characters",
+			})
+			.max(20, { message: "Password is too long" }),
+		name: z.string().min(2, { message: "Name is required" }),
+		confirmPassword: z.string(),
+	})
+	.refine((data) => data.password === data.confirmPassword, {
+		message: "Passwords do not match",
+		path: ["confirmPassword"], // path of error
+	});
 
 export {
 	plantSchema,

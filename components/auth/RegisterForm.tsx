@@ -1,58 +1,57 @@
 "use client";
-import { login } from "@/actions/login";
+import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { registerUserSchema } from "@/schemas/schema";
 import { Button } from "@/components/ui/Button";
+import FormError from "../form-error";
 import {
 	Form,
 	FormControl,
+	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/Form";
-import { loginUserSchema } from "@/schemas/schema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import FormError from "../form-error";
-import FormSuccess from "../form-success";
 import { Input } from "../ui/Input";
 import CardWrapper from "./CardWrapper";
+import FormSuccess from "../form-success";
+import axios, { AxiosError } from "axios";
+import toast, { Toaster } from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { register } from "@/actions/register";
 
-interface LoginErrorResponse {
-	response: {
-		data: {
-			message?: string;
-		};
-	};
-}
-
-const LoginForm = () => {
+const RegisterForm = () => {
 	const router = useRouter();
 	const [isSubmitting, setSubmitting] = useState(false);
 	const [onError, setError] = useState<string | undefined>("");
 	const [onSuccess, setSuccess] = useState<string | undefined>("");
-	const form = useForm<z.infer<typeof loginUserSchema>>({
-		resolver: zodResolver(loginUserSchema),
+	const form = useForm<z.infer<typeof registerUserSchema>>({
+		resolver: zodResolver(registerUserSchema),
 		defaultValues: {
 			email: "",
 			password: "",
+			name: "",
+			confirmPassword: "",
 		},
 	});
-	async function onSubmit(values: z.infer<typeof loginUserSchema>) {
+	async function onSubmit(values: z.infer<typeof registerUserSchema>) {
 		setError("");
 		setSuccess("");
 		setSubmitting(true);
-		login(values).then((data) => {
+		register(values).then((data) => {
 			setError(data?.error);
+			setSuccess(data?.success);
 		});
 	}
+
 	return (
 		<CardWrapper
-			headerLabel='Welcome back'
-			backButtonLabel="Don't have an account?"
-			backButtonHref='/auth/register'
+			headerLabel='Create an acount'
+			backButtonLabel='Already have an account?'
+			backButtonHref='/auth/login'
 			showSocial>
 			<Form {...form}>
 				<form
@@ -61,10 +60,28 @@ const LoginForm = () => {
 					<div className='space-y-4'>
 						<FormField
 							control={form.control}
+							name='name'
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Name</FormLabel>
+									<FormControl>
+										<Input
+											placeholder='your name...'
+											{...field}
+											disabled={isSubmitting}
+											type='text'
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
 							name='email'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Username</FormLabel>
+									<FormLabel>Email</FormLabel>
 									<FormControl>
 										<Input
 											placeholder='email'
@@ -95,6 +112,24 @@ const LoginForm = () => {
 								</FormItem>
 							)}
 						/>
+						<FormField
+							control={form.control}
+							name='confirmPassword'
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Confirm password</FormLabel>
+									<FormControl>
+										<Input
+											placeholder='******'
+											{...field}
+											type='password'
+											disabled={isSubmitting}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
 					</div>
 					{onError && <FormError message={onError} />}
 					{onSuccess && <FormSuccess message={onSuccess} />}
@@ -108,4 +143,4 @@ const LoginForm = () => {
 	);
 };
 
-export default LoginForm;
+export default RegisterForm;
