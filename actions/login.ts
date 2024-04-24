@@ -23,11 +23,15 @@ export const login = async (values: any) => {
 			existingUser.email
 		);
 
-		await sendVerificationEmail(
-			verificationToken.email,
-			verificationToken.token
-		);
-		return { success: "Confirmation email sent." };
+		try {
+			await sendVerificationEmail(
+				verificationToken.email,
+				verificationToken.token
+			);
+			return { success: "Confirmation email sent." };
+		} catch (error) {
+			return { error: "Could not send email." };
+		}
 	}
 
 	try {

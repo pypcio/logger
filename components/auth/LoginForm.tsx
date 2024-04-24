@@ -33,6 +33,7 @@ const LoginForm = () => {
 	const [isSubmitting, setSubmitting] = useState(false);
 	const [onError, setError] = useState<string | undefined>("");
 	const [onSuccess, setSuccess] = useState<string | undefined>("");
+
 	const form = useForm<z.infer<typeof loginUserSchema>>({
 		resolver: zodResolver(loginUserSchema),
 		defaultValues: {
@@ -46,8 +47,15 @@ const LoginForm = () => {
 		setSubmitting(true);
 		login(values).then((data) => {
 			setSubmitting(false);
-			setError(data?.error);
-			setSuccess(data?.error);
+			if (data?.error) {
+				form.reset();
+				setError(data.error);
+			}
+
+			if (data?.success) {
+				form.reset();
+				setSuccess(data.success);
+			}
 		});
 	}
 	return (

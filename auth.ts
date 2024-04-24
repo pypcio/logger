@@ -4,13 +4,13 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import NextAuth, { NextAuthConfig, type DefaultSession } from "next-auth";
 import { getUserById } from "./data/user";
 import { JWT } from "next-auth/jwt";
-import { UserRote } from "@prisma/client";
+import { UserRole } from "@prisma/client";
 import { userAgent } from "next/server";
 
 declare module "next-auth" {
 	interface Session {
 		user: {
-			role: UserRote;
+			role: UserRole;
 		} & DefaultSession["user"];
 	}
 }
