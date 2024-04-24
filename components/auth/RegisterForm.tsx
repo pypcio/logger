@@ -42,6 +42,7 @@ const RegisterForm = () => {
 		setSuccess("");
 		setSubmitting(true);
 		register(values).then((data) => {
+			setSubmitting(false);
 			setError(data?.error);
 			setSuccess(data?.success);
 		});

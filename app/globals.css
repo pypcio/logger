@@ -51,6 +51,12 @@
 		--border: 217.2 32.6% 17.5%;
 		--input: 217.2 32.6% 17.5%;
 		--ring: 224.3 76.3% 48%;
+		--radius: 1rem;
+		--space-1: 0.5rem;
+		--space-2: 0.75rem;
+		--space-3: 1rem;
+		--space-4: 1.25rem;
+		--space-5: 1.5rem;
 	}
 }
 

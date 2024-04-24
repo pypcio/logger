@@ -1,13 +1,12 @@
 "use client";
-import { Button } from "@radix-ui/themes";
+import { Button } from "@/components/ui/Button";
 import Image from "next/image";
-import { signIn } from "next-auth/react";
+import { signIn, signOut } from "next-auth/react";
 export default function Home() {
 	return (
 		<div>
-			<Button variant={"outline"} onClick={() => signIn()}>
-				Sign In
-			</Button>
+			<Button onClick={() => signIn()}>Sign In</Button>
+			<Button onClick={() => signOut()}>Sign Out</Button>
 		</div>
 	);
 }

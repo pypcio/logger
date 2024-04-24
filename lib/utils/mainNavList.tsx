@@ -18,14 +18,14 @@ export const MAIN_NAV_ITEMS: MainNavItem[] = [
 		path: "/monitoring",
 		icon: <BsSpeedometer width='24' height='24' />,
 	},
-	{
-		title: "Login",
-		path: "/auth/login",
-		icon: <BsSpeedometer width='24' height='24' />,
-	},
-	{
-		title: "Register",
-		path: "/auth/register",
-		icon: <BsSpeedometer width='24' height='24' />,
-	},
+	// {
+	// 	title: "Login",
+	// 	path: "/auth/login",
+	// 	icon: <BsSpeedometer width='24' height='24' />,
+	// },
+	// {
+	// 	title: "Register",
+	// 	path: "/auth/register",
+	// 	icon: <BsSpeedometer width='24' height='24' />,
+	// },
 ];

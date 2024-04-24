@@ -14,7 +14,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
 		icon: <HomeIcon width='24' height='24' />,
 	},
 	{
-		title: "Projects",
+		title: "Projectsasdasdassssssss",
 		path: "/projects",
 		icon: <FileIcon width='24' height='24' />,
 		submenu: true,

@@ -8,13 +8,12 @@ import NavBar from "./NavBar";
 import { Inter as FontSans } from "next/font/google";
 
 import { cn } from "@/lib/utils";
-import AuthProvider from "@/Provider";
+// import AuthProvider from "./Provider";
 
 const fontSans = FontSans({
 	subsets: ["latin"],
 	variable: "--font-sans",
 });
-// import AuthProvider from "./Provider";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 export const metadata: Metadata = {
 	title: "Create Next App",
@@ -27,19 +26,21 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang='en'>
+		<html lang='en' className='h-full'>
 			<body
 				className={cn(
-					"min-h-screen bg-background font-sans antialiased",
+					"h-full bg-background font-sans antialiased flex flex-col",
 					fontSans.variable
 				)}>
-				<AuthProvider>
-					{/* <Theme accentColor='blue' radius='none' scaling='95%'> */}
-					<NavBar />
-					<main className='flex'>{children}</main>
-					{/* <ThemePanel /> */}
-					{/* </Theme> */}
-				</AuthProvider>
+				{/* <AuthProvider> */}
+				{/* <Theme accentColor='blue' radius='none' scaling='95%'> */}
+				<NavBar />
+				<main className=' flex-1 flex flex-col justify-center items-center'>
+					{children}
+				</main>
+				{/* <ThemePanel /> */}
+				{/* </Theme> */}
+				{/* </AuthProvider> */}
 			</body>
 			{/* <ThemePanel /> */}
 		</html>

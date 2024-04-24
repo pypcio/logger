@@ -24,7 +24,7 @@ const SideNav = () => {
 		<div className=' inset-x-0 top-12 h-1/4  sticky  transition-all border-b border-gray-200'>
 			<div
 				className={cn("bg-secondary  h-screen", "duration-500 ease-in-out ", {
-					"max-w-20 sm:max-w-20 md:max-w-36 lg:max-w-44": open,
+					"max-w-20 sm:max-w-20 md:max-w-44 lg:max-w-52": open,
 					"max-w-10 sm:max-w-12  lg:max-w-14": !open,
 				})}>
 				<div className='h-full relative pt-4'>
@@ -74,7 +74,7 @@ const MenuItem = ({ item, isOpen }: { item: SideNavItem; isOpen: boolean }) => {
 	};
 	if (!isOpen && subMenuOpen) setSubMenuOpen(false);
 	return (
-		<div className=' scale-75 pr-1 md:scale-90 lg:scale-100 lg:pr-2 overflow-hidden'>
+		<div className=' scale-50 pr-0 md:scale-75 md:pr-1 lg:scale-100 lg:pr-2 overflow-hidden'>
 			{item.submenu ? (
 				<>
 					<button
@@ -83,7 +83,7 @@ const MenuItem = ({ item, isOpen }: { item: SideNavItem; isOpen: boolean }) => {
 							pathname.includes(item.path) ? "bg-zinc-100" : ""
 						}`}>
 						<div className='flex flex-row space-x-4 items-center'>
-							{item.icon}
+							<span>{item.icon}</span>
 							<span
 								className={cn(`font-semibold text-base flex`, {
 									"transition-width duration-300 ease-in-out scale-0": !isOpen,
@@ -125,7 +125,7 @@ const MenuItem = ({ item, isOpen }: { item: SideNavItem; isOpen: boolean }) => {
 						item.path === pathname ? "bg-zinc-100" : ""
 					}`}>
 					<Flex gap='0'>
-						{item.icon}
+						<span>{item.icon}</span>
 						<span
 							className={cn(`font-semibold text-base flex shrink  pl-4`, {
 								"transition-width duration-300 ease-in-out scale-0": !isOpen,
