@@ -47,6 +47,7 @@ const LoginForm = () => {
 		login(values).then((data) => {
 			setSubmitting(false);
 			setError(data?.error);
+			setSuccess(data?.error);
 		});
 	}
 	return (

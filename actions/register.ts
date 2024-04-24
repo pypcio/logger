@@ -3,6 +3,8 @@ import { registerUserSchema } from "@/schemas/schema";
 import prisma from "@/prisma/client";
 import bcrypt from "bcryptjs";
 import { getUserByEmail } from "@/data/user";
+import { generateVerificationToken } from "@/lib/tokents";
+import { sendVerificationEmail } from "@/lib/mail";
 
 export const register = async (values: any) => {
 	const validateRegister = registerUserSchema.safeParse(values);
@@ -14,12 +16,18 @@ export const register = async (values: any) => {
 
 	const hashedPassword = await bcrypt.hash(password, 10);
 
-	await prisma.user.create({
+	const newUser = await prisma.user.create({
 		data: {
 			email,
 			hashedPassword,
 			name,
 		},
 	});
-	return { success: "Email registered!" };
+
+	const verificationToken = await generateVerificationToken(newUser.email);
+	await sendVerificationEmail(verificationToken.email, verificationToken.token);
+	if (verificationToken) {
+		return { success: "Confirmation email sent!" };
+	}
+	return { error: "Something went wrong" };
 };

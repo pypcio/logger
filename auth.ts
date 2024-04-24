@@ -3,8 +3,10 @@ import prisma from "@/prisma/client";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import NextAuth, { NextAuthConfig, type DefaultSession } from "next-auth";
 import { getUserById } from "./data/user";
+import { JWT } from "next-auth/jwt";
 import { UserRote } from "@prisma/client";
 import { userAgent } from "next/server";
+
 declare module "next-auth" {
 	interface Session {
 		user: {
@@ -16,15 +18,28 @@ declare module "next-auth" {
 const authOptions = {
 	pages: {
 		signIn: "/auth/login",
+		error: "/auth/error",
 	},
 	callbacks: {
+		async signIn({ user, account }) {
+			if (account?.provider !== "credentials") return true;
+
+			const existingUser = await getUserById(user.id as string);
+
+			if (!existingUser?.emailVerified) {
+				return false;
+			}
+
+			//ADD 2FA Check
+			return true;
+		},
 		async session({ token, session }) {
 			if (token.sub && session.user) {
 				session.user.id = token.sub;
 			}
 			if (token.role && session.user) {
 				const role = token.role;
-				return { ...session, user: { ...session.user, role: role } };
+				return { ...session, user: { ...session.user, role } };
 			}
 			return session;
 		},
