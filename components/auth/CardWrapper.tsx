@@ -38,7 +38,11 @@ const CardWrapper = ({
 				</CardFooter>
 			)}
 			<CardFooter>
-				<BackButton label={backButtonLabel} href={backButtonHref} />
+				<BackButton
+					center={true}
+					label={backButtonLabel}
+					href={backButtonHref}
+				/>
 			</CardFooter>
 		</Card>
 	);

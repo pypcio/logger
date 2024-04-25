@@ -52,6 +52,24 @@ const registerUserSchema = z
 		path: ["confirmPassword"], // path of error
 	});
 
+const resetPwdSchema = z
+	.object({
+		email: z.string().email({ message: "Email is required" }),
+
+		password: z
+			.string()
+			.regex(/^(?=.*[A-Z])(?=.*[!@#$&*]).{8,}$/, {
+				message: "At least one special, number and 8 characters",
+			})
+			.max(20, { message: "Password is too long" }),
+
+		confirmPassword: z.string(),
+	})
+	.refine((data) => data.password === data.confirmPassword, {
+		message: "Passwords do not match",
+		path: ["confirmPassword"], // path of error
+	});
+
 export {
 	plantSchema,
 	loggerSchema,
@@ -59,4 +77,5 @@ export {
 	meterSchema,
 	loginUserSchema,
 	registerUserSchema,
+	resetPwdSchema,
 };

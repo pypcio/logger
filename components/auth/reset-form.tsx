@@ -9,7 +9,7 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/Form";
-import { loginUserSchema } from "@/schemas/schema";
+import { resetPwdSchema } from "@/schemas/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -18,32 +18,21 @@ import FormError from "../form-error";
 import FormSuccess from "../form-success";
 import { Input } from "../ui/Input";
 import CardWrapper from "./CardWrapper";
-import BackButton from "./BackButton";
-import { useSearchParams } from "next/navigation";
-import usePasswordToggle, {
-	UsePasswordToggleReturnType,
-} from "@/hooks/use-pwd-toggle";
 
-const LoginForm = () => {
-	const [PasswordInputType, ToggleIcon] = usePasswordToggle();
-	const params = useSearchParams();
-	const urlError =
-		params.get("error") === "OAuthAccountNotLinked"
-			? "Email already in use with different provider!"
-			: "";
-
+const ResetPwdForm = () => {
 	const [isSubmitting, setSubmitting] = useState(false);
 	const [onError, setError] = useState<string | undefined>("");
 	const [onSuccess, setSuccess] = useState<string | undefined>("");
-	console.log("urlError", urlError, "onError: ", onError);
-	const form = useForm<z.infer<typeof loginUserSchema>>({
-		resolver: zodResolver(loginUserSchema),
+
+	const form = useForm<z.infer<typeof resetPwdSchema>>({
+		resolver: zodResolver(resetPwdSchema),
 		defaultValues: {
 			email: "",
 			password: "",
+			confirmPassword: "",
 		},
 	});
-	async function onSubmit(values: z.infer<typeof loginUserSchema>) {
+	async function onSubmit(values: z.infer<typeof resetPwdSchema>) {
 		setError("");
 		setSuccess("");
 		setSubmitting(true);
@@ -62,10 +51,10 @@ const LoginForm = () => {
 	}
 	return (
 		<CardWrapper
-			headerLabel='Welcome back'
-			backButtonLabel="Don't have an account?"
-			backButtonHref='/auth/register'
-			showSocial>
+			headerLabel='Forgot your password?'
+			backButtonLabel='Back to login'
+			backButtonHref='/auth/login'
+			showSocial={false}>
 			<Form {...form}>
 				<form
 					onSubmit={form.handleSubmit(onSubmit)}
@@ -96,30 +85,38 @@ const LoginForm = () => {
 								<FormItem>
 									<FormLabel>Password</FormLabel>
 									<FormControl>
-										<div className='relative'>
-											<Input
-												placeholder='******'
-												{...field}
-												type={PasswordInputType}
-												disabled={isSubmitting}
-											/>
-											<span className='absolute inset-y-0 right-0 flex items-center pr-3'>
-												{ToggleIcon}
-											</span>
-										</div>
+										<Input
+											placeholder='******'
+											{...field}
+											type='password'
+											disabled={isSubmitting}
+										/>
 									</FormControl>
-
-									<BackButton
-										label='Forgot password?'
-										href='/auth/reset-password'
-									/>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name='confirmPassword'
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Confirm password</FormLabel>
+									<FormControl>
+										<Input
+											placeholder='******'
+											{...field}
+											type='password'
+											disabled={isSubmitting}
+										/>
+									</FormControl>
 									<FormMessage />
 								</FormItem>
 							)}
 						/>
 					</div>
-					{<FormError message={onError || urlError} />}
-					{<FormSuccess message={onSuccess} />}
+					{onError && <FormError message={onError} />}
+					{onSuccess && <FormSuccess message={onSuccess} />}
 					<Button className='w-full' type='submit' disabled={isSubmitting}>
 						Submit
 					</Button>
@@ -130,4 +127,4 @@ const LoginForm = () => {
 	);
 };
 
-export default LoginForm;
+export default ResetPwdForm;
