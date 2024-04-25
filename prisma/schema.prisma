@@ -14,15 +14,17 @@ datasource db {
 }
 
 model Plant {
-  id          String     @id @default(cuid())
-  name        String     @unique
-  description String?    @db.Text
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  location    Location?
-  loggers     Logger[]
-  meters      Meter[]
-  inverters   Inverter[]
+  id             String        @id @default(cuid())
+  name           String        @unique
+  description    String?       @db.Text
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  location       Location?
+  loggers        Logger[]
+  meters         Meter[]
+  inverters      Inverter[]
+  Organization   Organization? @relation(fields: [organizationId], references: [id])
+  organizationId String?
 }
 
 model Logger {
@@ -39,16 +41,17 @@ model Logger {
 }
 
 model Location {
-  id             Int     @id @default(autoincrement())
+  id             Int           @id @default(autoincrement())
   plant_id       String
-  street_address String? @db.VarChar(255)
-  postal_code    String? @db.VarChar(255)
-  city           String? @db.VarChar(255)
-  district       String? @db.VarChar(255)
-  county         String? @db.VarChar(255)
-  state_province String? @db.VarChar(255)
+  street_address String?       @db.VarChar(255)
+  postal_code    String?       @db.VarChar(255)
+  city           String?       @db.VarChar(255)
+  district       String?       @db.VarChar(255)
+  county         String?       @db.VarChar(255)
+  state_province String?       @db.VarChar(255)
   country        String?
-  plant          Plant   @relation(fields: [plant_id], references: [id], onDelete: Cascade)
+  plant          Plant         @relation(fields: [plant_id], references: [id], onDelete: Cascade)
+  Organization   Organization?
 
   @@unique([plant_id])
 }
@@ -146,15 +149,15 @@ model User {
   email          String          @unique
   emailVerified  DateTime?
   hashedPassword String?
-  role           UserRole        @default(USER)
   image          String?
+  organization   Organization?
   accounts       Account[]
   sessions       Session[]
   // Optional for WebAuthn support
-  Authenticator  Authenticator[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  authenticators Authenticator[]
+  // Relations to Organization through OrganizationUser
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 }
 
 enum UserRole {
@@ -215,4 +218,31 @@ model Authenticator {
   transports           String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Organization {
+  id               String   @id @default(cuid())
+  name             String
+  stripeCustomerId String?
+  owner_id         String   @unique
+  locationId       Int // Ensures a 1-1 relationship with Location
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  members  OrganizationUser[]
+  plants   Plant[] // A list of plants associated with the organization
+  location Location           @relation(fields: [locationId], references: [id])
+  owner    User               @relation(fields: [owner_id], references: [id])
+
+  @@unique([locationId]) // Ensures that each organization is linked to a unique location
+}
+
+model OrganizationUser {
+  id             Int          @id @default(autoincrement())
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  hashedPassword String
+  email          String?
+  role           UserRole     @default(USER)
 }

@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic";
 import { SideNavItem } from "../types/NavItems";
 import {
 	HomeIcon,
@@ -7,15 +8,17 @@ import {
 	GearIcon,
 } from "@radix-ui/react-icons";
 
+const monitoringPath = "/monitoring";
+
 export const SIDENAV_ITEMS: SideNavItem[] = [
 	{
-		title: "Home",
-		path: "/",
+		title: "Plant",
+		path: `${monitoringPath}/plant`,
 		icon: <HomeIcon width='24' height='24' />,
 	},
 	{
-		title: "Projectsasdasdassssssss",
-		path: "/projects",
+		title: "Loggers",
+		path: `${monitoringPath}/loggers`,
 		icon: <FileIcon width='24' height='24' />,
 		submenu: true,
 		subMenuItems: [

@@ -10,7 +10,7 @@ const usePasswordToggle = (): UsePasswordToggleReturnType => {
 	const IconTemplate: ReactElement = (
 		<Icon
 			name={visible ? "eye-off" : "eye"}
-			color='#b6b4b4'
+			color='#787878'
 			size={20}
 			onClick={() => setVisibility((visibility) => !visibility)}
 		/>

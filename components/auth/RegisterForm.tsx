@@ -22,8 +22,12 @@ import axios, { AxiosError } from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { register } from "@/actions/register";
+import usePasswordToggle, {
+	UsePasswordToggleReturnType,
+} from "@/hooks/use-pwd-toggle";
 
 const RegisterForm = () => {
+	const [PasswordInputType, ToggleIcon] = usePasswordToggle();
 	const router = useRouter();
 	const [isSubmitting, setSubmitting] = useState(false);
 	const [onError, setError] = useState<string | undefined>("");
@@ -105,7 +109,7 @@ const RegisterForm = () => {
 										<Input
 											placeholder='******'
 											{...field}
-											type='password'
+											type={PasswordInputType}
 											disabled={isSubmitting}
 										/>
 									</FormControl>
@@ -120,12 +124,17 @@ const RegisterForm = () => {
 								<FormItem>
 									<FormLabel>Confirm password</FormLabel>
 									<FormControl>
-										<Input
-											placeholder='******'
-											{...field}
-											type='password'
-											disabled={isSubmitting}
-										/>
+										<div className='relative'>
+											<Input
+												placeholder='******'
+												{...field}
+												type={PasswordInputType}
+												disabled={isSubmitting}
+											/>
+											<span className='absolute inset-y-0 right-0 flex items-center pr-3'>
+												{ToggleIcon}
+											</span>
+										</div>
 									</FormControl>
 									<FormMessage />
 								</FormItem>

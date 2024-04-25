@@ -35,7 +35,6 @@ const LoginForm = () => {
 	const [isSubmitting, setSubmitting] = useState(false);
 	const [onError, setError] = useState<string | undefined>("");
 	const [onSuccess, setSuccess] = useState<string | undefined>("");
-	console.log("urlError", urlError, "onError: ", onError);
 	const form = useForm<z.infer<typeof loginUserSchema>>({
 		resolver: zodResolver(loginUserSchema),
 		defaultValues: {
