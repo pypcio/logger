@@ -11,6 +11,8 @@ declare module "next-auth" {
 	interface Session {
 		user: {
 			role: UserRole;
+			organization: string;
+			plant: string;
 		} & DefaultSession["user"];
 	}
 }
@@ -30,6 +32,7 @@ const authOptions = {
 	},
 	callbacks: {
 		async signIn({ user, account }) {
+			console.log("wchodze do signIn", user);
 			if (account?.provider !== "credentials") return true;
 
 			const existingUser = await getUserById(user.id as string);
@@ -56,7 +59,8 @@ const authOptions = {
 			const existingUser = await getUserById(token.sub);
 
 			if (!existingUser) return token;
-			token.role = existingUser.role;
+			token.role = "USER";
+			// token.role = existingUser.role;
 			return token;
 		},
 	},

@@ -2,7 +2,7 @@ import type { NextAuthConfig } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import { loginUserSchema } from "@/schemas/schema";
-import { getUserByEmail } from "./data/user";
+import { getUserByEmail, getUserWithOrgAndPlantByEmail } from "./data/user";
 import bcrypt from "bcryptjs";
 export default {
 	providers: [
@@ -11,8 +11,11 @@ export default {
 				const validateUser = loginUserSchema.safeParse(credentials);
 
 				if (validateUser.success) {
-					const { email, password } = validateUser.data;
-					const user = await getUserByEmail(email);
+					const { organization, email, password } = validateUser.data;
+
+					//validate password and user in Organization
+
+					const user = await getUserWithOrgAndPlantByEmail(email, organization);
 					if (!user || !user.hashedPassword) return null;
 
 					const passwordsMatch = await bcrypt.compare(

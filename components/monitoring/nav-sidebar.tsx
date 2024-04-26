@@ -7,6 +7,7 @@ import { ChevronDownIcon, Flex } from "@radix-ui/themes";
 import Link from "next/link";
 import { usePathname, useSelectedLayoutSegment } from "next/navigation";
 import { useState } from "react";
+import { useDynamicSideNav } from "@/hooks/use-dynamic-sidenav";
 const iconClass =
 	" border border-x-gray-300 border-gray h-14 sm:h-16 md:h-20 w-2 lg:w-3 absolute inset-y-1/3 -right-1 lg:-right-2 rounded bg-white center hover:bg-slate-100 transition-colors duration-1000 ease-in-out m-0 p-0 shadow-2xl cursor-pointer hover:scale-105";
 
@@ -14,6 +15,7 @@ const SideNav = () => {
 	const scrolled = useScroll(5);
 	const selectedLayout = useSelectedLayoutSegment();
 	const [open, setOpen] = useState(true);
+	const itemsSideNav = useDynamicSideNav();
 	const toggleOpen = () => setOpen(!open);
 	return (
 		<div className=' inset-x-0 top-12 h-1/4  sticky  transition-all border-b border-gray-200'>
@@ -28,7 +30,7 @@ const SideNav = () => {
 						<ChevronIcon isOpen={open} />
 					</button>
 					<div className='flex flex-col space-y-2 px-0  md:px-2 '>
-						{SIDENAV_ITEMS.map((item, idx) => {
+						{itemsSideNav?.map((item, idx) => {
 							return <MenuItem isOpen={open} key={idx} item={item} />;
 						})}
 					</div>

@@ -14,17 +14,18 @@ datasource db {
 }
 
 model Plant {
-  id             String        @id @default(cuid())
-  name           String        @unique
-  description    String?       @db.Text
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  location       Location?
-  loggers        Logger[]
-  meters         Meter[]
-  inverters      Inverter[]
-  Organization   Organization? @relation(fields: [organizationId], references: [id])
-  organizationId String?
+  id              String           @id @default(cuid())
+  name            String           @unique
+  description     String?          @db.Text
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  location        Location?
+  loggers         Logger[]
+  meters          Meter[]
+  inverters       Inverter[]
+  securityDevices SecurityDevice[]
+  Organization    Organization?    @relation(fields: [organizationId], references: [id])
+  organizationId  String?
 }
 
 model Logger {
@@ -37,7 +38,7 @@ model Logger {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   plant       Plant       @relation(fields: [plant_id], references: [id], onDelete: Cascade)
-  loggs       LoggerLog[]
+  logger_logs LoggerLog[]
 }
 
 model Location {
@@ -81,7 +82,7 @@ model Meter {
   description String?    @db.Text
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  meterLogs   MeterLog[]
+  meter_logs  MeterLog[]
   plant       Plant      @relation(fields: [plant_id], references: [id], onDelete: Cascade)
 }
 
@@ -106,16 +107,16 @@ model MeterLog {
 }
 
 model Inverter {
-  id          String        @id @default(cuid())
-  plant_id    String
-  name        String
-  model       String?
-  producent   String?
-  description String?       @db.Text
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  inverterLog InverterLog[]
-  plant       Plant         @relation(fields: [plant_id], references: [id], onDelete: Cascade)
+  id            String        @id @default(cuid())
+  plant_id      String
+  name          String
+  model         String?
+  producent     String?
+  description   String?       @db.Text
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  inverter_logs InverterLog[]
+  plant         Plant         @relation(fields: [plant_id], references: [id], onDelete: Cascade)
 }
 
 model InverterLog {
@@ -130,6 +131,33 @@ model InverterLog {
   r_power_l1  Float?
 
   inverter Inverter @relation(fields: [inverter_id], references: [id])
+}
+
+model SecurityDevice {
+  id            String              @id @default(cuid())
+  plant_id      String
+  name          String
+  model         String?
+  producent     String?
+  description   String?             @db.Text
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  security_logs SecurityDeviceLog[]
+  plant         Plant               @relation(fields: [plant_id], references: [id], onDelete: Cascade)
+}
+
+model SecurityDeviceLog {
+  id          Int      @id @default(autoincrement())
+  inverter_id String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  frequency   Float?
+  voltage_l1  Float?
+  current_l2  Float?
+  a_power_l1  Float?
+  r_power_l1  Float?
+
+  device SecurityDevice @relation(fields: [inverter_id], references: [id])
 }
 
 enum SysState {
@@ -150,19 +178,15 @@ model User {
   emailVerified  DateTime?
   hashedPassword String?
   image          String?
-  organization   Organization?
   accounts       Account[]
   sessions       Session[]
-  // Optional for WebAuthn support
-  authenticators Authenticator[]
-  // Relations to Organization through OrganizationUser
+  authenticators Authenticator[] // Optional for WebAuthn support
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
-}
 
-enum UserRole {
-  ADMIN
-  USER
+  // New relationship fields for organizations
+  organizationMemberships OrganizationMembership[]
+  Organization            Organization?
 }
 
 model Account {
@@ -205,7 +229,6 @@ model VerificationToken {
   @@unique([email, token])
 }
 
-// Optional for WebAuthn support
 model Authenticator {
   id                   String  @id @default(cuid())
   credentialID         String  @unique
@@ -222,27 +245,35 @@ model Authenticator {
 
 model Organization {
   id               String   @id @default(cuid())
-  name             String
+  name             String   @unique
   stripeCustomerId String?
   owner_id         String   @unique
-  locationId       Int // Ensures a 1-1 relationship with Location
+  locationId       Int
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  // Relations
-  members  OrganizationUser[]
-  plants   Plant[] // A list of plants associated with the organization
-  location Location           @relation(fields: [locationId], references: [id])
-  owner    User               @relation(fields: [owner_id], references: [id])
+  // Revised relationships
+  members  OrganizationMembership[]
+  plants   Plant[]
+  location Location                 @relation(fields: [locationId], references: [id])
+  owner    User                     @relation(fields: [owner_id], references: [id])
 
-  @@unique([locationId]) // Ensures that each organization is linked to a unique location
+  @@unique([locationId])
 }
 
-model OrganizationUser {
-  id             Int          @id @default(autoincrement())
-  organization   Organization @relation(fields: [organizationId], references: [id])
+// New model to replace OrganizationUser
+model OrganizationMembership {
+  userId         String
   organizationId String
-  hashedPassword String
-  email          String?
-  role           UserRole     @default(USER)
+  role           UserRole @default(USER)
+
+  user         User         @relation(fields: [userId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@id([userId, organizationId])
+}
+
+enum UserRole {
+  ADMIN
+  USER
 }

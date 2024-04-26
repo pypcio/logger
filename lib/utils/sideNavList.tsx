@@ -10,11 +10,19 @@ import {
 
 const monitoringPath = "/monitoring";
 
+// const fetchedSubMenu = {...some logic}
+
 export const SIDENAV_ITEMS: SideNavItem[] = [
 	{
 		title: "Plant",
 		path: `${monitoringPath}/plant`,
 		icon: <HomeIcon width='24' height='24' />,
+		submenu: true,
+		subMenuItems: [
+			{ title: "All", path: "/projects" },
+			{ title: "Web Design", path: "/projects/web-design" },
+			{ title: "Graphic Design", path: "/projects/graphic-design" },
+		],
 	},
 	{
 		title: "Loggers",

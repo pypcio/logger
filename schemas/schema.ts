@@ -30,6 +30,7 @@ const meterSchema = z.object({
 });
 
 const loginUserSchema = z.object({
+	organization: z.string().min(1, { message: "Organization is required" }),
 	email: z.string().email(),
 	password: z.string().min(1, {
 		message: "Password is required",
@@ -37,6 +38,7 @@ const loginUserSchema = z.object({
 });
 const registerUserSchema = z
 	.object({
+		organization: z.string().min(1, { message: "Organization is required" }),
 		email: z.string().email({ message: "Email is required" }),
 		password: z
 			.string()
