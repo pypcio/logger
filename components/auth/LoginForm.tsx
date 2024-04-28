@@ -72,30 +72,12 @@ const LoginForm = () => {
 					onSubmit={form.handleSubmit(onSubmit)}
 					className='space-y-6 toaster'>
 					<div className='space-y-4'>
-						{/* <FormField
-							control={form.control}
-							name='organization'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Organization</FormLabel>
-									<FormControl>
-										<Input
-											placeholder='organization'
-											{...field}
-											disabled={isSubmitting}
-											type='text'
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/> */}
 						<FormField
 							control={form.control}
 							name='email'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Username</FormLabel>
+									<FormLabel>Username:</FormLabel>
 									<FormControl>
 										<Input
 											placeholder='email'
@@ -113,7 +95,7 @@ const LoginForm = () => {
 							name='password'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Password</FormLabel>
+									<FormLabel>Password:</FormLabel>
 									<FormControl>
 										<div className='relative'>
 											<Input

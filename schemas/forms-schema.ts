@@ -30,10 +30,9 @@ const registerUserSchema = z
 		message: "Passwords do not match",
 		path: ["confirmPassword"], // path of error
 	});
-
-const resetPwdSchema = z
+//reset password form
+const newPasswordSchema = z
 	.object({
-		email: z.string().email({ message: "Email is required" }),
 		password: z
 			.string()
 			.regex(/^(?=.*[A-Z])(?=.*[!@#$&*]).{8,}$/, {
@@ -46,6 +45,11 @@ const resetPwdSchema = z
 		message: "Passwords do not match",
 		path: ["confirmPassword"], // path of error
 	});
+
+//for sending email "reset password" email
+const resetSchema = z.object({
+	email: z.string().email({ message: "Email is required" }),
+});
 
 const addOrgSchema = z.object({
 	name: z
@@ -68,7 +72,8 @@ const createOrgSchema = z.object({
 export {
 	loginUserSchema,
 	registerUserSchema,
-	resetPwdSchema,
+	newPasswordSchema,
 	addOrgSchema,
 	createOrgSchema,
+	resetSchema,
 };

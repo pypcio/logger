@@ -21,7 +21,7 @@ export const useDynamicSideNav = () => {
 	const [menuItems, setMenuItems] = useState<SideNavItem[]>();
 
 	useEffect(() => {
-		if (session?.user?.plant) {
+		if (session?.user?.plantId) {
 			const fetchMenuItems = async (plantId: string) => {
 				try {
 					const response = await axios.get<SubMenu>(
@@ -34,7 +34,7 @@ export const useDynamicSideNav = () => {
 				}
 			};
 
-			fetchMenuItems(session.user.plant);
+			fetchMenuItems(session.user.plantId);
 		}
 	}, [session]);
 

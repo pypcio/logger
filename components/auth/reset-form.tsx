@@ -9,7 +9,7 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/Form";
-import { resetPwdSchema } from "@/schemas/forms-schema";
+import { resetSchema } from "@/schemas/forms-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -18,25 +18,24 @@ import FormError from "../form-error";
 import FormSuccess from "../form-success";
 import { Input } from "../ui/Input";
 import CardWrapper from "./CardWrapper";
+import { resetPwd } from "@/actions/reset-pwd";
 
 const ResetPwdForm = () => {
 	const [isSubmitting, setSubmitting] = useState(false);
 	const [onError, setError] = useState<string | undefined>("");
 	const [onSuccess, setSuccess] = useState<string | undefined>("");
 
-	const form = useForm<z.infer<typeof resetPwdSchema>>({
-		resolver: zodResolver(resetPwdSchema),
+	const form = useForm<z.infer<typeof resetSchema>>({
+		resolver: zodResolver(resetSchema),
 		defaultValues: {
 			email: "",
-			password: "",
-			confirmPassword: "",
 		},
 	});
-	async function onSubmit(values: z.infer<typeof resetPwdSchema>) {
+	async function onSubmit(values: z.infer<typeof resetSchema>) {
 		setError("");
 		setSuccess("");
 		setSubmitting(true);
-		login(values).then((data) => {
+		resetPwd(values).then((data) => {
 			setSubmitting(false);
 			if (data?.error) {
 				form.reset();
@@ -51,6 +50,7 @@ const ResetPwdForm = () => {
 	}
 	return (
 		<CardWrapper
+			mainLabel='Reset Password'
 			headerLabel='Forgot your password?'
 			backButtonLabel='Back to login'
 			backButtonHref='/auth/login'
@@ -65,49 +65,13 @@ const ResetPwdForm = () => {
 							name='email'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Username</FormLabel>
+									<FormLabel>Email:</FormLabel>
 									<FormControl>
 										<Input
 											placeholder='email'
 											{...field}
 											disabled={isSubmitting}
 											type='email'
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name='password'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Password</FormLabel>
-									<FormControl>
-										<Input
-											placeholder='******'
-											{...field}
-											type='password'
-											disabled={isSubmitting}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name='confirmPassword'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Confirm password</FormLabel>
-									<FormControl>
-										<Input
-											placeholder='******'
-											{...field}
-											type='password'
-											disabled={isSubmitting}
 										/>
 									</FormControl>
 									<FormMessage />

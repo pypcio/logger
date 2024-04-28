@@ -1,8 +1,8 @@
 "use server";
 import bcrypt from "bcryptjs";
 import { registerUserSchema } from "@/schemas/forms-schema";
-import { sendVerificationEmail } from "@/lib/mail";
-import { generateVerificationToken } from "@/lib/tokents";
+import { sendVerificationEmail } from "@/lib/email/mail";
+import { generateVerificationToken } from "@/lib/tokens";
 import prisma from "@/prisma/client";
 import { UserRole } from "@prisma/client";
 
@@ -26,13 +26,28 @@ export const register = async (values: any) => {
 	const hashedPassword = await bcrypt.hash(password, 10);
 
 	// Create user first
-	const newUser = await prisma.user.create({
-		data: {
-			name,
-			email,
-			hashedPassword,
-		},
-	});
+	try {
+		const newUser = await prisma.user.create({
+			data: {
+				name,
+				email,
+				hashedPassword,
+			},
+		});
+		// Generate verification token and send email
+		const verificationToken = await generateVerificationToken(newUser.email);
+		await sendVerificationEmail(
+			newUser.name,
+			newUser.email,
+			verificationToken.token
+		);
+
+		return verificationToken
+			? { success: "Confirmation email sent!" }
+			: { error: "Something went wrong" };
+	} catch (error) {
+		return { error: "Something went wrong" };
+	}
 
 	// // Check if organization exists
 	// const existingOrg = await prisma.organization.findUnique({
@@ -63,12 +78,4 @@ export const register = async (values: any) => {
 	// 		},
 	// 	});
 	// }
-
-	// Generate verification token and send email
-	const verificationToken = await generateVerificationToken(newUser.email);
-	await sendVerificationEmail(newUser.email, verificationToken.token);
-
-	return verificationToken
-		? { success: "Confirmation email sent!" }
-		: { error: "Something went wrong" };
 };

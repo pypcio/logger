@@ -3,9 +3,9 @@ import { loginUserSchema } from "@/schemas/forms-schema";
 import { signIn } from "@/auth";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { AuthError } from "next-auth";
-import { generateVerificationToken } from "@/lib/tokents";
+import { generateVerificationToken } from "@/lib/tokens";
 import { getUserByEmail } from "@/data/user";
-import { sendVerificationEmail } from "@/lib/mail";
+import { sendVerificationEmail } from "@/lib/email/mail";
 // import { getOrganizationByName } from "@/data/organization";
 
 export const login = async (values: any) => {
@@ -30,6 +30,7 @@ export const login = async (values: any) => {
 
 		try {
 			await sendVerificationEmail(
+				existingUser.name,
 				verificationToken.email,
 				verificationToken.token
 			);

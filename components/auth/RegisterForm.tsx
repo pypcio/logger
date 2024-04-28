@@ -48,8 +48,15 @@ const RegisterForm = () => {
 		setSubmitting(true);
 		register(values).then((data) => {
 			setSubmitting(false);
-			setError(data?.error);
-			setSuccess(data?.success);
+			if (data?.error) {
+				form.reset();
+				setError(data.error);
+			}
+
+			if (data?.success) {
+				form.reset();
+				setSuccess(data.success);
+			}
 		});
 	}
 
@@ -65,30 +72,12 @@ const RegisterForm = () => {
 					onSubmit={form.handleSubmit(onSubmit)}
 					className='space-y-6 toaster'>
 					<div className='space-y-4'>
-						{/* <FormField
-							control={form.control}
-							name='organization'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Organization</FormLabel>
-									<FormControl>
-										<Input
-											placeholder='organization'
-											{...field}
-											disabled={isSubmitting}
-											type='text'
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/> */}
 						<FormField
 							control={form.control}
 							name='name'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Name</FormLabel>
+									<FormLabel>Name:</FormLabel>
 									<FormControl>
 										<Input
 											placeholder='your name...'
@@ -106,7 +95,7 @@ const RegisterForm = () => {
 							name='email'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Email</FormLabel>
+									<FormLabel>Email:</FormLabel>
 									<FormControl>
 										<Input
 											placeholder='email'
@@ -124,7 +113,7 @@ const RegisterForm = () => {
 							name='password'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Password</FormLabel>
+									<FormLabel>Password:</FormLabel>
 									<FormControl>
 										<Input
 											placeholder='******'
@@ -142,7 +131,7 @@ const RegisterForm = () => {
 							name='confirmPassword'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Confirm password</FormLabel>
+									<FormLabel>Confirm password:</FormLabel>
 									<FormControl>
 										<div className='relative'>
 											<Input
