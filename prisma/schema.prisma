@@ -19,13 +19,14 @@ model Plant {
   description     String?          @db.Text
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
-  location        Location?
+  locationId      Int?             @unique
+  organizationId  String?
   loggers         Logger[]
   meters          Meter[]
   inverters       Inverter[]
   securityDevices SecurityDevice[]
   Organization    Organization?    @relation(fields: [organizationId], references: [id])
-  organizationId  String?
+  location        Location?        @relation(fields: [locationId], references: [id], onDelete: Cascade)
 }
 
 model Logger {
@@ -43,7 +44,6 @@ model Logger {
 
 model Location {
   id             Int           @id @default(autoincrement())
-  plant_id       String
   street_address String?       @db.VarChar(255)
   postal_code    String?       @db.VarChar(255)
   city           String?       @db.VarChar(255)
@@ -51,10 +51,9 @@ model Location {
   county         String?       @db.VarChar(255)
   state_province String?       @db.VarChar(255)
   country        String?
-  plant          Plant         @relation(fields: [plant_id], references: [id], onDelete: Cascade)
+  // Removed explicit single-entity links if you need more flexibility
+  Plant          Plant?
   Organization   Organization?
-
-  @@unique([plant_id])
 }
 
 model LoggerLog {
@@ -186,7 +185,6 @@ model User {
 
   // New relationship fields for organizations
   organizationMemberships OrganizationMembership[]
-  Organization            Organization?
 }
 
 model Account {
@@ -247,18 +245,13 @@ model Organization {
   id               String   @id @default(cuid())
   name             String   @unique
   stripeCustomerId String?
-  owner_id         String   @unique
-  locationId       Int
+  locationId       Int?     @unique
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  // Revised relationships
   members  OrganizationMembership[]
   plants   Plant[]
-  location Location                 @relation(fields: [locationId], references: [id])
-  owner    User                     @relation(fields: [owner_id], references: [id])
-
-  @@unique([locationId])
+  location Location?                @relation(fields: [locationId], references: [id], onDelete: Cascade)
 }
 
 // New model to replace OrganizationUser
@@ -276,4 +269,5 @@ model OrganizationMembership {
 enum UserRole {
   ADMIN
   USER
+  OWNER
 }

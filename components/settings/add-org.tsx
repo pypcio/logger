@@ -9,7 +9,7 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/Form";
-import { loginUserSchema } from "@/schemas/forms-schema";
+import { addOrgSchema } from "@/schemas/forms-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -17,15 +17,13 @@ import * as z from "zod";
 import FormError from "../form-error";
 import FormSuccess from "../form-success";
 import { Input } from "../ui/Input";
-import CardWrapper from "./CardWrapper";
-import BackButton from "./BackButton";
+import CardWrapper from "../auth/CardWrapper";
 import { useSearchParams } from "next/navigation";
-import usePasswordToggle, {
-	UsePasswordToggleReturnType,
-} from "@/hooks/use-pwd-toggle";
+import { Label } from "../ui/Label";
+import { Text } from "@radix-ui/themes";
+import { createOrg } from "@/actions/create-org";
 
-const LoginForm = () => {
-	const [PasswordInputType, ToggleIcon] = usePasswordToggle();
+const AddOrgForm = () => {
 	const params = useSearchParams();
 	const urlError =
 		params.get("error") === "OAuthAccountNotLinked"
@@ -35,19 +33,17 @@ const LoginForm = () => {
 	const [isSubmitting, setSubmitting] = useState(false);
 	const [onError, setError] = useState<string | undefined>("");
 	const [onSuccess, setSuccess] = useState<string | undefined>("");
-	const form = useForm<z.infer<typeof loginUserSchema>>({
-		resolver: zodResolver(loginUserSchema),
+	const form = useForm<z.infer<typeof addOrgSchema>>({
+		resolver: zodResolver(addOrgSchema),
 		defaultValues: {
-			// organization: "",
-			email: "",
-			password: "",
+			name: "",
 		},
 	});
-	async function onSubmit(values: z.infer<typeof loginUserSchema>) {
+	async function onSubmit(values: z.infer<typeof addOrgSchema>) {
 		setError("");
 		setSuccess("");
 		setSubmitting(true);
-		login(values).then((data) => {
+		createOrg(values).then((data) => {
 			setSubmitting(false);
 			if (data?.error) {
 				form.reset();
@@ -62,22 +58,22 @@ const LoginForm = () => {
 	}
 	return (
 		<CardWrapper
-			mainLabel='Auth'
-			headerLabel='Welcome back'
-			backButtonLabel="Don't have an account?"
-			backButtonHref='/auth/register'
-			showSocial>
+			mainLabel='Settings'
+			headerLabel='Add organization'
+			backButtonLabel='Create Organization'
+			backButtonHref='/settings/create-organization'
+			showSocial={false}>
 			<Form {...form}>
 				<form
 					onSubmit={form.handleSubmit(onSubmit)}
 					className='space-y-6 toaster'>
 					<div className='space-y-4'>
-						{/* <FormField
+						<FormField
 							control={form.control}
-							name='organization'
+							name='name'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Organization</FormLabel>
+									<FormLabel>Organization name:</FormLabel>
 									<FormControl>
 										<Input
 											placeholder='organization'
@@ -86,52 +82,6 @@ const LoginForm = () => {
 											type='text'
 										/>
 									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/> */}
-						<FormField
-							control={form.control}
-							name='email'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Username</FormLabel>
-									<FormControl>
-										<Input
-											placeholder='email'
-											{...field}
-											disabled={isSubmitting}
-											type='email'
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name='password'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Password</FormLabel>
-									<FormControl>
-										<div className='relative'>
-											<Input
-												placeholder='******'
-												{...field}
-												type={PasswordInputType}
-												disabled={isSubmitting}
-											/>
-											<span className='absolute inset-y-0 right-0 flex items-center pr-3'>
-												{ToggleIcon}
-											</span>
-										</div>
-									</FormControl>
-
-									<BackButton
-										label='Forgot password?'
-										href='/auth/reset-password'
-									/>
 									<FormMessage />
 								</FormItem>
 							)}
@@ -144,9 +94,13 @@ const LoginForm = () => {
 					</Button>
 				</form>
 			</Form>
+			<div className=' flex flex-col justify-center items-center mt-4 pt-4 border-t-2'>
+				<Text className='text-muted-foreground'>or</Text>
+			</div>
+
 			{/* <Toaster position='bottom-center' /> */}
 		</CardWrapper>
 	);
 };
 
-export default LoginForm;
+export default AddOrgForm;

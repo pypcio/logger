@@ -1,18 +1,15 @@
-// import type { AppProps } from "next/app";
-// import { SessionProvider } from "next-auth/react";
-// import { PropsWithChildren } from "react";
+import type { AppProps } from "next/app";
+import { SessionProvider } from "next-auth/react";
+import { PropsWithChildren } from "react";
+import { auth } from "@/auth";
 
-// const AuthProvider = ({
-// 	Component,
-// 	pageProps: { session, ...pageProps },
-// }: AppProps) => {
-// 	return (
-// 		<div className='h-screen flex flex-col'>
-// 			<SessionProvider session={session}>
-// 				<Component {...pageProps} />
-// 			</SessionProvider>
-// 		</div>
-// 	);
-// };
+const AuthProvider = async ({ children }: PropsWithChildren) => {
+	const session = await auth();
+	return (
+		<>
+			<SessionProvider session={session}>{children}</SessionProvider>
+		</>
+	);
+};
 
-// export default AuthProvider;
+export default AuthProvider;

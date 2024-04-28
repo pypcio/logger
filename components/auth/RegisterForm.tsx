@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { registerUserSchema } from "@/schemas/schema";
+import { registerUserSchema } from "@/schemas/forms-schema";
 import { Button } from "@/components/ui/Button";
 import FormError from "../form-error";
 import {
@@ -35,7 +35,7 @@ const RegisterForm = () => {
 	const form = useForm<z.infer<typeof registerUserSchema>>({
 		resolver: zodResolver(registerUserSchema),
 		defaultValues: {
-			organization: "",
+			// organization: "",
 			email: "",
 			password: "",
 			name: "",
@@ -55,6 +55,7 @@ const RegisterForm = () => {
 
 	return (
 		<CardWrapper
+			mainLabel='Auth'
 			headerLabel='Create an acount'
 			backButtonLabel='Already have an account?'
 			backButtonHref='/auth/login'
@@ -64,7 +65,7 @@ const RegisterForm = () => {
 					onSubmit={form.handleSubmit(onSubmit)}
 					className='space-y-6 toaster'>
 					<div className='space-y-4'>
-						<FormField
+						{/* <FormField
 							control={form.control}
 							name='organization'
 							render={({ field }) => (
@@ -81,7 +82,7 @@ const RegisterForm = () => {
 									<FormMessage />
 								</FormItem>
 							)}
-						/>
+						/> */}
 						<FormField
 							control={form.control}
 							name='name'

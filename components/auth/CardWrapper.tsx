@@ -17,6 +17,8 @@ interface CardWrapperProps {
 	backButtonLabel: string;
 	backButtonHref: string;
 	showSocial?: boolean;
+	showBackButton?: boolean;
+	mainLabel: string;
 }
 
 const CardWrapper = ({
@@ -25,11 +27,13 @@ const CardWrapper = ({
 	backButtonHref,
 	backButtonLabel,
 	showSocial,
+	mainLabel,
+	showBackButton = true,
 }: CardWrapperProps) => {
 	return (
 		<Card className='w-[400px] shadow-md'>
 			<CardHeader>
-				<Header label={headerLabel} />
+				<Header mainLabel={mainLabel} label={headerLabel} />
 			</CardHeader>
 			<CardContent>{children}</CardContent>
 			{showSocial && (
@@ -37,13 +41,15 @@ const CardWrapper = ({
 					<Socials />
 				</CardFooter>
 			)}
-			<CardFooter>
-				<BackButton
-					center={true}
-					label={backButtonLabel}
-					href={backButtonHref}
-				/>
-			</CardFooter>
+			{showBackButton && (
+				<CardFooter>
+					<BackButton
+						center={true}
+						label={backButtonLabel}
+						href={backButtonHref}
+					/>
+				</CardFooter>
+			)}
 		</Card>
 	);
 };

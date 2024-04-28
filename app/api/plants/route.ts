@@ -1,4 +1,4 @@
-import { plantSchema } from "@/schemas/schema";
+import { plantSchema } from "@/schemas/api-schema";
 import prisma from "@/prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -11,9 +11,14 @@ export async function POST(request: NextRequest) {
 		return NextResponse.json(plantValidation.error.errors, { status: 400 });
 	}
 	//check if plant exists (add in where- org_id: sessionParams.org_id)
-	const findPlant = await prisma.plant.findUnique({ where: { name: body.name } });
+	const findPlant = await prisma.plant.findUnique({
+		where: { name: body.name },
+	});
 	if (findPlant) {
-		return NextResponse.json({ error: "Plant already exists." }, { status: 400 });
+		return NextResponse.json(
+			{ error: "Plant already exists." },
+			{ status: 400 }
+		);
 	}
 
 	const newPlant = await prisma.plant.create({

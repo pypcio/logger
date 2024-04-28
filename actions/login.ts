@@ -1,24 +1,24 @@
 "use server";
-import { loginUserSchema } from "@/schemas/schema";
+import { loginUserSchema } from "@/schemas/forms-schema";
 import { signIn } from "@/auth";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { AuthError } from "next-auth";
 import { generateVerificationToken } from "@/lib/tokents";
 import { getUserByEmail } from "@/data/user";
 import { sendVerificationEmail } from "@/lib/mail";
-import { getOrganizationByName } from "@/data/organization";
+// import { getOrganizationByName } from "@/data/organization";
 
 export const login = async (values: any) => {
 	const validateUser = loginUserSchema.safeParse(values);
 	if (!validateUser.success) return { error: "Invalid fields!" };
 
-	const { organization, email, password } = validateUser.data;
+	const { email, password } = validateUser.data;
 
 	//check if Organization exists
-	const existingOrg = await getOrganizationByName(organization);
-	if (!existingOrg) return { error: "Organization does not exists" };
+	// const existingOrg = await getOrganizationByName(organization);
+	// if (!existingOrg) return { error: "Organization does not exists" };
 
-	//check if needs verification
+	//check userByEmail
 	const existingUser = await getUserByEmail(email);
 	if (!existingUser || !existingUser.email || !existingUser.hashedPassword) {
 		return { error: "Email does not exists" };
@@ -41,7 +41,6 @@ export const login = async (values: any) => {
 
 	try {
 		await signIn("credentials", {
-			organization,
 			email,
 			password,
 			redirectTo: DEFAULT_LOGIN_REDIRECT,

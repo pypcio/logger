@@ -6,9 +6,8 @@ import "./globals.css";
 import "./theme-config.css";
 import NavBar from "./NavBar";
 import { Inter as FontSans } from "next/font/google";
-
 import { cn } from "@/lib/utils";
-// import AuthProvider from "./Provider";
+import AuthProvider from "./Provider";
 
 const fontSans = FontSans({
 	subsets: ["latin"],
@@ -26,23 +25,23 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang='en' className='h-full'>
-			<body
-				className={cn(
-					"h-full bg-background font-sans antialiased flex flex-col",
-					fontSans.variable
-				)}>
-				{/* <AuthProvider> */}
-				{/* <Theme accentColor='blue' radius='none' scaling='95%'> */}
-				<NavBar />
-				<main className=' flex-1 flex flex-col justify-center items-center'>
-					{children}
-				</main>
+		<AuthProvider>
+			<html lang='en' className='h-full'>
+				<body
+					className={cn(
+						"h-full bg-background font-sans antialiased flex flex-col",
+						fontSans.variable
+					)}>
+					{/* <Theme accentColor='blue' radius='none' scaling='95%'> */}
+					<NavBar />
+					<main className=' flex-1 flex flex-col justify-center items-center'>
+						{children}
+					</main>
+					{/* <ThemePanel /> */}
+					{/* </Theme> */}
+				</body>
 				{/* <ThemePanel /> */}
-				{/* </Theme> */}
-				{/* </AuthProvider> */}
-			</body>
-			{/* <ThemePanel /> */}
-		</html>
+			</html>
+		</AuthProvider>
 	);
 }

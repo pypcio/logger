@@ -9,7 +9,7 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/Form";
-import { resetPwdSchema } from "@/schemas/schema";
+import { resetPwdSchema } from "@/schemas/forms-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";

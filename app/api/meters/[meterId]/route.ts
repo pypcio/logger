@@ -1,4 +1,4 @@
-import { meterSchema } from "@/schemas/schema";
+import { meterSchema } from "@/schemas/api-schema";
 import prisma from "@/prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -19,7 +19,8 @@ export async function PATCH(request: NextRequest, { params }: Props) {
 	const meter = await prisma.meter.findUnique({
 		where: { id: params.inverterId },
 	});
-	if (!meter) return NextResponse.json({ error: "Meter not found" }, { status: 404 });
+	if (!meter)
+		return NextResponse.json({ error: "Meter not found" }, { status: 404 });
 
 	//check if new name already in use
 	if (body.name) {
@@ -45,12 +46,18 @@ export async function PATCH(request: NextRequest, { params }: Props) {
 	return NextResponse.json(updatedMeter);
 }
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(
+	request: NextRequest,
+	{ params }: { params: { id: string } }
+) {
 	const meter = await prisma.meter.findUnique({ where: { id: params.id } });
 	return NextResponse.json(meter);
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+	request: NextRequest,
+	{ params }: { params: { id: string } }
+) {
 	const deleteMeter = await prisma.meter.delete({ where: { id: params.id } });
 	return NextResponse.json({});
 }

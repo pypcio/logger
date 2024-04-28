@@ -1,8 +1,11 @@
-import { inverterSchema } from "@/schemas/schema";
+import { inverterSchema } from "@/schemas/api-schema";
 import prisma from "@/prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function PATCH(request: NextRequest, { params }: { params: { inverterId: string } }) {
+export async function PATCH(
+	request: NextRequest,
+	{ params }: { params: { inverterId: string } }
+) {
 	const body = await request.json();
 	const inverterValidation = inverterSchema.safeParse(body);
 
@@ -12,7 +15,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { invert
 	const inverter = await prisma.inverter.findUnique({
 		where: { id: params.inverterId },
 	});
-	if (!inverter) return NextResponse.json({ error: "Inverter not found" }, { status: 404 });
+	if (!inverter)
+		return NextResponse.json({ error: "Inverter not found" }, { status: 404 });
 
 	//check if new name already in use
 	if (body.name) {
@@ -38,12 +42,22 @@ export async function PATCH(request: NextRequest, { params }: { params: { invert
 	return NextResponse.json(updatedInverter);
 }
 
-export async function GET(request: NextRequest, { params }: { params: { inverterId: string } }) {
-	const inverter = await prisma.inverter.findUnique({ where: { id: params.inverterId } });
+export async function GET(
+	request: NextRequest,
+	{ params }: { params: { inverterId: string } }
+) {
+	const inverter = await prisma.inverter.findUnique({
+		where: { id: params.inverterId },
+	});
 	return NextResponse.json(inverter);
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { inverterId: string } }) {
-	const deletedInverter = await prisma.inverter.delete({ where: { id: params.inverterId } });
+export async function DELETE(
+	request: NextRequest,
+	{ params }: { params: { inverterId: string } }
+) {
+	const deletedInverter = await prisma.inverter.delete({
+		where: { id: params.inverterId },
+	});
 	return NextResponse.json({});
 }

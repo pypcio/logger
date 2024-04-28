@@ -1,4 +1,4 @@
-import { loggerSchema } from "@/schemas/schema";
+import { loggerSchema } from "@/schemas/api-schema";
 import prisma from "@/prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -19,7 +19,8 @@ export async function PATCH(request: NextRequest, { params }: Props) {
 	const logger = await prisma.logger.findUnique({
 		where: { id: params.inverterId },
 	});
-	if (!logger) return NextResponse.json({ error: "Logger not found" }, { status: 404 });
+	if (!logger)
+		return NextResponse.json({ error: "Logger not found" }, { status: 404 });
 
 	//check if new name already in use
 	if (body.name) {
@@ -45,12 +46,20 @@ export async function PATCH(request: NextRequest, { params }: Props) {
 	return NextResponse.json(updatedLogger);
 }
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(
+	request: NextRequest,
+	{ params }: { params: { id: string } }
+) {
 	const logger = await prisma.logger.findUnique({ where: { id: params.id } });
 	return NextResponse.json(logger);
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-	const deletedLogger = await prisma.logger.delete({ where: { id: params.id } });
+export async function DELETE(
+	request: NextRequest,
+	{ params }: { params: { id: string } }
+) {
+	const deletedLogger = await prisma.logger.delete({
+		where: { id: params.id },
+	});
 	return NextResponse.json({});
 }
