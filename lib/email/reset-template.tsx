@@ -16,8 +16,8 @@ interface Props {
 const ResetTemplate = ({ name, token }: Props) => {
 	return (
 		<Html>
-			<Preview>Reset Password</Preview>
 			<Tailwind>
+				<h3>Reset Password</h3>
 				<Body className='bg-white'>
 					<Container>
 						<Text className='font-bold text-3xl'>Hello {name}</Text>

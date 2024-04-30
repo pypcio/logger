@@ -1,8 +1,8 @@
-import LoginForm from "@/components/auth/LoginForm";
+import NewPwdForm from "@/components/auth/new-pwd-form";
 import React from "react";
 
 const ResetPwdPage = () => {
-	return <LoginForm />;
+	return <NewPwdForm />;
 };
 
 export default ResetPwdPage;

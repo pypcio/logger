@@ -73,13 +73,13 @@ export const {
 					user: { ...session.user, role, organizationId, plantId },
 				};
 			}
-			console.log("session in callback: ", session);
-			console.log("token in callback: ", token);
+			// console.log("session in callback: ", session);
+			// console.log("token in callback: ", token);
 			return session;
 		},
 		async jwt({ token, trigger, session }) {
 			if (trigger === "update" && session) {
-				console.log("update hej!: ", session);
+				// console.log("update hej!: ", session);
 				token = {
 					...token,
 					organizationId: session.organizationId,

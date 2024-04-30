@@ -16,8 +16,8 @@ interface Props {
 const WelcomeTemplate = ({ name, token }: Props) => {
 	return (
 		<Html>
-			<Preview>Welcome aboard!</Preview>
 			<Tailwind>
+				<h3>Welcome aboard!</h3>
 				<Body className='bg-white'>
 					<Container>
 						<Text className='font-bold text-3xl'>Hello {name}</Text>

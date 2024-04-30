@@ -5,11 +5,7 @@ import { auth } from "@/auth";
 
 const AuthProvider = async ({ children }: PropsWithChildren) => {
 	const session = await auth();
-	return (
-		<>
-			<SessionProvider session={session}>{children}</SessionProvider>
-		</>
-	);
+	return <SessionProvider session={session}>{children}</SessionProvider>;
 };
 
 export default AuthProvider;
