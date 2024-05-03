@@ -1,6 +1,10 @@
 import { inverterSchema } from "@/schemas/api-schema";
 import prisma from "@/prisma/client";
 import { NextRequest, NextResponse } from "next/server";
+// import NextAuth from "next-auth";
+// import authConfig from "@/auth.config";
+
+// const { auth } = NextAuth(authConfig)
 
 export async function PATCH(
 	request: NextRequest,

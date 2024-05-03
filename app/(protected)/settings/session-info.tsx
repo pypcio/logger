@@ -1,17 +1,10 @@
 "use client";
-import { useSession } from "next-auth/react";
+
+import { useSessionUser } from "@/hooks/use-session-user";
 
 const SessionInfo = () => {
-	const { data: session, update, status } = useSession();
-	return (
-		<div>
-			{session?.user && (
-				<p>
-					{session?.user.name} {session?.user.email} {session?.user.id} {status}
-				</p>
-			)}
-		</div>
-	);
+	const user = useSessionUser();
+	return <div>{JSON.stringify(user)}</div>;
 };
 
 export default SessionInfo;

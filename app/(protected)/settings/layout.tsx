@@ -4,17 +4,18 @@ import LogoutButton from "@/components/auth/LogoutButton";
 import ButtonTest from "./button-test";
 import { PropsWithChildren } from "react";
 import { useSession } from "next-auth/react";
+import { Container } from "@radix-ui/themes";
 
 const SettingsLayout = ({ children }: PropsWithChildren) => {
 	return (
-		<div className='flex justify-center items-center flex-col gap-8'>
+		<Container className='flex flex-col w-full gap-5 justify-center items-center'>
 			{children}
-			<div className='flex gap-5'>
+			{/* <div className='flex gap-5'>
 				<LoginButton />
 				<LogoutButton />
 				<ButtonTest />
-			</div>
-		</div>
+			</div> */}
+		</Container>
 	);
 };
 

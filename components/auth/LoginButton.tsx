@@ -1,11 +1,11 @@
 "use client";
-import { signin } from "@/actions/signin";
-import { Button } from "@/components/ui/Button";
+import { signIn } from "next-auth/react";
+import { Button } from "@/components/ui/button";
 
 const LoginButton = () => {
 	return (
 		<div>
-			<Button onClick={() => signin()}>Sign In</Button>
+			<Button onClick={() => signIn()}>Sign In</Button>
 		</div>
 	);
 };

@@ -27,12 +27,15 @@ const NewVerificationForm = () => {
 
 		newVerification(token)
 			.then((data) => {
-				setSuccess(data.success);
-				setError(data.error);
+				if (data?.error) {
+					setError(data.error);
+				}
+
+				if (data?.success) {
+					setSuccess(data.success);
+				}
 			})
-			.catch(() => {
-				setError("Something went wrong!");
-			});
+			.catch(() => setError("Something went wrong"));
 	}, [token, success, error]);
 
 	useEffect(() => {
@@ -41,9 +44,11 @@ const NewVerificationForm = () => {
 
 	return (
 		<CardWrapper
+			mainLabel='Auth'
 			headerLabel='Confirming your verification'
 			backButtonLabel='Back to login'
-			backButtonHref='/auth/login'>
+			backButtonHref='/auth/login'
+			showBackButton>
 			<div className='flex items-center w-full justify-center'>
 				{!success && !error && <BeatLoader />}
 				{!success && <FormError message={error} />}

@@ -1,18 +1,39 @@
 "use server";
+import * as z from "zod";
+import { redirect } from "next/navigation";
 import { loginUserSchema } from "@/schemas/forms-schema";
-import { signIn } from "@/auth";
+import { auth, signIn } from "@/auth";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { AuthError } from "next-auth";
-import { generateVerificationToken } from "@/lib/tokens";
+import {
+	generateVerificationToken,
+	generateTwoFactorToken,
+} from "@/lib/tokens";
 import { getUserByEmail } from "@/data/user";
-import { sendVerificationEmail } from "@/lib/email/mail";
+import {
+	sendVerificationEmail,
+	sendTwoFactorTokenEmail,
+} from "@/lib/email/mail";
+import {
+	getTwoFactorTokenByEmail,
+	getTwoFactorTokenByToken,
+} from "@/data/two-factor-token";
+import prisma from "@/prisma/client";
+import { getTwoFactorConfirmationByUserId } from "@/data/two-factor-confirmation";
 // import { getOrganizationByName } from "@/data/organization";
 
-export const login = async (values: any) => {
+export const login = async (
+	values: z.infer<typeof loginUserSchema>,
+	callbackUrl?: string | null
+) => {
+	//redirect user if session exists.
+	const session = await auth();
+	if (session) return redirect(`${DEFAULT_LOGIN_REDIRECT}`);
+
 	const validateUser = loginUserSchema.safeParse(values);
 	if (!validateUser.success) return { error: "Invalid fields!" };
 
-	const { email, password } = validateUser.data;
+	const { email, password, code } = validateUser.data;
 
 	//check if Organization exists
 	// const existingOrg = await getOrganizationByName(organization);
@@ -40,11 +61,50 @@ export const login = async (values: any) => {
 		}
 	}
 
+	if (existingUser.isTwoFactorEnabled && existingUser.email) {
+		if (code) {
+			const twoFactorToken = await getTwoFactorTokenByEmail(existingUser.email);
+
+			if (!twoFactorToken || twoFactorToken.token !== code) {
+				return { error: "Invalid code!" };
+			}
+
+			const hasExpired = new Date(twoFactorToken.expires) < new Date();
+
+			if (hasExpired) return { error: "Code expired!" };
+
+			await prisma.twoFactorToken.delete({ where: { id: twoFactorToken.id } });
+
+			const existingConfirmation = await getTwoFactorConfirmationByUserId(
+				existingUser.id
+			);
+			if (existingConfirmation) {
+				await prisma.twoFactorConfirmation.delete({
+					where: { id: existingConfirmation.id },
+				});
+			}
+			await prisma.twoFactorConfirmation.create({
+				data: {
+					userId: existingUser.id,
+				},
+			});
+		} else {
+			const twoFactorToken = await generateTwoFactorToken(existingUser.email);
+			await sendTwoFactorTokenEmail(
+				existingUser.name,
+				twoFactorToken.email,
+				twoFactorToken.token
+			);
+			return { twoFactor: true };
+		}
+	}
+
 	try {
 		await signIn("credentials", {
 			email,
 			password,
-			redirectTo: DEFAULT_LOGIN_REDIRECT,
+			// redirectTo: DEFAULT_LOGIN_REDIRECT,
+			redirectTo: `${DEFAULT_LOGIN_REDIRECT}?fromLogin=true`,
 		});
 	} catch (error) {
 		if (error instanceof AuthError) {

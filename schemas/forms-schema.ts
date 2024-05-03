@@ -9,6 +9,7 @@ const loginUserSchema = z.object({
 			message: "Password is required",
 		})
 		.max(20, { message: "password is too long" }),
+	code: z.optional(z.string()),
 });
 const registerUserSchema = z
 	.object({
@@ -52,10 +53,14 @@ const resetSchema = z.object({
 });
 
 const addOrgSchema = z.object({
-	name: z
+	organization: z
 		.string()
 		.min(1, { message: "Organization is required" })
-		.max(80, { message: "Name is too long" }),
+		.max(80, { message: "Name is too long" })
+		.trim() // Removes leading and trailing whitespace
+		.refine((name) => !name.includes("  "), {
+			message: "Consecutive spaces are not allowed",
+		}),
 });
 
 const createOrgSchema = z.object({

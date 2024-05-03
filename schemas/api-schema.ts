@@ -29,4 +29,15 @@ const meterSchema = z.object({
 	producent: z.string().min(1).max(191).nullish(),
 });
 
-export { plantSchema, loggerSchema, inverterSchema, meterSchema };
+const organizationSchema = z.object({
+	name: z.string().min(1, "Name is required").max(191),
+	stripe: z.string().min(1, "Stripe login").max(191),
+});
+
+export {
+	organizationSchema,
+	plantSchema,
+	loggerSchema,
+	inverterSchema,
+	meterSchema,
+};

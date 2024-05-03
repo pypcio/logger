@@ -1,6 +1,6 @@
 "use client";
 import { login } from "@/actions/login";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import {
 	Form,
 	FormControl,
@@ -8,7 +8,7 @@ import {
 	FormItem,
 	FormLabel,
 	FormMessage,
-} from "@/components/ui/Form";
+} from "@/components/ui/form";
 import { createOrgSchema } from "@/schemas/forms-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -64,7 +64,7 @@ const CreateOrgForm = () => {
 			headerLabel='Create Organization'
 			backButtonLabel='Already belong to one?'
 			backButtonHref='/settings/add-organization'
-			showSocial={false}>
+			showBackButton>
 			<Form {...form}>
 				<form
 					onSubmit={form.handleSubmit(onSubmit)}

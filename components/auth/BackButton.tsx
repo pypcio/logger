@@ -1,7 +1,7 @@
 import React from "react";
-import { Button } from "../ui/Button";
+import { Button } from "../ui/button";
 import Link from "next/link";
-import { ButtonProps } from "../ui/Button";
+import { ButtonProps } from "../ui/button";
 import { cn } from "@/lib/utils";
 
 interface BackButtonProps {

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { registerUserSchema } from "@/schemas/forms-schema";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import FormError from "../form-error";
 import {
 	Form,
@@ -14,7 +14,7 @@ import {
 	FormItem,
 	FormLabel,
 	FormMessage,
-} from "@/components/ui/Form";
+} from "@/components/ui/form";
 import { Input } from "../ui/Input";
 import CardWrapper from "./CardWrapper";
 import FormSuccess from "../form-success";
@@ -66,6 +66,7 @@ const RegisterForm = () => {
 			headerLabel='Create an acount'
 			backButtonLabel='Already have an account?'
 			backButtonHref='/auth/login'
+			showBackButton
 			showSocial>
 			<Form {...form}>
 				<form
@@ -153,7 +154,7 @@ const RegisterForm = () => {
 					{onError && <FormError message={onError} />}
 					{onSuccess && <FormSuccess message={onSuccess} />}
 					<Button className='w-full' type='submit' disabled={isSubmitting}>
-						Submit
+						Register
 					</Button>
 				</form>
 			</Form>

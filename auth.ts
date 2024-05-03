@@ -2,17 +2,17 @@ import authConfig from "@/auth.config";
 import prisma from "@/prisma/client";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import NextAuth, { NextAuthConfig, type DefaultSession } from "next-auth";
-import { getUserById } from "./data/user";
+import { getUserById } from "@/data/user";
 import { JWT } from "next-auth/jwt";
 import { UserRole } from "@prisma/client";
-import { userAgent } from "next/server";
+import { getTwoFactorConfirmationByUserId } from "@/data/two-factor-confirmation";
 
 declare module "next-auth" {
 	interface Session {
 		user: {
-			role: UserRole;
-			organizationId?: string;
-			plantId?: string;
+			role?: UserRole | null;
+			organizationId?: string | null;
+			plantId?: string | null;
 		} & DefaultSession["user"];
 	}
 }
@@ -20,9 +20,9 @@ declare module "next-auth/jwt" {
 	/** Returned by the `jwt` callback and `auth`, when using JWT sessions */
 	interface JWT {
 		/** OpenID ID Token */
-		role: string;
-		organizationId: string;
-		plantId?: string;
+		role?: string | null;
+		organizationId?: string | null;
+		plantId?: string | null;
 	}
 }
 
@@ -56,38 +56,52 @@ export const {
 			}
 
 			//ADD 2FA Check
+			if (existingUser.isTwoFactorEnabled) {
+				const twoFactorConfirmation = await getTwoFactorConfirmationByUserId(
+					existingUser.id
+				);
+				if (!twoFactorConfirmation) return false;
+
+				//Delete two factor confirmation for next sign in
+
+				await prisma.twoFactorConfirmation.delete({
+					where: { id: twoFactorConfirmation.id },
+				});
+			}
 			return true;
 		},
 		async session({ token, session }) {
-			// console.log("JWT: ", token, "session: ", session);
 			if (token.sub && session.user) {
 				session.user.id = token.sub;
 			}
-			if (token.role && token.organizationId && session.user) {
+			if (token.organizationId) {
+				session.user.organizationId = token.organizationId;
 				const role = token.role;
-				const organizationId = token.organizationId;
-				// for now optionall
-				const plantId = token.plantId;
-				return {
-					...session,
-					user: { ...session.user, role, organizationId, plantId },
-				};
+				if (!role) {
+					const getRole = await prisma.organizationMembership.findFirst({
+						where: {
+							userId: session.user.id,
+							organizationId: session.user.organizationId,
+						},
+					});
+					if (!getRole) return session;
+					session.user.role = getRole.role;
+				}
 			}
-			// console.log("session in callback: ", session);
-			// console.log("token in callback: ", token);
 			return session;
 		},
 		async jwt({ token, trigger, session }) {
+			//TO DO: update user
 			if (trigger === "update" && session) {
-				// console.log("update hej!: ", session);
-				token = {
-					...token,
-					organizationId: session.organizationId,
-					role: session.role,
-					plantId: session.plantId,
-				};
-				return token;
+				token.organizationId = session.organizationId ?? null;
+				token.role = session.role ?? null;
+				// token.plantId= session.plantId ?? null;
+			} else {
+				token.organizationId = null;
+				// token.plantId = null;
+				token.role = null;
 			}
+
 			// token.role = existingUser.role;
 			return token;
 		},

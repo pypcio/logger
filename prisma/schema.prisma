@@ -15,7 +15,7 @@ datasource db {
 
 model Plant {
   id              String           @id @default(cuid())
-  name            String           @unique
+  name            String
   description     String?          @db.Text
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
@@ -27,6 +27,8 @@ model Plant {
   securityDevices SecurityDevice[]
   Organization    Organization?    @relation(fields: [organizationId], references: [id])
   location        Location?        @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@unique([name, organizationId])
 }
 
 model Logger {
@@ -40,6 +42,8 @@ model Logger {
   updatedAt   DateTime    @updatedAt
   plant       Plant       @relation(fields: [plant_id], references: [id], onDelete: Cascade)
   logger_logs LoggerLog[]
+
+  @@unique([name, plant_id])
 }
 
 model Location {
@@ -83,6 +87,8 @@ model Meter {
   updatedAt   DateTime   @updatedAt
   meter_logs  MeterLog[]
   plant       Plant      @relation(fields: [plant_id], references: [id], onDelete: Cascade)
+
+  @@unique([name, plant_id])
 }
 
 model MeterLog {
@@ -116,6 +122,8 @@ model Inverter {
   updatedAt     DateTime      @updatedAt
   inverter_logs InverterLog[]
   plant         Plant         @relation(fields: [plant_id], references: [id], onDelete: Cascade)
+
+  @@unique([name, plant_id])
 }
 
 model InverterLog {
@@ -143,6 +151,8 @@ model SecurityDevice {
   updatedAt     DateTime            @updatedAt
   security_logs SecurityDeviceLog[]
   plant         Plant               @relation(fields: [plant_id], references: [id], onDelete: Cascade)
+
+  @@unique([name, plant_id])
 }
 
 model SecurityDeviceLog {
@@ -171,17 +181,19 @@ enum SysState {
 }
 
 model User {
-  id             String          @id @default(cuid())
-  name           String
-  email          String          @unique
-  emailVerified  DateTime?
-  hashedPassword String?
-  image          String?
-  accounts       Account[]
-  sessions       Session[]
-  authenticators Authenticator[] // Optional for WebAuthn support
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  id                    String                 @id @default(cuid())
+  name                  String
+  email                 String                 @unique
+  emailVerified         DateTime?
+  hashedPassword        String?
+  image                 String?
+  isTwoFactorEnabled    Boolean                @default(false)
+  twoFactorConfirmation TwoFactorConfirmation?
+  accounts              Account[]
+  sessions              Session[]
+  authenticators        Authenticator[] // Optional for WebAuthn support
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
 
   // New relationship fields for organizations
   organizationMemberships OrganizationMembership[]
@@ -234,6 +246,24 @@ model PasswordResetToken {
   expires DateTime
 
   @@unique([email, token])
+}
+
+model TwoFactorToken {
+  id      String   @id @default(cuid())
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model TwoFactorConfirmation {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId])
 }
 
 model Authenticator {

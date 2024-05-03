@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { buttonVariants } from "@/components/ui/Button";
+import { buttonVariants } from "@/components/ui/button";
 import { SIDENAV_ITEMS } from "@/lib/utils/sideNavList";
 import { SideNavItem } from "@/lib/types/NavItems";
 import { ChevronDownIcon } from "@radix-ui/themes";

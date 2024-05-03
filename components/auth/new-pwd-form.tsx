@@ -1,6 +1,6 @@
 "use client";
 import { newPassword } from "@/actions/new-password";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import {
 	Form,
 	FormControl,
@@ -8,7 +8,7 @@ import {
 	FormItem,
 	FormLabel,
 	FormMessage,
-} from "@/components/ui/Form";
+} from "@/components/ui/form";
 import usePasswordToggle from "@/hooks/use-pwd-toggle";
 import { newPasswordSchema } from "@/schemas/forms-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -40,18 +40,20 @@ const NewPwdForm = () => {
 		setError("");
 		setSuccess("");
 		setSubmitting(true);
-		newPassword(values, token).then((data) => {
-			setSubmitting(false);
-			if (data?.error) {
-				form.reset();
-				setError(data.error);
-			}
+		newPassword(values, token)
+			.then((data) => {
+				setSubmitting(false);
+				if (data?.error) {
+					form.reset();
+					setError(data.error);
+				}
 
-			if (data?.success) {
-				form.reset();
-				setSuccess(data.success);
-			}
-		});
+				if (data?.success) {
+					form.reset();
+					setSuccess(data.success);
+				}
+			})
+			.catch(() => setError("Something went wrong"));
 	}
 	return (
 		<CardWrapper
@@ -59,7 +61,7 @@ const NewPwdForm = () => {
 			headerLabel='Forgot your password?'
 			backButtonLabel='Back to login'
 			backButtonHref='/auth/login'
-			showSocial={false}>
+			showBackButton>
 			<Form {...form}>
 				<form
 					onSubmit={form.handleSubmit(onSubmit)}

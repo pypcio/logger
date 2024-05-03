@@ -1,9 +1,20 @@
+"use client";
 import AddOrgForm from "@/components/settings/add-org";
-import { useSession } from "next-auth/react";
-import React from "react";
+import React, { useEffect } from "react";
 import SessionInfo from "./session-info";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const AddOrgPage = () => {
+	const router = useRouter();
+	const params = useSearchParams();
+	const fromLogin = params.get("fromLogin");
+	// Trigger refresh if coming from login
+	useEffect(() => {
+		if (fromLogin === "true") {
+			router.push("/settings");
+		}
+	}, []);
 	return (
 		<div>
 			<SessionInfo />

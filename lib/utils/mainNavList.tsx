@@ -1,7 +1,7 @@
 import { BsSpeedometer } from "react-icons/bs";
 import { FaBug, FaChartArea } from "react-icons/fa";
 import { MainNavItem } from "../types/NavItems";
-
+import { IoMdSettings } from "react-icons/io";
 export const MAIN_NAV_ITEMS: MainNavItem[] = [
 	{
 		title: "Logo",
@@ -11,12 +11,20 @@ export const MAIN_NAV_ITEMS: MainNavItem[] = [
 	{
 		title: "Dashboard",
 		path: "/dashboard",
+		protected: true,
 		icon: <FaChartArea width='24' height='24' />,
 	},
 	{
 		title: "Monitoring",
 		path: "/monitoring",
+		protected: true,
 		icon: <BsSpeedometer width='24' height='24' />,
+	},
+	{
+		title: "Settings",
+		path: "/settings",
+		protected: true,
+		icon: <IoMdSettings width='24' height='24' />,
 	},
 	// {
 	// 	title: "Login",

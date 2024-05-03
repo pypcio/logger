@@ -13,18 +13,16 @@ interface Props {
 	token: string;
 }
 
-const WelcomeTemplate = ({ name, token }: Props) => {
+const TwoFactorTemplate = ({ name, token }: Props) => {
 	return (
 		<Html>
 			<Tailwind>
-				<h3>Welcome aboard!</h3>
+				<h3>Two factor authentication</h3>
 				<Body className='bg-white'>
 					<Container>
 						<Text className='font-bold text-3xl'>Hello {name}</Text>
-						<Link
-							href={`${process.env.DOMAIN_URL}/auth/new-verification?token=${token}`}>
-							Click Here
-						</Link>
+						<Text className='text-center m-auto'> Your Code: </Text>
+						<Text className='text-center m-auto'> {token} </Text>
 					</Container>
 				</Body>
 			</Tailwind>
@@ -32,7 +30,7 @@ const WelcomeTemplate = ({ name, token }: Props) => {
 	);
 };
 
-export default WelcomeTemplate;
+export default TwoFactorTemplate;
 
 // export enum EmailTopics {
 // 	RESET = "Reset Password",

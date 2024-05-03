@@ -1,6 +1,6 @@
 "use client";
 import { login } from "@/actions/login";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import {
 	Form,
 	FormControl,
@@ -8,7 +8,7 @@ import {
 	FormItem,
 	FormLabel,
 	FormMessage,
-} from "@/components/ui/Form";
+} from "@/components/ui/form";
 import { resetSchema } from "@/schemas/forms-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -54,7 +54,7 @@ const ResetPwdForm = () => {
 			headerLabel='Forgot your password?'
 			backButtonLabel='Back to login'
 			backButtonHref='/auth/login'
-			showSocial={false}>
+			showBackButton>
 			<Form {...form}>
 				<form
 					onSubmit={form.handleSubmit(onSubmit)}
@@ -82,7 +82,7 @@ const ResetPwdForm = () => {
 					{onError && <FormError message={onError} />}
 					{onSuccess && <FormSuccess message={onSuccess} />}
 					<Button className='w-full' type='submit' disabled={isSubmitting}>
-						Submit
+						Send
 					</Button>
 				</form>
 			</Form>
