@@ -74,6 +74,17 @@ const createOrgSchema = z.object({
 		}),
 });
 
+const createPlantSchema = z.object({
+	name: z
+		.string()
+		.min(1, { message: "Plant name is required" })
+		.max(191, { message: "Name is too long" })
+		.trim()
+		.refine((name) => !name.includes("  "), {
+			message: "Consecutive spaces are not allowed",
+		}),
+	description: z.optional(z.string().min(1).max(65535)),
+});
 export {
 	loginUserSchema,
 	registerUserSchema,
@@ -81,4 +92,5 @@ export {
 	addOrgSchema,
 	createOrgSchema,
 	resetSchema,
+	createPlantSchema,
 };

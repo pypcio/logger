@@ -6,7 +6,7 @@ export const currentUser = async () => {
 	return session?.user;
 };
 
-export const getUserOrganizations = async () => {
+export const getUserOrganizationInfo = async () => {
 	try {
 		const user = await currentUser();
 		if (!user) return null;
@@ -16,26 +16,20 @@ export const getUserOrganizations = async () => {
 			},
 			include: {
 				organization: {
-					select: {
-						name: true,
-						plants: {
-							select: {
-								name: true,
-							},
-						},
+					include: {
+						plants: true,
 					},
 				},
 			},
 		});
-
 		// Mapping to apply aliases and restructure data
-		const organizations = fetchedOrgData.map((org) => ({
-			organizationName: org.organization.name,
-			plants: org.organization.plants.map((plant) => ({
-				plantName: plant.name,
-			})),
-		}));
+		// const organizations = fetchedOrgData.map((org) => ({
+		// 	organizationName: org.organization.name,
+		// 	plants: org.organization.plants.map((plant) => ({
+		// 		plantName: plant.name,
+		// 	})),
+		// }));
 
-		return organizations;
+		return fetchedOrgData;
 	} catch (error) {}
 };

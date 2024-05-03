@@ -8,6 +8,7 @@ import NavBar from "./NavBar";
 import { Inter as FontSans } from "next/font/google";
 import { cn } from "@/lib/utils";
 import AuthProvider from "./Provider";
+import QueryClientProvider from "./query-provider";
 
 const fontSans = FontSans({
 	subsets: ["latin"],
@@ -25,23 +26,25 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<AuthProvider>
-			<html lang='en' className='h-full'>
-				<body
-					className={cn(
-						"h-full bg-background font-sans antialiased flex flex-col",
-						fontSans.variable
-					)}>
-					{/* <Theme accentColor='blue' radius='none' scaling='95%'> */}
-					<NavBar />
-					<main className=' flex-1 flex flex-col justify-center items-center'>
-						{children}
-					</main>
+		<QueryClientProvider>
+			<AuthProvider>
+				<html lang='en' className='h-full'>
+					<body
+						className={cn(
+							"h-full bg-background font-sans antialiased flex flex-col",
+							fontSans.variable
+						)}>
+						{/* <Theme accentColor='blue' radius='none' scaling='95%'> */}
+						<NavBar />
+						<main className=' flex-1 flex flex-col justify-center items-center'>
+							{children}
+						</main>
+						{/* <ThemePanel /> */}
+						{/* </Theme> */}
+					</body>
 					{/* <ThemePanel /> */}
-					{/* </Theme> */}
-				</body>
-				{/* <ThemePanel /> */}
-			</html>
-		</AuthProvider>
+				</html>
+			</AuthProvider>
+		</QueryClientProvider>
 	);
 }

@@ -1,48 +1,96 @@
-import { organizationSchema } from "@/schemas/api-schema";
-import prisma from "@/prisma/client";
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { getOrganizationByName } from "@/data/organization";
+import { getUserById } from "@/data/user";
 import { currentUser } from "@/lib/auth";
+import prisma from "@/prisma/client";
+import { organizationSchema } from "@/schemas/api-schema";
+import { UserRole } from "@prisma/client";
+import { NextRequest, NextResponse } from "next/server";
+
 export async function POST(request: NextRequest) {
 	const body = await request.json();
-	const session = await auth();
-	console.log("session: ", session);
-	const validatedOrganization = organizationSchema.safeParse(body);
+	const user = await currentUser();
+	if (!user)
+		return NextResponse.json(
+			{ error: "You are not logged in" },
+			{ status: 401 }
+		);
+	if (user.role === UserRole.USER || !user.role)
+		return NextResponse.json({ error: "User not permitted" }, { status: 403 });
 
-	// if (!validatedOrganization.success) {
-	// 	return NextResponse.json(validatedOrganization.error.errors, { status: 400 });
-	// }
-	// //check if plant exists (add in where- org_id: sessionParams.org_id)
-	// const findOrganization = await prisma.organization.findUnique({
-	// 	where: { name: body.name },
-	// });
-	// if (findPlant) {
-	// 	return NextResponse.json(
-	// 		{ error: "Plant already exists." },
-	// 		{ status: 400 }
-	// 	);
-	// }
+	const validateOrganization = organizationSchema.safeParse(body);
+	if (!validateOrganization.success)
+		return NextResponse.json({ error: "Invalid name" });
 
-	// const newPlant = await prisma.plant.create({
-	// 	data: {
-	// 		name: body.name,
-	// 		description: body.description,
-	// 		//org_id : sessionParams.org_id
-	// 	},
-	// });
+	const { name } = validateOrganization.data;
 
-	return NextResponse.json({}, { status: 201 });
+	const existingUser = await getUserById(user.id!);
+	if (!existingUser)
+		return NextResponse.json({ error: "User does not exists" });
+
+	const existingOrg = await getOrganizationByName(name);
+	if (existingOrg) return { error: "Organization already exists" };
+
+	try {
+		const newOrganization = await prisma.organization.create({
+			data: {
+				name,
+				members: {
+					create: [
+						{
+							user: { connect: { id: existingUser.id } },
+							role: UserRole.OWNER, // Assuming 'OWNER' is a valid role
+						},
+					],
+				},
+			},
+		});
+		return NextResponse.json(newOrganization, { status: 201 });
+	} catch (error) {
+		console.log(error);
+		return NextResponse.json(
+			{ error: "Could not create Organization" },
+			{ status: 400 }
+		);
+	}
 }
 
-//when org introduced, add where {org_id: request.orgId}
 export async function GET(request: NextRequest) {
 	const user = await currentUser();
+	if (!user)
+		return NextResponse.json(
+			{ error: "You are not logged in" },
+			{ status: 401 }
+		);
 
-	//TO DO: create interface for User to choose which organization they want to be logged in:
-	const organization = await prisma.organizationMembership.findFirst({
-		where: { userId: user?.id },
+	const fetchedOrgData = await prisma.organizationMembership.findMany({
+		where: {
+			userId: user.id,
+		},
+		include: {
+			organization: {
+				select: {
+					name: true,
+					plants: {
+						select: {
+							name: true,
+						},
+					},
+				},
+			},
+		},
 	});
-	if (!organization) return;
+	if (!fetchedOrgData)
+		return NextResponse.json(
+			{ error: "No organization info found." },
+			{ status: 404 }
+		);
+	// Mapping to apply aliases and restructure data
+	// const organizations = fetchedOrgData.map((org) => ({
+	// 	organizationName: org.organization.name,
+	// 	plants: org.organization.plants.map((plant) => ({
+	// 		plantName: plant.name,
+	// 	})),
+	// }));
 
-	return NextResponse.json({ status: 200 });
+	return NextResponse.json(fetchedOrgData, { status: 200 });
 }

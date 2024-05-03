@@ -22,7 +22,7 @@ const ResetTemplate = ({ name, token }: Props) => {
 					<Container>
 						<Text className='font-bold text-3xl'>Hello {name}</Text>
 						<Link
-							href={`${process.env.DOMAIN_URL}/auth/new-password?token=${token}`}>
+							href={`${process.env.BASE_URL}/auth/new-password?token=${token}`}>
 							Click Here
 						</Link>
 					</Container>

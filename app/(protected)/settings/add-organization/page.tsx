@@ -1,4 +1,4 @@
-import AddOrgForm from "@/components/settings/add-org";
+import AddOrgForm from "@/components/settings/add-org-form";
 import React from "react";
 
 const AddOrgPage = () => {

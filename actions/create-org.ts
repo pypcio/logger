@@ -33,7 +33,7 @@ export const createOrg = async (values: any) => {
 				members: {
 					create: [
 						{
-							user: { connect: { id: user.id } },
+							user: { connect: { id: existingUser.id } },
 							role: UserRole.OWNER, // Assuming 'OWNER' is a valid role
 						},
 					],

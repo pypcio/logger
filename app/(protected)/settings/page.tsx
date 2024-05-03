@@ -1,5 +1,5 @@
 "use client";
-import AddOrgForm from "@/components/settings/add-org";
+import AddOrgForm from "@/components/settings/add-org-form";
 import React, { useEffect } from "react";
 import SessionInfo from "./session-info";
 import { useSearchParams } from "next/navigation";

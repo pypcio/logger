@@ -10,3 +10,14 @@ export const getOrganizationByName = async (name: string) => {
 		return null;
 	}
 };
+
+export const getOrganizationById = async (id: string) => {
+	try {
+		const organization = await prisma.organization.findUnique({
+			where: { id },
+		});
+		return organization;
+	} catch (error) {
+		return null;
+	}
+};

@@ -8,7 +8,7 @@ import { Container } from "@radix-ui/themes";
 
 const SettingsLayout = ({ children }: PropsWithChildren) => {
 	return (
-		<Container className='flex flex-col w-full gap-5 justify-center items-center'>
+		<Container className='flex flex-col h-full gap-5 justify-center items-center w-[60%]'>
 			{children}
 			{/* <div className='flex gap-5'>
 				<LoginButton />

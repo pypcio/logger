@@ -1,13 +1,10 @@
-import { updateOrganizationSchema } from "@/schemas/api-schema";
-import prisma from "@/prisma/client";
-import { NextRequest, NextResponse } from "next/server";
-import { getUserById } from "@/data/user";
 import { currentUser } from "@/lib/auth";
-import { getOrganizationByName } from "@/data/organization";
+import prisma from "@/prisma/client";
+import { plantSchema } from "@/schemas/api-schema";
 import { UserRole } from "@prisma/client";
+import { NextRequest, NextResponse } from "next/server";
 
-//ADMIN or OWNER permission needed
-export async function PATCH(
+export async function POST(
 	request: NextRequest,
 	{ params }: { params: { orgId: string } }
 ) {
@@ -18,13 +15,6 @@ export async function PATCH(
 			{ error: "You are not logged in" },
 			{ status: 401 }
 		);
-
-	const organizationValidation = updateOrganizationSchema.safeParse(body);
-	if (!organizationValidation.success)
-		return NextResponse.json(organizationValidation.error.errors, {
-			status: 400,
-		});
-	const { name, stripe } = organizationValidation.data;
 	//check if organization exisits
 	const existingOrganization = await prisma.organization.findUnique({
 		where: { id: params.orgId },
@@ -52,62 +42,41 @@ export async function PATCH(
 	if (validMembership.role === UserRole.USER)
 		return NextResponse.json({ error: "User not permitted" }, { status: 403 });
 
-	//update Organization
-	const updateOrganization = await prisma.organization.update({
-		where: { id: params.orgId },
+	const plantValidation = plantSchema.safeParse(body);
+	if (!plantValidation.success) {
+		return NextResponse.json(plantValidation.error.errors, { status: 400 });
+	}
+	const { name, description } = plantValidation.data;
+
+	//check if plant exists
+	const findPlant = await prisma.plant.findUnique({
+		where: {
+			name_organizationId: {
+				name: name,
+				organizationId: existingOrganization.id,
+			},
+		},
+	});
+
+	if (findPlant) {
+		return NextResponse.json(
+			{ error: "Plant already exists." },
+			{ status: 400 }
+		);
+	}
+
+	const newPlant = await prisma.plant.create({
 		data: {
-			name,
-			stripeCustomerId: stripe,
+			name: body.name,
+			description,
+			//org_id : sessionParams.org_id
 		},
 	});
-	return NextResponse.json(updateOrganization);
-}
-//ADMIN or OWNER permission needed
-export async function DELETE(
-	request: NextRequest,
-	{ params }: { params: { orgId: string } }
-) {
-	const user = await currentUser();
-	if (!user)
-		return NextResponse.json(
-			{ error: "You are not logged in" },
-			{ status: 401 }
-		);
-	//check if organization exisits
-	const existingOrganization = await prisma.organization.findUnique({
-		where: { id: params.orgId },
-	});
-	if (!existingOrganization)
-		return NextResponse.json(
-			{ error: "Organization not found" },
-			{ status: 404 }
-		);
-	// check if user has permission
-	const validMembership = await prisma.organizationMembership.findUnique({
-		where: {
-			userId_organizationId: {
-				userId: user.id!,
-				organizationId: existingOrganization.id,
-			},
-		},
-	});
-	if (!validMembership)
-		return NextResponse.json(
-			{ error: "User does not belong to Organization" },
-			{ status: 400 }
-		);
 
-	if (validMembership.role === UserRole.USER)
-		return NextResponse.json({ error: "User not permitted" }, { status: 403 });
-
-	const deleteOrg = await prisma.organization.delete({
-		where: { id: params.orgId },
-	});
-
-	return NextResponse.json({});
+	return NextResponse.json(newPlant, { status: 201 });
 }
 
-//only membership required to get info
+//when org introduced, add where {org_id: request.orgId}
 export async function GET(
 	request: NextRequest,
 	{ params }: { params: { orgId: string } }
@@ -142,8 +111,8 @@ export async function GET(
 			{ status: 400 }
 		);
 
-	const getOrg = await prisma.organization.findUnique({
-		where: { id: params.orgId },
+	const allPlants = await prisma.plant.findMany({
+		where: { organizationId: params.orgId },
 	});
-	return NextResponse.json(getOrg);
+	return NextResponse.json(allPlants, { status: 200 });
 }
