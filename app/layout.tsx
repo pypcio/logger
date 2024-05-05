@@ -38,7 +38,11 @@ export default function RootLayout({
 						<Theme>
 							<div className='flex-col h-screen w-full'>
 								<NavBar />
-								<main className=' bg-sky-200'>{children}</main>
+								<main
+									className='flex bg-sky-200'
+									style={{ height: `calc(100vh - var(--navbar-height))` }}>
+									{children}
+								</main>
 							</div>
 							{/* <ThemePanel /> */}
 						</Theme>
