@@ -4,20 +4,68 @@ import React from "react";
 
 const FillerPage = () => {
 	// Generate a large number of list items to simulate long content
-	const items = Array.from({ length: 10 }, (_, index) => `Item ${index + 1}`);
+	const items = Array.from({ length: 20 }, (_, index) => `Item ${index + 1}`);
 
 	return (
-		<div style={{ padding: "20px" }}>
+		<div className='flex flex-col h-full overflow-auto p-4 grow'>
 			<h1>Long Content Component</h1>
 			<ul>
 				{items.map((item) => (
 					<li
 						key={item}
 						style={{
-							padding: "10px",
+							padding: "0",
 							border: "1px solid #ccc",
-							margin: "10px 0",
+							margin: "0",
 						}}>
+						<Text wrap='pretty'>
+							Lorem ipsum dolor sit, amet consectetur adipisicing elit. Pariatur
+							ipsa maxime corrupti! Sed suscipit quidem voluptas odio, et
+							temporibus cum impedit possimus alias provident nobis illum sint
+							deleniti delectus cumque.
+						</Text>
+						<Text wrap='pretty'>
+							Lorem ipsum dolor sit, amet consectetur adipisicing elit. Pariatur
+							ipsa maxime corrupti! Sed suscipit quidem voluptas odio, et
+							temporibus cum impedit possimus alias provident nobis illum sint
+							deleniti delectus cumque.
+						</Text>
+						<Text wrap='pretty'>
+							Lorem ipsum dolor sit, amet consectetur adipisicing elit. Pariatur
+							ipsa maxime corrupti! Sed suscipit quidem voluptas odio, et
+							temporibus cum impedit possimus alias provident nobis illum sint
+							deleniti delectus cumque.
+						</Text>
+						<Text wrap='pretty'>
+							Lorem ipsum dolor sit, amet consectetur adipisicing elit. Pariatur
+							ipsa maxime corrupti! Sed suscipit quidem voluptas odio, et
+							temporibus cum impedit possimus alias provident nobis illum sint
+							deleniti delectus cumque.
+						</Text>
+						<Text wrap='pretty'>
+							Lorem ipsum dolor sit, amet consectetur adipisicing elit. Pariatur
+							ipsa maxime corrupti! Sed suscipit quidem voluptas odio, et
+							temporibus cum impedit possimus alias provident nobis illum sint
+							deleniti delectus cumque.
+						</Text>
+						<Text wrap='pretty'>
+							Lorem ipsum dolor sit, amet consectetur adipisicing elit. Pariatur
+							ipsa maxime corrupti! Sed suscipit quidem voluptas odio, et
+							temporibus cum impedit possimus alias provident nobis illum sint
+							deleniti delectus cumque.
+						</Text>
+						<Text wrap='pretty'>
+							Lorem ipsum dolor sit, amet consectetur adipisicing elit. Pariatur
+							ipsa maxime corrupti! Sed suscipit quidem voluptas odio, et
+							temporibus cum impedit possimus alias provident nobis illum sint
+							deleniti delectus cumque.
+						</Text>
+						<Text wrap='pretty'>
+							Lorem ipsum dolor sit, amet consectetur adipisicing elit. Pariatur
+							ipsa maxime corrupti! Sed suscipit quidem voluptas odio, et
+							temporibus cum impedit possimus alias provident nobis illum sint
+							deleniti delectus cumque.
+						</Text>
 						<Text wrap='pretty'>
 							Lorem ipsum dolor sit, amet consectetur adipisicing elit. Pariatur
 							ipsa maxime corrupti! Sed suscipit quidem voluptas odio, et

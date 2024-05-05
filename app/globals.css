@@ -33,6 +33,7 @@
 		--container-2: 688px;
 		--container-3: 880px;
 		--container-4: 1136px;
+		--navbar-height: 4rem;
 	}
 
 	.dark {
@@ -65,6 +66,7 @@
 		--container-2: 688px;
 		--container-3: 880px;
 		--container-4: 1136px;
+		--navbar-height: 4rem;
 	}
 }
 

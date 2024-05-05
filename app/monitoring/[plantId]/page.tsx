@@ -1,7 +1,7 @@
 import FillerPage from "@/components/monitoring/filler";
 
-const MonitoringPage = () => {
+const MonitoringPlantPage = () => {
 	return <FillerPage />;
 };
 
-export default MonitoringPage;
+export default MonitoringPlantPage;

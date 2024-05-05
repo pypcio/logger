@@ -14,10 +14,12 @@ import {
 } from "@/components/ui/command";
 import { useSession } from "next-auth/react";
 import { getUserCurrentMembershipInfo } from "@/actions/update-user";
+import { useRouter } from "next/navigation";
 
 const SelectOrgMenu = () => {
 	const { data: session, update, status } = useSession();
-	const handleUpdate = async (organizationId: string) => {
+	const router = useRouter();
+	const handleUpdate = async (organizationId: string, plantId: string) => {
 		try {
 			// console.log("organizationid: ", organizationId);
 			// await updateUser(organizationId);
@@ -35,6 +37,7 @@ const SelectOrgMenu = () => {
 							role: member.role,
 						},
 					});
+					router.push(`/monitoring/${plantId}`);
 				}
 			}
 		} catch (err) {
@@ -61,7 +64,9 @@ const SelectOrgMenu = () => {
 										organization.plants.map((plant) => (
 											<CommandItem key={plant.id}>
 												<button
-													onClick={() => handleUpdate(organization.id)}
+													onClick={() =>
+														handleUpdate(organization.id, plant.id)
+													}
 													className='text-base cursor-pointer'>
 													{plant.name}
 												</button>

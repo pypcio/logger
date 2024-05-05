@@ -6,11 +6,17 @@ const LongContent = () => {
 	const items = Array.from({ length: 101 }, (_, index) => `Item ${index + 1}`);
 
 	return (
-		<div style={{ padding: "20px" }}>
+		<div style={{ padding: "40px" }}>
 			<h1>Long Content Component</h1>
 			<ul>
 				{items.map((item) => (
-					<li key={item} style={{ padding: "10px", border: "1px solid #ccc", margin: "10px 0" }}>
+					<li
+						key={item}
+						style={{
+							padding: "10px",
+							border: "1px solid #ccc",
+							margin: "10px 0",
+						}}>
 						{item}
 					</li>
 				))}

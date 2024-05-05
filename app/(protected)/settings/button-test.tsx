@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import React from "react";
 import { getUserCurrentMembershipInfoByOrgID } from "@/lib/auth";
 import { useSession } from "next-auth/react";
+import { unstable_update } from "@/auth";
 
 interface Props {
 	organizationId: string;
@@ -18,7 +19,7 @@ const ButtonTest = ({ organizationId }: Props) => {
 				return;
 			}
 
-			const newSession = await update({
+			const newSession = await unstable_update({
 				...session,
 				user: {
 					...session.user,

@@ -20,8 +20,9 @@ const SideNav = () => {
 	const selectedLayout = useSelectedLayoutSegment();
 	const [open, setOpen] = useState(true);
 	const toggleOpen = () => setOpen(!open);
+	console.log("SIDENAV_ITEM: ", SIDENAV_ITEMS);
 	return (
-		<div className=' inset-x-0 top-12 h-1/4  sticky  transition-all border-b border-gray-200'>
+		<div className=' inset-x-0 top-20 h-1/4  sticky  transition-all border-b border-gray-200'>
 			<div
 				className={cn("bg-secondary  h-screen", "duration-500 ease-in-out ", {
 					"max-w-20 sm:max-w-20 md:max-w-44 lg:max-w-52": open,

@@ -3,10 +3,21 @@ import {
 	OrganizationMembership,
 	UserRole,
 	Plant,
+	Inverter,
 } from "@prisma/client";
 import axios from "axios";
-// const axiosInstance = axios.create({ baseURL: process.env.BASE_URL });
-// console.log("axios: ", axiosInstance);
+
+export interface Device {
+	id: string;
+	name: string;
+}
+export interface PlantWithDevices extends Plant {
+	inverters: Device[];
+	meters: Device[];
+	loggers: Device[];
+	securityDevices: Device[];
+}
+
 interface AllMemberhipsInfo {
 	userId: OrganizationMembership["userId"];
 	organizationId: OrganizationMembership["organizationId"];
@@ -16,15 +27,32 @@ interface AllMemberhipsInfo {
 	organization: {
 		id: Organization["id"];
 		name: Organization["name"];
-		// createdAt: Organization["createdAt"];
-		// updatedAt: Organization["updatedAt"];
 		plants: Plant[];
 	};
 }
 /**
  * Get info about all Organizations that logged in User belogs to, including Plants info
- * @type {AllMemberhipsInfo[]}
+ *
+ * @returns
  */
 export const getUserMembershipsInfo = async () => {
 	return (await axios.get<AllMemberhipsInfo[]>("/api/organizations")).data;
+};
+/**
+ * Get Plant by ID
+ * @param plantId
+ * @returns
+ */
+export const getPlantById = async (plantId: string) => {
+	return (await axios.get<Plant>(`/api/plants/${plantId}`)).data;
+};
+
+/**
+ * Get Every device that belongs to Plant by PlantID
+ * @param plantId
+ * @returns
+ */
+export const getPlantWithDevicesById = async (plantId: string) => {
+	return (await axios.get<PlantWithDevices>(`/api/plants/${plantId}/devices`))
+		.data;
 };

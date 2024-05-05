@@ -1,84 +1,59 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { useSession } from "next-auth/react";
-import Icon from "@/components/ui/icon-lucide";
-import { SideNavItem } from "@/lib/types/NavItems";
-
+import { usePlantWithDevices } from "@/lib/services/queries";
+import { PlantWithDevices, Device } from "@/lib/services/api"; // Ensure correct import of Device
 const monitoringPath = "/monitoring";
 
-interface SubMenu {
-	data: {
-		plant: { items: SideNavItem[] };
-		logger: { items: SideNavItem[] };
-		meter: { items: SideNavItem[] };
-		inverter: { items: SideNavItem[] };
-		securityDevices: { items: SideNavItem[] };
-	};
+export interface SideNavItemSchema {
+	title: string;
+	path: string;
+	icon: string;
+	submenu?: boolean;
+	subMenuItems?: SideNavItemSchema[];
 }
 
-export const useDynamicSideNav = () => {
-	const { data: session } = useSession();
-	const [menuItems, setMenuItems] = useState<SideNavItem[]>();
+export const useDynamicSideNav = (
+	plantId: string
+): [SideNavItemSchema[], boolean] => {
+	const { data: plantData, isLoading } = usePlantWithDevices(plantId);
+	const [menuItems, setMenuItems] = useState<SideNavItemSchema[]>([]);
 
 	useEffect(() => {
-		if (session?.user?.plantId) {
-			const fetchMenuItems = async (plantId: string) => {
-				try {
-					const response = await axios.get<SubMenu>(
-						`/api/plant/${plantId}/submenu`
-					);
-					const data = response.data;
-					setMenuItems(formatMenuItems(data));
-				} catch (error) {
-					console.error("Failed to fetch menu items:", error);
-				}
-			};
-
-			fetchMenuItems(session.user.plantId);
+		if (!isLoading && plantData) {
+			setMenuItems(formatMenuItems(plantData));
 		}
-	}, [session]);
+	}, [isLoading, plantData]);
 
-	const formatMenuItems = ({
-		data: { plant, meter, logger, securityDevices, inverter },
-	}: SubMenu) => {
+	const formatMenuItems = (plant: PlantWithDevices): SideNavItemSchema[] => {
 		return [
-			{
-				title: "Plant",
-				path: `${monitoringPath}/plant`,
-				icon: <Icon name='factory' width='24' height='24' stroke='1px' />,
-				submenu: plant.items.length > 0,
-				subMenuItems: plant.items,
-			},
-			{
-				title: "Logger",
-				path: `${monitoringPath}/logger`,
-				icon: <Icon name='router' width='24' height='24' stroke='1px' />,
-				submenu: logger.items.length > 0,
-				subMenuItems: logger.items,
-			},
-			{
-				title: "Meter",
-				path: "/meter",
-				icon: <Icon name='gauge' width='24' height='24' stroke='1px' />,
-				submenu: meter.items.length > 0,
-				subMenuItems: meter.items,
-			},
-			{
-				title: "Inverter",
-				path: "/inverter",
-				icon: <Icon name='zap' width='24' height='24' stroke='1px' />, // Assuming the same icon for simplicity
-				submenu: inverter.items.length > 0,
-				subMenuItems: inverter.items,
-			},
-			{
-				title: "Security",
-				path: "/security",
-				icon: <Icon name='shield-check' width='24' height='24' stroke='1px' />,
-				submenu: securityDevices.items.length > 0,
-				subMenuItems: securityDevices.items,
-			},
+			createDeviceSubNavItems("Inverters", plant.inverters, "zap"),
+			createDeviceSubNavItems("Meters", plant.meters, "gauge"),
+			createDeviceSubNavItems("Loggers", plant.loggers, "router"),
+			createDeviceSubNavItems(
+				"Security Devices",
+				plant.securityDevices,
+				"shield-check"
+			),
 		];
 	};
 
-	return menuItems;
+	const createDeviceSubNavItems = (
+		title: string,
+		devices: Device[],
+		iconName: string
+	): SideNavItemSchema => ({
+		title,
+		path: `${monitoringPath}/${title.toLowerCase()}`,
+		icon: iconName,
+		submenu: devices && devices.length > 0,
+		subMenuItems: devices.map((device) => ({
+			title: device.name,
+			path: `${monitoringPath}/${title.toLowerCase()}/${device.id}`,
+			icon: iconName,
+		})),
+	});
+
+	return [menuItems, isLoading];
 };
+
+// Assuming the icon component takes a name and renders the icon:
+// const Icon = ({ name }) => <img src={`/icons/${name}.svg`} alt={`${name} icon`} />;

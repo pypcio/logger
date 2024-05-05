@@ -4,35 +4,58 @@ import { SideNavItem } from "@/lib/types/NavItems";
 import { cn } from "@/lib/utils";
 import { SIDENAV_ITEMS } from "@/lib/utils/sideNavList";
 import { ChevronDownIcon, Flex } from "@radix-ui/themes";
+import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { usePathname, useSelectedLayoutSegment } from "next/navigation";
 import { useState } from "react";
-import { useDynamicSideNav } from "@/hooks/use-dynamic-sidenav";
+import {
+	SideNavItemSchema,
+	useDynamicSideNav,
+} from "@/hooks/use-dynamic-sidenav";
+import { PlantWithDevices } from "@/lib/services/api";
+import { Icon } from "@iconify/react";
+import { DropdownMenuSeparator } from "../ui/dropdown-menu";
 const iconClass =
-	" border border-x-gray-300 border-gray h-14 sm:h-16 md:h-20 w-2 lg:w-3 absolute inset-y-1/3 -right-1 lg:-right-2 rounded bg-white center hover:bg-slate-100 transition-colors duration-1000 ease-in-out m-0 p-0 shadow-2xl cursor-pointer hover:scale-105";
+	" border border-x-gray-300 border-gray h-14 sm:h-16 md:h-20 w-2 lg:w-3 absolute inset-y-1/3 -right-1 lg:-right-2 rounded bg-white center hover:bg-muted  transition-colors duration-1000 ease-in-out m-0 p-0 shadow-2xl cursor-pointer hover:scale-105";
 
-const SideNav = () => {
+const SideNav = ({ plantId }: { plantId: string }) => {
 	const scrolled = useScroll(5);
 	const selectedLayout = useSelectedLayoutSegment();
 	const [open, setOpen] = useState(true);
-	const itemsSideNav = useDynamicSideNav();
+	const [itemsSideNav, isLoading] = useDynamicSideNav(plantId);
 	const toggleOpen = () => setOpen(!open);
 	return (
-		<div className=' inset-x-0 top-12 h-1/4  sticky  transition-all border-b border-gray-200'>
-			<div
-				className={cn("bg-secondary  h-screen", "duration-500 ease-in-out ", {
-					"max-w-20 sm:max-w-20 md:max-w-44 lg:max-w-52": open,
-					"max-w-10 sm:max-w-12  lg:max-w-14": !open,
-				})}>
-				<div className='h-full relative pt-4'>
-					<div className='absolute -right-1 lg:-right-2 top-0 h-full w-1 lg:w-2 bg-secondary-foreground'></div>
+		<div
+			className={cn(
+				" flex flex-col h-auto",
+				" bg-secondary",
+				"transition-all duration-500 ease-in-out ",
+				{
+					"min-w-20 sm:min-w-20 md:min-w-44 lg:min-w-60": open,
+					"min-w-10 sm:min-w-12  lg:min-w-14": !open,
+				}
+			)}>
+			<div className={cn(" relative bg-secondary  grow")}>
+				<div className='sticky top-14 pt-4 h-full'>
+					<div className='absolute -right-1 lg:-right-2 top-0 h-full w-2 lg:w-2 bg-secondary-foreground'></div>
 					<button onClick={toggleOpen} className={iconClass}>
 						<ChevronIcon isOpen={open} />
 					</button>
-					<div className='flex flex-col space-y-2 px-0  md:px-2 '>
-						{itemsSideNav?.map((item, idx) => {
-							return <MenuItem isOpen={open} key={idx} item={item} />;
-						})}
+					<div className='flex flex-col y-2 px-0 md:px-1 py-4'>
+						{!isLoading ? (
+							itemsSideNav?.map((item, idx) => {
+								return (
+									<MenuItem
+										isLoading={isLoading}
+										isOpen={open}
+										key={idx}
+										item={item}
+									/>
+								);
+							})
+						) : (
+							<NavSkeleton />
+						)}
 					</div>
 				</div>
 			</div>
@@ -61,7 +84,15 @@ const ChevronIcon = ({ isOpen }: { isOpen: boolean }) => {
 
 export default SideNav;
 
-const MenuItem = ({ item, isOpen }: { item: SideNavItem; isOpen: boolean }) => {
+const MenuItem = ({
+	item,
+	isOpen,
+	isLoading,
+}: {
+	item: SideNavItemSchema;
+	isOpen: boolean;
+	isLoading: boolean;
+}) => {
 	const pathname = usePathname();
 	const [subMenuOpen, setSubMenuOpen] = useState(false);
 	const toggleSubMenu = () => {
@@ -75,14 +106,17 @@ const MenuItem = ({ item, isOpen }: { item: SideNavItem; isOpen: boolean }) => {
 			{item.submenu ? (
 				<>
 					<button
+						disabled={isLoading}
 						onClick={toggleSubMenu}
-						className={`flex flex-row items-center p-1 rounded-lg hover-bg-zinc-100 w-full justify-between hover:bg-zinc-100 ${
+						className={`flex flex-row items-center p-1 rounded-lg hover-bg-zinc-100 w-full justify-between hover:bg-muted  ${
 							pathname.includes(item.path) ? "bg-zinc-100" : ""
 						}`}>
 						<div className='flex flex-row space-x-4 items-center'>
-							<span>{item.icon}</span>
+							<span>
+								<Icon icon={`lucide:${item.icon}`} width='24' height='24' />
+							</span>
 							<span
-								className={cn(`font-semibold text-base flex`, {
+								className={cn(`font-medium text-base flex`, {
 									"transition-width duration-300 ease-in-out scale-0": !isOpen,
 									"transition-width duration-300 ease-in-out scale-1": isOpen,
 								})}>
@@ -99,14 +133,14 @@ const MenuItem = ({ item, isOpen }: { item: SideNavItem; isOpen: boolean }) => {
 					</button>
 
 					{subMenuOpen && isOpen && (
-						<div className='my-2 ml-12 flex flex-col space-y-1 animatedSubMenu'>
+						<div className='my-2 ml-12 flex flex-col space-y-1 animatedSubMenu '>
 							{item.subMenuItems?.map((subItem, idx) => {
 								return (
 									<Link
 										key={idx}
 										href={subItem.path}
-										className={`text-sm ${
-											subItem.path === pathname ? "font-bold" : ""
+										className={`text-base ${
+											subItem.path === pathname ? "font-medium" : ""
 										}`}>
 										<span>{subItem.title}</span>
 									</Link>
@@ -114,25 +148,46 @@ const MenuItem = ({ item, isOpen }: { item: SideNavItem; isOpen: boolean }) => {
 							})}
 						</div>
 					)}
+					<DropdownMenuSeparator className='bg-black h-[1px] opacity-25' />
 				</>
 			) : (
-				<Link
-					href={item.path}
-					className={`flex flex-row shrink  space-x-4 items-center py-2 px-1 rounded-lg hover:bg-zinc-100 ${
-						item.path === pathname ? "bg-zinc-100" : ""
-					}`}>
-					<Flex gap='0'>
-						<span>{item.icon}</span>
-						<span
-							className={cn(`font-semibold text-base flex shrink  pl-4`, {
-								"transition-width duration-300 ease-in-out scale-0": !isOpen,
-								"transition-width duration-300 ease-in-out scale-1": isOpen,
-							})}>
-							{item.title}
-						</span>
-					</Flex>
-				</Link>
+				<>
+					<Link
+						href={item.path}
+						className={`flex flex-row shrink  space-x-4 items-center py-2 px-1 rounded-lg hover:bg-muted ${
+							item.path === pathname ? "bg-muted " : ""
+						}`}>
+						<Flex gap='0'>
+							<span>
+								<Icon icon={`lucide:${item.icon}`} width='24' height='24' />
+							</span>
+							<span
+								className={cn(`font-medium text-base flex shrink  pl-4`, {
+									"transition-width duration-300 ease-in-out scale-0": !isOpen,
+									"transition-width duration-300 ease-in-out scale-1": isOpen,
+								})}>
+								{item.title}
+							</span>
+						</Flex>
+					</Link>
+					<DropdownMenuSeparator className='bg-black h-[1px] opacity-25' />
+				</>
 			)}
+		</div>
+	);
+};
+
+const NavSkeleton = () => {
+	const fakeNavList = [1, 2, 3, 4];
+	return (
+		<div className='flex flex-col justify-center items-center'>
+			{fakeNavList.map((skeleton: number) => {
+				return (
+					<Skeleton
+						className='w-4/5 mx-0 my-2 h-4 md:h-10 rounded-xl'
+						key={skeleton}></Skeleton>
+				);
+			})}
 		</div>
 	);
 };

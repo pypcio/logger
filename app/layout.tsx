@@ -29,19 +29,19 @@ export default function RootLayout({
 	return (
 		<QueryClientProvider>
 			<AuthProvider>
-				<html lang='en' className='h-full'>
+				<html lang='en'>
 					<body
 						className={cn(
-							"h-full bg-background font-sans antialiased flex flex-col",
+							"bg-background font-sans antialiased",
 							fontSans.variable
 						)}>
-						{/* <Theme accentColor='blue' radius='none' scaling='95%'> */}
-						<NavBar />
-						<main className=' flex-1 flex flex-col justify-center items-center bg-sky-200'>
-							{children}
-						</main>
-						{/* <ThemePanel /> */}
-						{/* </Theme> */}
+						<Theme>
+							<div className='flex-col h-screen w-full'>
+								<NavBar />
+								<main className=' bg-sky-200'>{children}</main>
+							</div>
+							{/* <ThemePanel /> */}
+						</Theme>
 					</body>
 					{/* <ThemePanel /> */}
 				</html>

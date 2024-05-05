@@ -28,15 +28,15 @@ import { currentRole } from "@/lib/auth";
 import { UserRole } from "@prisma/client";
 
 const NavBar = () => {
-	const scrolled = useScroll(5);
-	const selectedLayout = useSelectedLayoutSegment();
+	// const scrolled = useScroll(5);
+	// const selectedLayout = useSelectedLayoutSegment();
 	return (
 		<nav
 			className={cn(
-				` lg:p-2 sticky inset-x-0  top-0 w-full transition-all border-b border-gray-200 bg-background opacity-1`,
+				`h-[var(--navbar-height)] flex-none border-b border-gray-200 bg-background flex items-center w-full px-4`,
 				{
-					"border-b border-gray-200  backdrop-blur-lg": scrolled,
-					"border-b border-gray-200 ": selectedLayout,
+					// "border-b border-gray-200  backdrop-blur-lg": scrolled,
+					// "border-b border-gray-200 ": selectedLayout,
 				}
 			)}>
 			<Container>

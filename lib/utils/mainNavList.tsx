@@ -3,17 +3,17 @@ import { FaBug, FaChartArea } from "react-icons/fa";
 import { MainNavItem } from "../types/NavItems";
 import { IoMdSettings } from "react-icons/io";
 export const MAIN_NAV_ITEMS: MainNavItem[] = [
-	{
-		title: "Logo",
-		path: "/",
-		icon: <FaBug width='24' height='24' />,
-	},
-	{
-		title: "Dashboard",
-		path: "/dashboard",
-		protected: true,
-		icon: <FaChartArea width='24' height='24' />,
-	},
+	// {
+	// 	title: "Logo",
+	// 	path: "/",
+	// 	icon: <FaBug width='24' height='24' />,
+	// },
+	// {
+	// 	title: "Dashboard",
+	// 	path: "/dashboard",
+	// 	protected: true,
+	// 	icon: <FaChartArea width='24' height='24' />,
+	// },
 	{
 		title: "Monitoring",
 		path: "/monitoring",

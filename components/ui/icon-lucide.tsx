@@ -1,3 +1,5 @@
+//NOT RECOMENDED
+
 import dynamic from "next/dynamic";
 import { LucideProps } from "lucide-react";
 import dynamicIconImports from "lucide-react/dynamicIconImports";
