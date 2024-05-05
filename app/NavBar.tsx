@@ -17,13 +17,15 @@ import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname, useSelectedLayoutSegment } from "next/navigation";
 import { PiTelevisionDuotone } from "react-icons/pi";
-import { useSessionUser } from "@/hooks/use-session-user";
 import { useEffect, useState } from "react";
 import { MainNavItem } from "@/lib/types/NavItems";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FaUser } from "react-icons/fa";
-import LogoutButton from "@/components/auth/LogoutButton";
-import { Button } from "@/components/ui/button";
+
+// import { useCurrentStatus } from "@/hooks/use-current-status";
+import { Session } from "next-auth";
+import { currentRole } from "@/lib/auth";
+import { UserRole } from "@prisma/client";
 
 const NavBar = () => {
 	const scrolled = useScroll(5);
@@ -138,15 +140,13 @@ const NavLinks = () => {
 	const { status } = useSession();
 	const currentPath = usePathname();
 	const [links, setLinks] = useState<MainNavItem[]>(MAIN_NAV_ITEMS);
-
 	useEffect(() => {
-		// This effect will re-run whenever `status` changes, ensuring links update
 		const filteredLinks = MAIN_NAV_ITEMS.filter(
 			(link) =>
 				!link.protected || (link.protected && status === "authenticated")
 		);
 		setLinks(filteredLinks);
-	}, [status]); // Dependency array includes `status`
+	}, [status]);
 
 	return (
 		<ul className='flex space-x-6'>

@@ -1,4 +1,4 @@
-import { auth } from "@/auth";
+import { auth, unstable_update } from "@/auth";
 import prisma from "@/prisma/client";
 
 export const currentUser = async () => {
@@ -6,11 +6,16 @@ export const currentUser = async () => {
 	return session?.user;
 };
 
-export const getUserOrganizationInfo = async () => {
+export const currentRole = async () => {
+	const session = await auth();
+	return session?.user.role;
+};
+
+export const getUserAllMembershipInfo = async () => {
 	try {
 		const user = await currentUser();
 		if (!user) return null;
-		const fetchedOrgData = await prisma.organizationMembership.findMany({
+		const fetchOrgData = await prisma.organizationMembership.findMany({
 			where: {
 				userId: user.id,
 			},
@@ -30,6 +35,46 @@ export const getUserOrganizationInfo = async () => {
 		// 	})),
 		// }));
 
-		return fetchedOrgData;
-	} catch (error) {}
+		return fetchOrgData;
+	} catch (error) {
+		return null;
+	}
+};
+
+export const getUserCurrentMembershipInfo = async () => {
+	try {
+		const user = await currentUser();
+		if (!user || !user.organizationId || user.id) return null;
+		const fetchOrgData = await prisma.organizationMembership.findUnique({
+			where: {
+				userId_organizationId: {
+					userId: user.id!,
+					organizationId: user.organizationId,
+				},
+			},
+		});
+		return fetchOrgData;
+	} catch (error) {
+		return null;
+	}
+};
+
+export const getUserCurrentMembershipInfoByOrgID = async (
+	organizationId: string
+) => {
+	try {
+		const user = await currentUser();
+		if (!user || user.id) return null;
+		const fetchOrgData = await prisma.organizationMembership.findUnique({
+			where: {
+				userId_organizationId: {
+					userId: user.id!,
+					organizationId,
+				},
+			},
+		});
+		return fetchOrgData;
+	} catch (error) {
+		return null;
+	}
 };

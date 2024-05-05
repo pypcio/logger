@@ -7,53 +7,71 @@ import {
 	authRoutes,
 	publicRoutes,
 	apiPrefix,
+	firstLoginRoutes,
 } from "@/routes";
+import { getCsrfToken } from "next-auth/react";
 
-const { auth } = NextAuth(authConfig);
+// const { auth } = NextAuth(authConfig);
+import { auth } from "@/auth";
+import { NextResponse } from "next/server";
 
-export default auth((req) => {
+export default auth(async (req) => {
 	const { nextUrl } = req;
-	const isAuthorized = !!req.auth;
+	const isLoggedIn = !!req.auth;
+	const isAssignedToOrg = !!req.auth?.user.organizationId;
 
 	const isApiRoute = nextUrl.pathname.startsWith(apiPrefix);
 	const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
 	const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
 	const isAuthRoute = authRoutes.includes(nextUrl.pathname);
-	// console.log("isApiAuthRoute: ", isApiAuthRoute);
-	// console.log("isPublicRoute: ", isPublicRoute);
-	// console.log("isAuthRoute: ", isAuthRoute);
-	// console.log("isAuthorized", isAuthorized);
+	const isFirstLoginRoute = firstLoginRoutes.includes(nextUrl.pathname);
+	// console.log("isAuthRoutes: ", isAuthRoute);
+	// console.log(
+	// 	"isLoggedIn: ",
+	// 	isLoggedIn,
+	// 	"isFirstLoginRoute: ",
+	// 	isFirstLoginRoute,
+	// 	"isAssignedToOrg: ",
+	// 	isAssignedToOrg
+	// );
+	// API authentication specific routes, continue without intervention
 	if (isApiAuthRoute) {
 		return;
 	}
-	if (isApiRoute && !isAuthorized) {
-		// For API routes, if the user is not authorized, return a JSON error response instead of redirecting
-		return new Response(JSON.stringify({ error: "User not authorized" }), {
+
+	// API route access control
+	if (isApiRoute && !isLoggedIn) {
+		return new NextResponse(JSON.stringify({ error: "User not authorized" }), {
 			status: 401,
 			headers: {
 				"Content-Type": "application/json",
 			},
 		});
 	}
+	// Redirect authorized users trying to access auth routes to default login redirect
 	if (isAuthRoute) {
-		if (isAuthorized) {
-			return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
+		if (isLoggedIn) {
+			return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
 		}
 		return;
 	}
 
-	if (!isAuthorized && !isPublicRoute) {
-		let callbackUrl = nextUrl.pathname;
-
-		if (nextUrl.search) {
-			callbackUrl += nextUrl.search;
-		}
-
+	// Redirect unauthorized users trying to access non-public routes to login
+	if (!isLoggedIn && !isPublicRoute) {
+		const callbackUrl = nextUrl.pathname + (nextUrl.search || "");
 		const encodedCallbackUrl = encodeURIComponent(callbackUrl);
 
-		return Response.redirect(
+		return NextResponse.redirect(
 			new URL(`/auth/login?callbackUrl=${encodedCallbackUrl}`, nextUrl)
 		);
+	}
+
+	if (isLoggedIn && isApiRoute) {
+		return;
+	}
+
+	if (isLoggedIn && !isAssignedToOrg && !isFirstLoginRoute) {
+		return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
 	}
 
 	return;

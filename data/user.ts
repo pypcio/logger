@@ -18,3 +18,24 @@ export const getUserById = async (userId: string) => {
 		return null;
 	}
 };
+
+export const getUserCurrentMembershipInfo = async (
+	userId: string,
+	organizationId: string
+) => {
+	"use server";
+	try {
+		const fetchOrgData = await prisma.organizationMembership.findUnique({
+			where: {
+				userId_organizationId: {
+					userId,
+					organizationId,
+				},
+			},
+		});
+		return fetchOrgData;
+	} catch (error) {
+		console.log("error: ", error);
+		return null;
+	}
+};

@@ -20,7 +20,7 @@ declare module "next-auth/jwt" {
 	/** Returned by the `jwt` callback and `auth`, when using JWT sessions */
 	interface JWT {
 		/** OpenID ID Token */
-		role?: string | null;
+		role?: UserRole | null;
 		organizationId?: string | null;
 		plantId?: string | null;
 	}
@@ -73,35 +73,32 @@ export const {
 		async session({ token, session }) {
 			if (token.sub && session.user) {
 				session.user.id = token.sub;
-			}
-			if (token.organizationId) {
-				session.user.organizationId = token.organizationId;
-				const role = token.role;
-				if (!role) {
-					const getRole = await prisma.organizationMembership.findFirst({
-						where: {
-							userId: session.user.id,
-							organizationId: session.user.organizationId,
-						},
-					});
-					if (!getRole) return session;
-					session.user.role = getRole.role;
+				if (token.organizationId && token.role) {
+					session.user.organizationId = token.organizationId;
+					session.user.role = token.role as UserRole;
 				}
 			}
 			return session;
 		},
 		async jwt({ token, trigger, session }) {
-			//TO DO: update user
 			if (trigger === "update" && session) {
-				token.organizationId = session.organizationId ?? null;
-				token.role = session.role ?? null;
+				// console.log("update hej!: ");
+				// console.log("session: ", session);
+				token.organizationId = session.user.organizationId;
+				// if (!token.organizationId) {
+				// 	const member = await prisma.organizationMembership.findUnique({
+				// 		where: {
+				// 			userId_organizationId: {
+				// 				userId: session.user.id,
+				// 				organizationId: session.user.organizationId,
+				// 			},
+				// 		},
+				// 	});
+				token.role = session.user.role;
+				// }
 				// token.plantId= session.plantId ?? null;
-			} else {
-				token.organizationId = null;
-				// token.plantId = null;
-				token.role = null;
+				// console.log("token po: ", token);
 			}
-
 			// token.role = existingUser.role;
 			return token;
 		},

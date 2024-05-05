@@ -9,6 +9,7 @@ import { Inter as FontSans } from "next/font/google";
 import { cn } from "@/lib/utils";
 import AuthProvider from "./Provider";
 import QueryClientProvider from "./query-provider";
+import { currentRole } from "@/lib/auth";
 
 const fontSans = FontSans({
 	subsets: ["latin"],
@@ -36,7 +37,7 @@ export default function RootLayout({
 						)}>
 						{/* <Theme accentColor='blue' radius='none' scaling='95%'> */}
 						<NavBar />
-						<main className=' flex-1 flex flex-col justify-center items-center'>
+						<main className=' flex-1 flex flex-col justify-center items-center bg-sky-200'>
 							{children}
 						</main>
 						{/* <ThemePanel /> */}

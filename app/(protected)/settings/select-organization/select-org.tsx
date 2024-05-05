@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-// import { updateUser } from "@/actions/update-user";
+import { updateUser } from "@/actions/update-user_unstable";
 import { useUserMembershipsInfo } from "@/lib/services/queries";
 import CardWrapper from "@/components/auth/CardWrapper";
 import {
@@ -12,31 +12,13 @@ import {
 	CommandItem,
 	CommandSeparator,
 } from "@/components/ui/command";
-import { useSession } from "next-auth/react";
-import { getUserCurrentMembershipInfo } from "@/actions/update-user";
 
 const SelectOrgMenu = () => {
-	const { data: session, update, status } = useSession();
-	const handleUpdate = async (organizationId: string) => {
+	const handleUpdate: any = async (organizationId: string) => {
 		try {
-			// console.log("organizationid: ", organizationId);
-			// await updateUser(organizationId);
-			if (session && session.user && session.user.id) {
-				const member = await getUserCurrentMembershipInfo(
-					session.user.id,
-					organizationId
-				);
-				if (member) {
-					await update({
-						...session,
-						user: {
-							...session.user,
-							organizationId: member.organizationId,
-							role: member.role,
-						},
-					});
-				}
-			}
+			console.log("organizationid: ", organizationId);
+			await updateUser(organizationId); // Assuming this updates the session
+			// Redirect to monitoring page, you may pass plant ID or other params as needed
 		} catch (err) {
 			console.error("Error during update: ", err);
 		}

@@ -70,9 +70,11 @@ export async function GET(request: NextRequest) {
 			organization: {
 				select: {
 					name: true,
+					id: true,
 					plants: {
 						select: {
 							name: true,
+							id: true,
 						},
 					},
 				},
@@ -91,6 +93,5 @@ export async function GET(request: NextRequest) {
 	// 		plantName: plant.name,
 	// 	})),
 	// }));
-
 	return NextResponse.json(fetchedOrgData, { status: 200 });
 }

@@ -21,7 +21,7 @@ export const createPlant = async (values: any) => {
 	const { name, description } = validatePlant.data;
 	//TO DO: redirect user to /settings/select-organization
 	// if (!user.organizationId) return { error: "Select organization first" };
-	const existingOrg = await getOrganizationById("clvqua8rf0000e27bdi39x2ov");
+	const existingOrg = await getOrganizationById("clvqueek00002e27br1n2cheg");
 	if (!existingOrg) return { error: "Organization does not exist" };
 
 	// if (user.role === UserRole.USER || !user.role)

@@ -1,21 +1,23 @@
-"use client";
 import LoginButton from "@/components/auth/LoginButton";
 import LogoutButton from "@/components/auth/LogoutButton";
 import ButtonTest from "./button-test";
 import { PropsWithChildren } from "react";
-import { useSession } from "next-auth/react";
 import { Container } from "@radix-ui/themes";
+import Link from "@/components/ui/link";
 
-const SettingsLayout = ({ children }: PropsWithChildren) => {
+const SettingsLayout = async ({ children }: PropsWithChildren) => {
 	return (
-		<Container className='flex flex-col h-full gap-5 justify-center items-center w-[60%]'>
-			{children}
+		<div className='w-full h-full flex flex-col first-line:gap-5 justify-center items-center p-6'>
+			<Container className='w-full h-full flex flex-col justify-center items-center'>
+				{children}
+			</Container>
 			{/* <div className='flex gap-5'>
 				<LoginButton />
 				<LogoutButton />
 				<ButtonTest />
 			</div> */}
-		</Container>
+			<Link href='/settings/select-organization'>Select Organization</Link>
+		</div>
 	);
 };
 

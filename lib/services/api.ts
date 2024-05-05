@@ -16,8 +16,8 @@ interface AllMemberhipsInfo {
 	organization: {
 		id: Organization["id"];
 		name: Organization["name"];
-		createdAt: Organization["createdAt"];
-		updatedAt: Organization["updatedAt"];
+		// createdAt: Organization["createdAt"];
+		// updatedAt: Organization["updatedAt"];
 		plants: Plant[];
 	};
 }
