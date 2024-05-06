@@ -18,16 +18,16 @@ export const useDynamicSideNav = (
 	const [menuItems, setMenuItems] = useState<SideNavItemSchema[]>([]);
 
 	useEffect(() => {
-		if (!isLoading && plantData) {
+		if (plantData) {
 			setMenuItems(formatMenuItems(plantData));
 		}
-	}, [isLoading, plantData]);
+	}, [plantData]);
 
 	const formatMenuItems = (plant: PlantWithDevices): SideNavItemSchema[] => {
 		return [
+			createDeviceSubNavItems("Loggers", plant.loggers, "router"),
 			createDeviceSubNavItems("Inverters", plant.inverters, "zap"),
 			createDeviceSubNavItems("Meters", plant.meters, "gauge"),
-			createDeviceSubNavItems("Loggers", plant.loggers, "router"),
 			createDeviceSubNavItems(
 				"Security Devices",
 				plant.securityDevices,

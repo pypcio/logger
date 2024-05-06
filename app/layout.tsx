@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import AuthProvider from "./Provider";
 import QueryClientProvider from "./query-provider";
 import { currentRole } from "@/lib/auth";
+import { Toaster } from "@/components/ui/toaster";
 
 const fontSans = FontSans({
 	subsets: ["latin"],
@@ -46,6 +47,7 @@ export default function RootLayout({
 							</div>
 							{/* <ThemePanel /> */}
 						</Theme>
+						<Toaster />
 					</body>
 					{/* <ThemePanel /> */}
 				</html>
