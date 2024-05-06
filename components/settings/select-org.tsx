@@ -71,7 +71,7 @@ const SelectOrgMenu = () => {
 			mainLabel='Select Organization'
 			headerLabel='Welcome back'
 			className='flex flex-col justify-center items-center w-5/6 rounded-lg border shadow-md'>
-			<Command className='grow w-full p-4 rounded-lg border '>
+			<Command className='grow w-[80%] p-4 rounded-lg border '>
 				<CommandInput placeholder='Type a plant or search...' />
 				<CommandList>
 					<CommandEmpty>
@@ -94,7 +94,7 @@ const SelectOrgMenu = () => {
 													onClick={() =>
 														handleUpdate(organization.id, plant.id)
 													}
-													className='text-base cursor-pointer'>
+													className='text-sm cursor-pointer text-muted-foreground'>
 													{plant.name}
 												</button>
 											</CommandItem>
