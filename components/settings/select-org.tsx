@@ -18,9 +18,20 @@ import { useRouter } from "next/navigation";
 import { useToast } from "../ui/use-toast";
 import { formatSexyDate } from "@/lib/utils";
 import FormSuccess from "../form-success";
-import { Flex, Spinner } from "@radix-ui/themes";
+import {
+	Badge,
+	Code,
+	DataList,
+	Flex,
+	IconButton,
+	Link,
+	Spinner,
+} from "@radix-ui/themes";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { FaUser } from "react-icons/fa";
+import CopyToClipboardIcon from "../copy-to-clipboard";
 
-const SelectOrgMenu = () => {
+const SelectOrgMenu = ({ text }: { text: string }) => {
 	const { data: session, update } = useSession();
 	const router = useRouter();
 	const { toast } = useToast();
@@ -43,7 +54,6 @@ const SelectOrgMenu = () => {
 						setSuccess("Redirecting...");
 						router.push(`/monitoring/${plantId}`);
 					} catch (error) {
-						console.log("wchodze tu 1: ");
 						toast({
 							variant: "destructive",
 							title: "Oh no! Could not update session!",
@@ -53,7 +63,6 @@ const SelectOrgMenu = () => {
 				}
 			}
 		} catch (err) {
-			console.log("wchodze tu 2: ");
 			const currentDate = new Date();
 			const sexyDate = formatSexyDate(currentDate);
 			toast({
@@ -63,27 +72,93 @@ const SelectOrgMenu = () => {
 			});
 		}
 	};
-
-	const { data: membershipsInfo, error, isLoading } = useUserMembershipsInfo();
+	//testing
+	const text_id = "u_2J89JSA4GJ";
+	const isLoading = false;
+	const membershipsInfo: any = [];
+	// const { data: membershipsInfo, error, isLoading } = useUserMembershipsInfo();
 
 	return (
-		<CardWrapper
-			mainLabel='Select Organization'
-			headerLabel='Welcome back'
-			className='flex flex-col justify-center items-center w-5/6 rounded-lg border shadow-md'>
-			<Command className='grow w-[80%] p-4 rounded-lg border '>
-				<CommandInput placeholder='Type a plant or search...' />
-				<CommandList>
-					<CommandEmpty>
-						{isLoading ? (
-							<Flex gap='2' align='center' justify='center'>
-								<Spinner size='3' /> Loading...
-							</Flex>
-						) : (
-							"No results found."
-						)}
-					</CommandEmpty>
-					{membershipsInfo?.map(({ organization }, index) => {
+		<div className='flex flex-col justify-center items-center w-full '>
+			<div className='flex flex-col justify- items-start bg-white w-5/6 mb-8 pl-0 p-8 shadow-md'>
+				<div className=' flex gap-20 justify-center items-center px-20'>
+					<Avatar className='w-28 h-28 flex-0 m-auto'>
+						<AvatarImage
+							src='https://github.com/shadcn.png'
+							className='cursor-pointer bg-secondary'
+							referrerPolicy='no-referrer'
+						/>
+						<AvatarFallback>
+							<FaUser className='w-28 h-28 opacity-50' />
+						</AvatarFallback>
+					</Avatar>
+					<DataList.Root size='1'>
+						<DataList.Item align='center'>
+							<DataList.Label minWidth='88px'>Status</DataList.Label>
+							<DataList.Value>
+								<Badge color='jade' variant='soft' radius='full'>
+									Authorized
+								</Badge>
+							</DataList.Value>
+						</DataList.Item>
+						<DataList.Item>
+							<DataList.Label minWidth='88px'>ID</DataList.Label>
+							<DataList.Value>
+								<Flex align='center' gap='2'>
+									<Code variant='ghost'>{text_id}</Code>
+									<CopyToClipboardIcon text={text_id} />
+								</Flex>
+							</DataList.Value>
+						</DataList.Item>
+						<DataList.Item>
+							<DataList.Label minWidth='88px'>Name</DataList.Label>
+							<DataList.Value>Vlad Moroz</DataList.Value>
+						</DataList.Item>
+						<DataList.Item>
+							<DataList.Label minWidth='88px'>Email</DataList.Label>
+							<DataList.Value>
+								<Link href='mailto:vlad@workos.com'>vlad@workos.com</Link>
+							</DataList.Value>
+						</DataList.Item>
+						<DataList.Item>
+							<DataList.Label minWidth='88px'>Company</DataList.Label>
+							<DataList.Value>
+								<Link target='_blank' href='https://workos.com'>
+									WorkOS
+								</Link>
+							</DataList.Value>
+						</DataList.Item>
+					</DataList.Root>
+				</div>
+			</div>
+			<CardWrapper
+				mainLabel=''
+				headerLabel=''
+				className='flex flex-col justify-center items-center w-5/6 rounded-lg border shadow-md pb-8'>
+				<p className='w-full text-center mb-2 font-semibold'>
+					Select Organization
+				</p>
+				<div className='h-auto flex w-4/6 flex-col justify-center items-center rounded-lg border m-auto'>
+					<Command className=' w-full p-4 m-auto h-full'>
+						<CommandInput placeholder='Type a plant or search...' />
+						<div className='rounded-lg border'>
+							<CommandList className='h-full'>
+								<CommandEmpty>
+									{isLoading ? (
+										<Flex gap='2' align='center' justify='center'>
+											<Spinner size='3' />{" "}
+											<span className='text-sm'>Loading...</span>
+										</Flex>
+									) : (
+										<p className='text-sm text-muted-foreground'>
+											No results found. <br /> Add{" "}
+											<Link href='/settings/add-organization'>
+												Organization
+											</Link>
+										</p>
+									)}
+								</CommandEmpty>
+								{/* {membershipsInfo?.map(({ organization }, index) => {
 						return (
 							<>
 								<CommandGroup key={index} heading={organization.name}>
@@ -103,11 +178,14 @@ const SelectOrgMenu = () => {
 								<CommandSeparator />
 							</>
 						);
-					})}
-				</CommandList>
-			</Command>
-			{onSuccess && <FormSuccess message={onSuccess} />}
-		</CardWrapper>
+					})} */}
+							</CommandList>
+						</div>
+					</Command>
+				</div>
+				{onSuccess && <FormSuccess message={onSuccess} />}
+			</CardWrapper>
+		</div>
 	);
 };
 

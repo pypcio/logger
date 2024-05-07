@@ -5,7 +5,8 @@ import CardWrapper from "./CardWrapper";
 const ErrorCard = () => {
 	return (
 		<CardWrapper
-			headerLabel='Oops! Something went wrong!'
+			mainLabel='Oops! Something went wrong!'
+			headerLabel=''
 			backButtonHref='/auth/login'
 			backButtonLabel='Back to login'>
 			<div className='bg-destructive/15 p-3 rounded-md flex items-center gap-x-2 text-sm text-destructive'>
