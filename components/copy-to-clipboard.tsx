@@ -1,7 +1,10 @@
 "use client";
 import { Icon } from "@iconify/react";
 import { useToast } from "@/components/ui/use-toast";
-const CopyToClipboardIcon = ({ text }: { text: string }) => {
+interface Props {
+	text: string;
+}
+const CopyToClipboardIcon = ({ text }: Props) => {
 	const { toast } = useToast();
 	const handleCopy = async () => {
 		try {

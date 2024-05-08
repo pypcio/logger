@@ -33,7 +33,7 @@ const NavBar = () => {
 	return (
 		<nav
 			className={cn(
-				`h-[var(--navbar-height)] flex-none border-b border-gray-200 bg-background flex items-center w-full px-4`,
+				`border-b border-gray-200 bg-background flex items-center w-full px-4  py-2 `,
 				{
 					// "border-b border-gray-200  backdrop-blur-lg": scrolled,
 					// "border-b border-gray-200 ": selectedLayout,

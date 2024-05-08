@@ -37,14 +37,14 @@ export default function RootLayout({
 							fontSans.variable
 						)}>
 						<Theme>
-							<div className='flex-col h-screen w-full'>
+							<main className='flex flex-col h-screen w-full'>
 								<NavBar />
-								<main
+								<div
 									className='flex bg-sky-200'
-									style={{ height: `calc(100vh - var(--navbar-height))` }}>
+									style={{ height: `calc(100% - var(--navbar-height))` }}>
 									{children}
-								</main>
-							</div>
+								</div>
+							</main>
 							{/* <ThemePanel /> */}
 						</Theme>
 						<Toaster />

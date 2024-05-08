@@ -7,7 +7,7 @@ const FillerPage = () => {
 	const items = Array.from({ length: 20 }, (_, index) => `Item ${index + 1}`);
 
 	return (
-		<div className='flex flex-col h-full overflow-auto p-4 grow'>
+		<div className='flex flex-col h-full overflow-y-auto p-4 '>
 			<h1>Long Content Component</h1>
 			<ul>
 				{items.map((item) => (

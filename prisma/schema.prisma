@@ -181,20 +181,21 @@ enum SysState {
 }
 
 model User {
-  id                    String                 @id @default(cuid())
-  name                  String
-  email                 String                 @unique
-  emailVerified         DateTime?
-  hashedPassword        String?
-  image                 String?
-  isTwoFactorEnabled    Boolean                @default(false)
-  twoFactorConfirmation TwoFactorConfirmation?
-  accounts              Account[]
-  sessions              Session[]
-  authenticators        Authenticator[] // Optional for WebAuthn support
-  createdAt             DateTime               @default(now())
-  updatedAt             DateTime               @updatedAt
-
+  id                      String                   @id @default(cuid())
+  name                    String
+  email                   String                   @unique
+  emailVerified           DateTime?
+  hashedPassword          String?
+  image                   String?
+  company_id              String?
+  isTwoFactorEnabled      Boolean                  @default(false)
+  twoFactorConfirmation   TwoFactorConfirmation?
+  accounts                Account[]
+  sessions                Session[]
+  authenticators          Authenticator[] // Optional for WebAuthn support
+  company                 Company?                 @relation(fields: [company_id], references: [id])
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
   // New relationship fields for organizations
   organizationMemberships OrganizationMembership[]
 }
@@ -278,6 +279,12 @@ model Authenticator {
   transports           String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Company {
+  id    String @id @default(cuid())
+  name  String
+  users User[]
 }
 
 model Organization {

@@ -4,6 +4,7 @@ import {
 	UserRole,
 	Plant,
 	Inverter,
+	User,
 } from "@prisma/client";
 import axios from "axios";
 
@@ -28,6 +29,12 @@ interface AllMemberhipsInfo {
 		id: Organization["id"];
 		name: Organization["name"];
 		plants: Plant[];
+	};
+}
+
+interface UserWithComapny extends User {
+	company: {
+		name: string;
 	};
 }
 /**
@@ -55,4 +62,14 @@ export const getPlantById = async (plantId: string) => {
 export const getPlantWithDevicesById = async (plantId: string) => {
 	return (await axios.get<PlantWithDevices>(`/api/plants/${plantId}/devices`))
 		.data;
+};
+
+/**
+ * Get User info using session cookie- no ID needed
+ * @returns
+ */
+export const getUserByAuth = async () => {
+	const data = (await axios.get<UserWithComapny>(`/api/users`)).data;
+	console.log("data: ", data);
+	return data;
 };

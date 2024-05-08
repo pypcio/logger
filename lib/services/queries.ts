@@ -1,5 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { getPlantWithDevicesById, getUserMembershipsInfo } from "./api";
+import {
+	getPlantWithDevicesById,
+	getUserByAuth,
+	getUserMembershipsInfo,
+} from "./api";
 
 export const useUserMembershipsInfo = () =>
 	useQuery({
@@ -12,4 +16,10 @@ export const usePlantWithDevices = (plantId: string) =>
 		queryKey: ["plantWithDevices", plantId],
 		queryFn: () => getPlantWithDevicesById(plantId),
 		enabled: !!plantId,
+	});
+
+export const useUserByAuth = () =>
+	useQuery({
+		queryKey: ["user"],
+		queryFn: getUserByAuth,
 	});
