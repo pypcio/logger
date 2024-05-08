@@ -14,15 +14,21 @@ datasource db {
 }
 
 model Plant {
-  id          String     @id @default(cuid())
-  name        String     @unique
-  description String?    @db.Text
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  location    Location?
-  loggers     Logger[]
-  meters      Meter[]
-  inverters   Inverter[]
+  id              String           @id @default(cuid())
+  name            String
+  description     String?          @db.Text
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  locationId      Int?             @unique
+  organizationId  String
+  loggers         Logger[]
+  meters          Meter[]
+  inverters       Inverter[]
+  securityDevices SecurityDevice[]
+  Organization    Organization?    @relation(fields: [organizationId], references: [id])
+  location        Location?        @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@unique([name, organizationId])
 }
 
 model Logger {
@@ -35,22 +41,23 @@ model Logger {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   plant       Plant       @relation(fields: [plant_id], references: [id], onDelete: Cascade)
-  loggs       LoggerLog[]
+  logger_logs LoggerLog[]
+
+  @@unique([name, plant_id])
 }
 
 model Location {
-  id             Int     @id @default(autoincrement())
-  plant_id       String
-  street_address String? @db.VarChar(255)
-  postal_code    String? @db.VarChar(255)
-  city           String? @db.VarChar(255)
-  district       String? @db.VarChar(255)
-  county         String? @db.VarChar(255)
-  state_province String? @db.VarChar(255)
+  id             Int           @id @default(autoincrement())
+  street_address String?       @db.VarChar(255)
+  postal_code    String?       @db.VarChar(255)
+  city           String?       @db.VarChar(255)
+  district       String?       @db.VarChar(255)
+  county         String?       @db.VarChar(255)
+  state_province String?       @db.VarChar(255)
   country        String?
-  plant          Plant   @relation(fields: [plant_id], references: [id], onDelete: Cascade)
-
-  @@unique([plant_id])
+  // Removed explicit single-entity links if you need more flexibility
+  Plant          Plant?
+  Organization   Organization?
 }
 
 model LoggerLog {
@@ -78,8 +85,10 @@ model Meter {
   description String?    @db.Text
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  meterLogs   MeterLog[]
+  meter_logs  MeterLog[]
   plant       Plant      @relation(fields: [plant_id], references: [id], onDelete: Cascade)
+
+  @@unique([name, plant_id])
 }
 
 model MeterLog {
@@ -103,16 +112,18 @@ model MeterLog {
 }
 
 model Inverter {
-  id          String        @id @default(cuid())
-  plant_id    String
-  name        String
-  model       String?
-  producent   String?
-  description String?       @db.Text
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  inverterLog InverterLog[]
-  plant       Plant         @relation(fields: [plant_id], references: [id], onDelete: Cascade)
+  id            String        @id @default(cuid())
+  plant_id      String
+  name          String
+  model         String?
+  producent     String?
+  description   String?       @db.Text
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  inverter_logs InverterLog[]
+  plant         Plant         @relation(fields: [plant_id], references: [id], onDelete: Cascade)
+
+  @@unique([name, plant_id])
 }
 
 model InverterLog {
@@ -129,6 +140,35 @@ model InverterLog {
   inverter Inverter @relation(fields: [inverter_id], references: [id])
 }
 
+model SecurityDevice {
+  id            String              @id @default(cuid())
+  plant_id      String
+  name          String
+  model         String?
+  producent     String?
+  description   String?             @db.Text
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  security_logs SecurityDeviceLog[]
+  plant         Plant               @relation(fields: [plant_id], references: [id], onDelete: Cascade)
+
+  @@unique([name, plant_id])
+}
+
+model SecurityDeviceLog {
+  id          Int      @id @default(autoincrement())
+  inverter_id String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  frequency   Float?
+  voltage_l1  Float?
+  current_l2  Float?
+  a_power_l1  Float?
+  r_power_l1  Float?
+
+  device SecurityDevice @relation(fields: [inverter_id], references: [id])
+}
+
 enum SysState {
   WAITING
   CHECKING
@@ -141,19 +181,23 @@ enum SysState {
 }
 
 model User {
-  id             String          @id @default(cuid())
-  name           String?
-  email          String          @unique
-  emailVerified  DateTime?
-  hashedPassword String?
-  image          String?
-  accounts       Account[]
-  sessions       Session[]
-  // Optional for WebAuthn support
-  Authenticator  Authenticator[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                      String                   @id @default(cuid())
+  name                    String
+  email                   String                   @unique
+  emailVerified           DateTime?
+  hashedPassword          String?
+  image                   String?
+  company_id              String?
+  isTwoFactorEnabled      Boolean                  @default(false)
+  twoFactorConfirmation   TwoFactorConfirmation?
+  accounts                Account[]
+  sessions                Session[]
+  authenticators          Authenticator[] // Optional for WebAuthn support
+  company                 Company?                 @relation(fields: [company_id], references: [id])
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  // New relationship fields for organizations
+  organizationMemberships OrganizationMembership[]
 }
 
 model Account {
@@ -188,14 +232,41 @@ model Session {
 }
 
 model VerificationToken {
-  identifier String
-  token      String
-  expires    DateTime
+  id      String   @id @default(cuid())
+  email   String
+  token   String   @unique
+  expires DateTime
 
-  @@id([identifier, token])
+  @@unique([email, token])
 }
 
-// Optional for WebAuthn support
+model PasswordResetToken {
+  id      String   @id @default(cuid())
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model TwoFactorToken {
+  id      String   @id @default(cuid())
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model TwoFactorConfirmation {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId])
+}
+
 model Authenticator {
   id                   String  @id @default(cuid())
   credentialID         String  @unique
@@ -208,4 +279,43 @@ model Authenticator {
   transports           String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Company {
+  id    String @id @default(cuid())
+  name  String
+  users User[]
+}
+
+model Organization {
+  id               String   @id @default(cuid())
+  name             String   @unique
+  stripeCustomerId String?
+  locationId       Int?     @unique
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  members  OrganizationMembership[]
+  plants   Plant[]
+  location Location?                @relation(fields: [locationId], references: [id], onDelete: Cascade)
+}
+
+// New model to replace OrganizationUser
+model OrganizationMembership {
+  userId         String
+  organizationId String
+  role           UserRole @default(USER)
+
+  user         User         @relation(fields: [userId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@id([userId, organizationId])
+}
+
+enum UserRole {
+  ADMIN
+  USER
+  OWNER
 }

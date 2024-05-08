@@ -1,8 +1,11 @@
-import { plantSchema } from "@/schemas/schema";
+import { plantSchema } from "@/schemas/api-schema";
 import prisma from "@/prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function PATCH(request: NextRequest, { params }: { params: { plantId: string } }) {
+export async function PATCH(
+	request: NextRequest,
+	{ params }: { params: { plantId: string } }
+) {
 	const body = await request.json();
 	const plantValidation = plantSchema.safeParse(body);
 
@@ -12,7 +15,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { plantI
 	const plant = await prisma.plant.findUnique({
 		where: { id: params.plantId },
 	});
-	if (!plant) return NextResponse.json({ error: "plant not found" }, { status: 404 });
+	if (!plant)
+		return NextResponse.json({ error: "plant not found" }, { status: 404 });
 
 	//check if plant with new name exists in a plant group (and and update when ORG introduced)
 	// if (body.name) {
@@ -35,8 +39,13 @@ export async function PATCH(request: NextRequest, { params }: { params: { plantI
 	return NextResponse.json(updatedPlant);
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { plantId: string } }) {
-	const deletePlant = await prisma.plant.delete({ where: { id: params.plantId } });
+export async function DELETE(
+	request: NextRequest,
+	{ params }: { params: { plantId: string } }
+) {
+	const deletePlant = await prisma.plant.delete({
+		where: { id: params.plantId },
+	});
 
 	return NextResponse.json({});
 }

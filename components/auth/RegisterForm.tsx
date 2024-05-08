@@ -3,8 +3,8 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { registerUserSchema } from "@/schemas/schema";
-import { Button } from "@/components/ui/Button";
+import { registerUserSchema } from "@/schemas/forms-schema";
+import { Button } from "@/components/ui/button";
 import FormError from "../form-error";
 import {
 	Form,
@@ -14,7 +14,7 @@ import {
 	FormItem,
 	FormLabel,
 	FormMessage,
-} from "@/components/ui/Form";
+} from "@/components/ui/form";
 import { Input } from "../ui/Input";
 import CardWrapper from "./CardWrapper";
 import FormSuccess from "../form-success";
@@ -22,8 +22,12 @@ import axios, { AxiosError } from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { register } from "@/actions/register";
+import usePasswordToggle, {
+	UsePasswordToggleReturnType,
+} from "@/hooks/use-pwd-toggle";
 
 const RegisterForm = () => {
+	const [PasswordInputType, ToggleIcon] = usePasswordToggle();
 	const router = useRouter();
 	const [isSubmitting, setSubmitting] = useState(false);
 	const [onError, setError] = useState<string | undefined>("");
@@ -31,6 +35,7 @@ const RegisterForm = () => {
 	const form = useForm<z.infer<typeof registerUserSchema>>({
 		resolver: zodResolver(registerUserSchema),
 		defaultValues: {
+			// organization: "",
 			email: "",
 			password: "",
 			name: "",
@@ -42,16 +47,26 @@ const RegisterForm = () => {
 		setSuccess("");
 		setSubmitting(true);
 		register(values).then((data) => {
-			setError(data?.error);
-			setSuccess(data?.success);
+			setSubmitting(false);
+			if (data?.error) {
+				form.reset();
+				setError(data.error);
+			}
+
+			if (data?.success) {
+				form.reset();
+				setSuccess(data.success);
+			}
 		});
 	}
 
 	return (
 		<CardWrapper
+			mainLabel='Auth'
 			headerLabel='Create an acount'
 			backButtonLabel='Already have an account?'
 			backButtonHref='/auth/login'
+			showBackButton
 			showSocial>
 			<Form {...form}>
 				<form
@@ -63,7 +78,7 @@ const RegisterForm = () => {
 							name='name'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Name</FormLabel>
+									<FormLabel>Name:</FormLabel>
 									<FormControl>
 										<Input
 											placeholder='your name...'
@@ -81,7 +96,7 @@ const RegisterForm = () => {
 							name='email'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Email</FormLabel>
+									<FormLabel>Email:</FormLabel>
 									<FormControl>
 										<Input
 											placeholder='email'
@@ -99,12 +114,12 @@ const RegisterForm = () => {
 							name='password'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Password</FormLabel>
+									<FormLabel>Password:</FormLabel>
 									<FormControl>
 										<Input
 											placeholder='******'
 											{...field}
-											type='password'
+											type={PasswordInputType}
 											disabled={isSubmitting}
 										/>
 									</FormControl>
@@ -117,14 +132,19 @@ const RegisterForm = () => {
 							name='confirmPassword'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Confirm password</FormLabel>
+									<FormLabel>Confirm password:</FormLabel>
 									<FormControl>
-										<Input
-											placeholder='******'
-											{...field}
-											type='password'
-											disabled={isSubmitting}
-										/>
+										<div className='relative'>
+											<Input
+												placeholder='******'
+												{...field}
+												type={PasswordInputType}
+												disabled={isSubmitting}
+											/>
+											<span className='absolute inset-y-0 right-0 flex items-center pr-3'>
+												{ToggleIcon}
+											</span>
+										</div>
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -134,7 +154,7 @@ const RegisterForm = () => {
 					{onError && <FormError message={onError} />}
 					{onSuccess && <FormSuccess message={onSuccess} />}
 					<Button className='w-full' type='submit' disabled={isSubmitting}>
-						Submit
+						Register
 					</Button>
 				</form>
 			</Form>

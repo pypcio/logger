@@ -6,15 +6,16 @@ import "./globals.css";
 import "./theme-config.css";
 import NavBar from "./NavBar";
 import { Inter as FontSans } from "next/font/google";
-
 import { cn } from "@/lib/utils";
-import AuthProvider from "@/Provider";
+import AuthProvider from "./Provider";
+import QueryClientProvider from "./query-provider";
+import { currentRole } from "@/lib/auth";
+import { Toaster } from "@/components/ui/toaster";
 
 const fontSans = FontSans({
 	subsets: ["latin"],
 	variable: "--font-sans",
 });
-// import AuthProvider from "./Provider";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 export const metadata: Metadata = {
 	title: "Create Next App",
@@ -27,22 +28,30 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang='en'>
-			<body
-				className={cn(
-					"min-h-screen bg-background font-sans antialiased",
-					fontSans.variable
-				)}>
-				<AuthProvider>
-					{/* <Theme accentColor='blue' radius='none' scaling='95%'> */}
-					<NavBar />
-					<main>{children}</main>
+		<QueryClientProvider>
+			<AuthProvider>
+				<html lang='en'>
+					<body
+						className={cn(
+							"bg-background font-sans antialiased",
+							fontSans.variable
+						)}>
+						<Theme>
+							<main className='flex flex-col h-screen w-full'>
+								<NavBar />
+								<div
+									className='flex bg-sky-200'
+									style={{ height: `calc(100% - var(--navbar-height))` }}>
+									{children}
+								</div>
+							</main>
+							{/* <ThemePanel /> */}
+						</Theme>
+						<Toaster />
+					</body>
 					{/* <ThemePanel /> */}
-					{/* </Theme> */}
-				</AuthProvider>
-			</body>
-			{/* <ThemePanel /> */}
-		</html>
+				</html>
+			</AuthProvider>
+		</QueryClientProvider>
 	);
 }
-

@@ -23,7 +23,17 @@
 		--border: 214.3 31.8% 91.4%;
 		--input: 214.3 31.8% 91.4%;
 		--ring: 221.2 83.2% 53.3%;
-		--radius: 1rem;
+		--radius: 0;
+		--space-1: 0.5rem;
+		--space-2: 0.75rem;
+		--space-3: 1rem;
+		--space-4: 1.25rem;
+		--space-5: 1.5rem;
+		--container-1: 448px;
+		--container-2: 688px;
+		--container-3: 880px;
+		--container-4: 1136px;
+		--navbar-height: 4rem;
 	}
 
 	.dark {
@@ -46,6 +56,17 @@
 		--border: 217.2 32.6% 17.5%;
 		--input: 217.2 32.6% 17.5%;
 		--ring: 224.3 76.3% 48%;
+		--radius: 1rem;
+		--space-1: 0.5rem;
+		--space-2: 0.75rem;
+		--space-3: 1rem;
+		--space-4: 1.25rem;
+		--space-5: 1.5rem;
+		--container-1: 448px;
+		--container-2: 688px;
+		--container-3: 880px;
+		--container-4: 1136px;
+		--navbar-height: 4rem;
 	}
 }
 
@@ -58,3 +79,11 @@
 	}
 }
 
+@keyframes scaleRightToLeftMove {
+	from {
+		transform: scaleX(0) translateX(50%);
+	}
+	to {
+		transform: scaleX(1) translateX(0%);
+	}
+}

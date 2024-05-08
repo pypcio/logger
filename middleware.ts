@@ -1,37 +1,68 @@
-import providersConfig from "@/auth.config";
+import NextAuth from "next-auth";
+
+import authConfig from "@/auth.config";
 import {
 	DEFAULT_LOGIN_REDIRECT,
 	apiAuthPrefix,
 	authRoutes,
 	publicRoutes,
+	apiPrefix,
+	firstLoginRoutes,
 } from "@/routes";
-import NextAuth from "next-auth";
-const { auth } = NextAuth(providersConfig);
+import { getCsrfToken } from "next-auth/react";
 
-export default auth((req) => {
-	const { nextUrl } = req;
-	const isLoggedIn = !!req.auth;
+// const { auth } = NextAuth(authConfig);
+import { auth } from "@/auth";
+import { NextResponse } from "next/server";
 
-	const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
-	const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
-	const isAuthRoute = authRoutes.includes(nextUrl.pathname);
-
-	if (isApiAuthRoute) {
-		return null;
-	}
-	if (isAuthRoute) {
-		if (isLoggedIn) {
-			return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
-		}
-		return null;
-	}
-
-	console.log(isLoggedIn, isPublicRoute);
-
-	if (!isLoggedIn && !isPublicRoute) {
-		return Response.redirect(new URL("/auth/login", nextUrl));
-	}
-	return null;
+export default auth(async (req) => {
+	// const { nextUrl } = req;
+	// const isLoggedIn = !!req.auth;
+	// const isAssignedToOrg = !!req.auth?.user.organizationId;
+	// const isApiRoute = nextUrl.pathname.startsWith(apiPrefix);
+	// const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
+	// const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
+	// const isAuthRoute = authRoutes.includes(nextUrl.pathname);
+	// const isFirstLoginRoute = firstLoginRoutes.includes(nextUrl.pathname);
+	// // API authentication specific routes, continue without intervention
+	// if (isApiAuthRoute) {
+	// 	return;
+	// }
+	// // API route access control
+	// if (isApiRoute && !isLoggedIn) {
+	// 	return new NextResponse(JSON.stringify({ error: "User not authorized" }), {
+	// 		status: 401,
+	// 		headers: {
+	// 			"Content-Type": "application/json",
+	// 		},
+	// 	});
+	// }
+	// // Redirect authorized users trying to access auth routes to default login redirect
+	// if (isAuthRoute) {
+	// 	if (isLoggedIn) {
+	// 		return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
+	// 	}
+	// 	return;
+	// }
+	// // Redirect unauthorized users trying to access non-public routes to login
+	// if (!isLoggedIn && !isPublicRoute) {
+	// 	const callbackUrl = nextUrl.pathname + (nextUrl.search || "");
+	// 	const encodedCallbackUrl = encodeURIComponent(callbackUrl);
+	// 	return NextResponse.redirect(
+	// 		new URL(`/auth/login?callbackUrl=${encodedCallbackUrl}`, nextUrl)
+	// 	);
+	// }
+	// // Do nothing when api caller is logged
+	// if (isLoggedIn && isApiRoute) {
+	// 	return;
+	// }
+	// // Redirect user if organization is not found in session
+	// if (isLoggedIn && !isAssignedToOrg && !isFirstLoginRoute) {
+	// 	return NextResponse.redirect(
+	// 		new URL(`${DEFAULT_LOGIN_REDIRECT}/select-organization`, nextUrl)
+	// 	);
+	// }
+	// return;
 });
 
 // Optionally, don't invoke Middleware on some paths

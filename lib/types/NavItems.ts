@@ -9,6 +9,7 @@ export type SideNavItem = {
 export type MainNavItem = {
 	title: string;
 	path: string;
+	protected?: boolean;
 	icon?: JSX.Element;
 	submenu?: boolean;
 	subMenuItems?: MainNavItem[];
@@ -16,6 +17,6 @@ export type MainNavItem = {
 
 export type ProviderElement = {
 	label: string;
-	path: string;
+	name: string;
 	icon: JSX.Element;
 };
