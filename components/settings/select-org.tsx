@@ -72,16 +72,13 @@ const SelectOrgMenu = () => {
 			});
 		}
 	};
-	//testing
-	const text_id = "u_2J89JSA4GJ";
-	// const isLoading = false;
-	// const membershipsInfo: any = [];
+
 	const { data: user, isLoading: isUserLoading } = useUserByAuth();
 	const { data: membershipsInfo, error, isLoading } = useUserMembershipsInfo();
 
 	return (
-		<div className='flex flex-col justify-center items-center w-full min-w-[450px]'>
-			<div className='flex flex-col justify- items-start bg-white w-5/6 mb-8 pl-0 p-4 shadow-md overflow-hidden'>
+		<div className='container relative flex flex-col justify-center items-center my-12'>
+			<div className='flex flex-col justify- items-start border rounded-lg  w-5/6 mb-8 pl-0 p-4 shadow-md overflow-hidden'>
 				<div className=' flex gap-16 justify-center items-center px-16'>
 					<Avatar className='w-28 h-28 flex-0 m-auto'>
 						<AvatarImage
@@ -154,14 +151,14 @@ const SelectOrgMenu = () => {
 					</div>
 				</div>
 			</div>
-			<div className='flex flex-col justify-center items-center w-5/6 rounded-lg border shadow-md py-8 bg-white'>
+			<div className='flex flex-col justify-center items-center w-5/6 rounded-lg border shadow-md py-8 '>
 				<p className=' w-full text-center mb-2 font-semibold'>
 					Select Organization
 				</p>
-				<div className='h-auto flex w-4/6 flex-col justify-center items-center rounded-lg border border-neutral-500 m-auto'>
+				<div className='h-auto flex w-4/6 flex-col justify-center items-center my-4'>
 					<Command className=' w-full p-4 m-auto h-full'>
 						<CommandInput placeholder='Type a plant or search...' />
-						<div className='rounded-lg  border  max-h-48 overflow-y-auto'>
+						<div className='rounded-lg  border  h-full overflow-y-auto'>
 							<CommandList className='h-full'>
 								<CommandEmpty>
 									{isLoading ? (

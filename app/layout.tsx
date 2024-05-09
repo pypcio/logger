@@ -11,6 +11,7 @@ import AuthProvider from "./Provider";
 import QueryClientProvider from "./query-provider";
 import { currentRole } from "@/lib/auth";
 import { Toaster } from "@/components/ui/toaster";
+import { ThemeProvider } from "./theme-provider";
 
 const fontSans = FontSans({
 	subsets: ["latin"],
@@ -30,24 +31,25 @@ export default function RootLayout({
 	return (
 		<QueryClientProvider>
 			<AuthProvider>
-				<html lang='en'>
+				<html lang='en' suppressHydrationWarning>
 					<body
 						className={cn(
-							"bg-background font-sans antialiased",
+							"bg-background font-sans antialiased min-h-screen",
 							fontSans.variable
 						)}>
-						<Theme>
-							<main className='flex flex-col h-screen w-full'>
+						<ThemeProvider
+							attribute='class'
+							defaultTheme='system'
+							enableSystem
+							disableTransitionOnChange>
+							<main className='flex flex-col w-full'>
 								<NavBar />
-								<div
-									className='flex bg-sky-200'
-									style={{ height: `calc(100% - var(--navbar-height))` }}>
-									{children}
-								</div>
+								<div className='flex-1'>{children}</div>
 							</main>
 							{/* <ThemePanel /> */}
-						</Theme>
-						<Toaster />
+							{/* </Theme> */}
+							<Toaster />
+						</ThemeProvider>
 					</body>
 					{/* <ThemePanel /> */}
 				</html>

@@ -26,6 +26,7 @@ import { FaUser } from "react-icons/fa";
 import { Session } from "next-auth";
 import { currentRole } from "@/lib/auth";
 import { UserRole } from "@prisma/client";
+import { ModeToggle } from "@/components/mode-toggle";
 
 const NavBar = () => {
 	// const scrolled = useScroll(5);
@@ -33,23 +34,24 @@ const NavBar = () => {
 	return (
 		<nav
 			className={cn(
-				`border-b border-gray-200 bg-background flex items-center w-full px-4  py-2 `,
+				`w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60`,
 				{
 					// "border-b border-gray-200  backdrop-blur-lg": scrolled,
 					// "border-b border-gray-200 ": selectedLayout,
 				}
 			)}>
-			<Container>
-				<Flex justify='between' gap='5' align='center'>
-					<Flex gap='5' align='center'>
-						<Link href='/'>
-							<PiTelevisionDuotone size='2rem' />
-						</Link>
-						<NavLinks />
-					</Flex>
+			<div className='container h-14  flex justify-between items-center max-w-screen-2xl '>
+				<div className='flex justify-center gap-4 items-center'>
+					<Link href='/'>
+						<PiTelevisionDuotone size='2rem' />
+					</Link>
+					<NavLinks />
+				</div>
+				<div className='flex gap-4'>
 					<AuthStatus />
-				</Flex>
-			</Container>
+					<ModeToggle />
+				</div>
+			</div>
 		</nav>
 	);
 };
