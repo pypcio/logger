@@ -13,9 +13,8 @@ const Layout = ({ children, params: { plantId } }: Props) => {
 	const [open, setOpen] = useState(true);
 	return (
 		<div
-			className='flex w-full h-full '
-			// style={{ height: `calc(100vh - var(--navbar-height))` }}
-		>
+			className='flex w-full'
+			style={{ height: `calc(100vh - var(--navbar-height))` }}>
 			<SideNav plantId={plantId} />
 			{children}
 		</div>

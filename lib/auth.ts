@@ -1,14 +1,38 @@
 import { auth, unstable_update } from "@/auth";
 import prisma from "@/prisma/client";
+import { AllMemberhipsInfo } from "./services/api";
 
 export const currentUser = async () => {
 	const session = await auth();
+	if (!session) return null;
 	return session?.user;
 };
 
 export const currentRole = async () => {
 	const session = await auth();
+	if (!session) return null;
 	return session?.user.role;
+};
+
+export const getUserMembershipInfo = async () => {
+	const session = await auth();
+	try {
+		if (!session?.user.organizationId || !session?.user.id) return null;
+		const fetchOrgData = await prisma.organizationMembership.findUnique({
+			where: {
+				userId_organizationId: {
+					userId: session?.user.id,
+					organizationId: session?.user.organizationId,
+				},
+			},
+			include: {
+				organization: true,
+			},
+		});
+		return fetchOrgData;
+	} catch (error) {
+		return null;
+	}
 };
 
 export const getUserAllMembershipInfo = async () => {

@@ -2,8 +2,15 @@ import { useQuery } from "@tanstack/react-query";
 import {
 	getPlantWithDevicesById,
 	getUserByAuth,
+	// getUserMembershipInfo,
 	getUserMembershipsInfo,
 } from "./api";
+
+// export const useUserMembershipInfo = () =>
+// 	useQuery({
+// 		queryKey: ["memberShipInfo"],
+// 		queryFn: getUserMembershipInfo,
+// 	});
 
 export const useUserMembershipsInfo = () =>
 	useQuery({

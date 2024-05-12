@@ -8,7 +8,7 @@ import { unstable_update } from "@/auth";
 interface Props {
 	organizationId: string;
 }
-
+// TO DO: wez z tego
 const ButtonTest = ({ organizationId }: Props) => {
 	const { data: session, update } = useSession();
 	const handleUpdate = async () => {

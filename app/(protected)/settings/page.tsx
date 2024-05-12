@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import SessionInfo from "./session-info";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const AddOrgPage = () => {
 	const router = useRouter();
@@ -19,6 +20,7 @@ const AddOrgPage = () => {
 		<div>
 			<SessionInfo />
 			<AddOrgForm />
+			<Link href='/settings/select-organization'>Select Organization</Link>
 		</div>
 	);
 };

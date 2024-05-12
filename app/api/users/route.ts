@@ -3,7 +3,7 @@ import { currentUser } from "@/lib/auth";
 import prisma from "@/prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
-//get user from auth
+// TO DO: modify it, so no auth is needed
 export async function GET(req: NextRequest) {
 	const user = await currentUser();
 	if (!user || !user.id)

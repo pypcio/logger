@@ -12,7 +12,7 @@ declare module "next-auth" {
 		user: {
 			role?: UserRole | null;
 			organizationId?: string | null;
-			plantId?: string | null;
+			company?: string | null;
 		} & DefaultSession["user"];
 	}
 }
@@ -22,7 +22,7 @@ declare module "next-auth/jwt" {
 		/** OpenID ID Token */
 		role?: UserRole | null;
 		organizationId?: string | null;
-		plantId?: string | null;
+		company?: string | null;
 	}
 }
 
@@ -73,10 +73,13 @@ export const {
 		async session({ token, session }) {
 			if (token.sub && session.user) {
 				session.user.id = token.sub;
-				if (token.organizationId && token.role) {
-					session.user.organizationId = token.organizationId;
-					session.user.role = token.role as UserRole;
-				}
+			}
+			if (token.organizationId && token.role && session.user) {
+				session.user.organizationId = token.organizationId;
+				session.user.role = token.role as UserRole;
+			}
+			if (token.company && session.user) {
+				session.user.company = token.company;
 			}
 			return session;
 		},
@@ -100,6 +103,12 @@ export const {
 				// console.log("token po: ", token);
 			}
 			// token.role = existingUser.role;
+			if (!token.sub || token.company) return token;
+
+			const existingUser = await getUserById(token.sub);
+			if (!existingUser) return token;
+			token.company = existingUser.company?.name;
+
 			return token;
 		},
 	},

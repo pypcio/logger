@@ -15,8 +15,10 @@ import {
 import { PlantWithDevices } from "@/lib/services/api";
 import { Icon } from "@iconify/react";
 import { DropdownMenuSeparator } from "../ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 const iconClass =
-	" border border-x-gray-300 border-gray h-14 sm:h-16 md:h-20 w-2 lg:w-3 absolute inset-y-1/3 -right-1 lg:-right-2 rounded bg-white center hover:bg-muted  transition-colors duration-1000 ease-in-out m-0 p-0 shadow-2xl cursor-pointer hover:scale-105";
+	" rounded-full absolute -top-0 -right-1 lg:-right-2 center z-20  transition-colors duration-1000 ease-in-out m-0 p-0 shadow-2xl cursor-pointer hover:scale-105";
 
 const SideNav = ({ plantId }: { plantId: string }) => {
 	const scrolled = useScroll(5);
@@ -27,21 +29,20 @@ const SideNav = ({ plantId }: { plantId: string }) => {
 	return (
 		<div
 			className={cn(
-				" flex flex-col h-auto",
-				" bg-secondary",
-				"transition-all duration-500 ease-in-out ",
+				"flex flex-col h-auto bg-secondary",
 				{
 					"min-w-20 sm:min-w-20 md:min-w-44 lg:min-w-60": open,
-					"min-w-10 sm:min-w-12  lg:min-w-14": !open,
-				}
+					"w-10 sm:w-12 lg:w-14": !open,
+				},
+				open ? "animate-sidebar-open" : "animate-sidebar-close"
 			)}>
 			<div className={cn(" relative bg-secondary  grow")}>
-				<div className='sticky top-14 pt-4 h-full'>
-					<div className='absolute -right-1 lg:-right-2 top-0 h-full w-2 lg:w-2 bg-secondary-foreground'></div>
-					<button onClick={toggleOpen} className={iconClass}>
-						<ChevronIcon isOpen={open} />
-					</button>
-					<div className='flex flex-col y-2 px-0 md:px-1 py-4'>
+				<div className='sticky top-14 pt-6 h-full'>
+					{/* <div className='absolute -right-1 lg:-right-2 top-0 h-full w-2 lg:w-2 bg-secondary-foreground'></div> */}
+					<Button size='icon' onClick={toggleOpen} className={iconClass}>
+						<ChevronRight className={cn("h-4 w-4", { "rotate-180": open })} />
+					</Button>
+					<div className='flex flex-col y-2 md:px-2 lg:px-3 py-4'>
 						{!isLoading ? (
 							itemsSideNav?.map((item, idx) => {
 								return (
@@ -60,25 +61,6 @@ const SideNav = ({ plantId }: { plantId: string }) => {
 				</div>
 			</div>
 		</div>
-	);
-};
-
-const ChevronIcon = ({ isOpen }: { isOpen: boolean }) => {
-	const svgPath = isOpen
-		? "M8.84182 3.13514C9.04327 3.32401 9.05348 3.64042 8.86462 3.84188L5.43521 7.49991L8.86462 11.1579C9.05348 11.3594 9.04327 11.6758 8.84182 11.8647C8.64036 12.0535 8.32394 12.0433 8.13508 11.8419L4.38508 7.84188C4.20477 7.64955 4.20477 7.35027 4.38508 7.15794L8.13508 3.15794C8.32394 2.95648 8.64036 2.94628 8.84182 3.13514Z"
-		: "M6.1584 3.13508C6.35985 2.94621 6.67627 2.95642 6.86514 3.15788L10.6151 7.15788C10.7954 7.3502 10.7954 7.64949 10.6151 7.84182L6.86514 11.8418C6.67627 12.0433 6.35985 12.0535 6.1584 11.8646C5.95694 11.6757 5.94673 11.3593 6.1356 11.1579L9.565 7.49985L6.1356 3.84182C5.94673 3.64036 5.95694 3.32394 6.1584 3.13508Z";
-
-	return (
-		<span className='relative' style={{ right: 2, top: 1 }}>
-			<svg
-				width='20'
-				height='20'
-				viewBox='0 0 25 25'
-				fill='none'
-				xmlns='http://www.w3.org/2000/svg'>
-				<path d={svgPath} fill='gray' />
-			</svg>
-		</span>
 	);
 };
 
@@ -102,31 +84,31 @@ const MenuItem = ({
 	};
 	if (!isOpen && subMenuOpen) setSubMenuOpen(false);
 	return (
-		<div className=' scale-50 pr-0 md:scale-75 md:pr-1 lg:scale-100 lg:pr-2 overflow-hidden'>
+		<div className=' scale-50 pr-0 md:scale-75 lg:scale-100 overflow-hidden'>
 			{item.submenu ? (
 				<>
 					<button
 						disabled={isLoading}
 						onClick={toggleSubMenu}
-						className={`flex flex-row items-center p-1 rounded-lg hover-bg-zinc-100 w-full justify-between hover:bg-muted  ${
+						className={`flex flex-row pl-[3px] items-center py-1 rounded-lg hover-bg-zinc-100 w-full justify-between hover:bg-muted-foreground  ${
 							pathname.includes(item.path) ? "bg-zinc-100" : ""
 						}`}>
 						<div className='flex flex-row space-x-4 items-center'>
-							<span>
+							<span className='m-auto'>
 								<Icon icon={`lucide:${item.icon}`} width='24' height='24' />
 							</span>
 							<span
 								className={cn(`font-medium text-base flex`, {
-									"transition-width duration-300 ease-in-out scale-0": !isOpen,
-									"transition-width duration-300 ease-in-out scale-1": isOpen,
+									" hidden": !isOpen,
+									" ": isOpen,
 								})}>
 								{item.title}
 							</span>
 						</div>
 						<div
-							className={cn(` ${subMenuOpen ? "rotate-180" : ""} flex`, {
-								"transition-width duration-300 ease-in-out scale-0": !isOpen,
-								"transition-width duration-300 ease-in-out scale-1": isOpen,
+							className={cn(` ${subMenuOpen ? "rotate-180" : ""} flex mr-1`, {
+								" hidden": !isOpen,
+								" ": isOpen,
 							})}>
 							<ChevronDownIcon width='12' height='12' />
 						</div>
@@ -139,7 +121,7 @@ const MenuItem = ({
 									<Link
 										key={idx}
 										href={subItem.path}
-										className={`text-base ${
+										className={`text-sm opacity-85 ${
 											subItem.path === pathname ? "font-medium" : ""
 										}`}>
 										<span>{subItem.title}</span>
@@ -148,29 +130,34 @@ const MenuItem = ({
 							})}
 						</div>
 					)}
-					<DropdownMenuSeparator className='bg-black h-[1px] opacity-25' />
+					<DropdownMenuSeparator className='bg-muted-foreground' />
 				</>
 			) : (
 				<>
 					<Link
 						href={item.path}
-						className={`flex flex-row shrink  space-x-4 items-center py-2 px-1 rounded-lg hover:bg-muted ${
+						className={`flex flex-row shrink  pl-[3px] items-center py-2 justify-between  rounded-lg hover:bg-muted-foreground ${
 							item.path === pathname ? "bg-muted " : ""
 						}`}>
-						<Flex gap='0'>
+						<div className='gap-0 flex'>
 							<span>
-								<Icon icon={`lucide:${item.icon}`} width='24' height='24' />
+								<Icon
+									className='m-auto'
+									icon={`lucide:${item.icon}`}
+									width='24'
+									height='24'
+								/>
 							</span>
 							<span
 								className={cn(`font-medium text-base flex shrink  pl-4`, {
-									"transition-width duration-300 ease-in-out scale-0": !isOpen,
-									"transition-width duration-300 ease-in-out scale-1": isOpen,
+									" hidden": !isOpen,
+									" ": isOpen,
 								})}>
 								{item.title}
 							</span>
-						</Flex>
+						</div>
 					</Link>
-					<DropdownMenuSeparator className='bg-black h-[1px] opacity-25' />
+					<DropdownMenuSeparator className='bg-muted-foreground' />
 				</>
 			)}
 		</div>
@@ -184,8 +171,9 @@ const NavSkeleton = () => {
 			{fakeNavList.map((skeleton: number) => {
 				return (
 					<Skeleton
-						className='w-4/5 mx-0 my-2 h-4 md:h-10 rounded-xl'
-						key={skeleton}></Skeleton>
+						className='w-4/5 mx-0 my-1 h-4 md:h-10 rounded-xl bg-muted-foreground'
+						key={skeleton}
+					/>
 				);
 			})}
 		</div>

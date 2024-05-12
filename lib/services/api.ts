@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import {
 	Organization,
 	OrganizationMembership,
@@ -7,6 +8,7 @@ import {
 	User,
 } from "@prisma/client";
 import axios from "axios";
+import { currentUser } from "../auth";
 
 export interface Device {
 	id: string;
@@ -19,7 +21,7 @@ export interface PlantWithDevices extends Plant {
 	securityDevices: Device[];
 }
 
-interface AllMemberhipsInfo {
+export interface AllMemberhipsInfo {
 	userId: OrganizationMembership["userId"];
 	organizationId: OrganizationMembership["organizationId"];
 	createdAt: OrganizationMembership["createdAt"];
@@ -28,15 +30,16 @@ interface AllMemberhipsInfo {
 	organization: {
 		id: Organization["id"];
 		name: Organization["name"];
-		plants: Plant[];
+		plants?: Plant[];
 	};
 }
 
-interface UserWithComapny extends User {
+interface UserWithCompany extends User {
 	company: {
 		name: string;
 	};
 }
+
 /**
  * Get info about all Organizations that logged in User belogs to, including Plants info
  *
@@ -69,7 +72,6 @@ export const getPlantWithDevicesById = async (plantId: string) => {
  * @returns
  */
 export const getUserByAuth = async () => {
-	const data = (await axios.get<UserWithComapny>(`/api/users`)).data;
-	console.log("data: ", data);
+	const data = (await axios.get<UserWithCompany>(`/api/users`)).data;
 	return data;
 };

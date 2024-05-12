@@ -1,32 +1,31 @@
 "use client";
-import useScroll from "@/hooks/use-scroll";
-import { MAIN_NAV_ITEMS } from "@/lib/utils/mainNavList";
-import { cn } from "@/lib/utils";
-import { Container, Flex } from "@radix-ui/themes";
-import { Settings, LogOut } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
+	DropdownMenuGroup,
 	DropdownMenuItem,
 	DropdownMenuLabel,
+	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
+import { MainNavItem } from "@/lib/types/NavItems";
+import { cn } from "@/lib/utils";
+import { MAIN_NAV_ITEMS } from "@/lib/utils/mainNavList";
 import classnames from "classnames";
+import { LogOut, Settings, User } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { usePathname, useSelectedLayoutSegment } from "next/navigation";
-import { PiTelevisionDuotone } from "react-icons/pi";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { MainNavItem } from "@/lib/types/NavItems";
-import { Skeleton } from "@/components/ui/skeleton";
 import { FaUser } from "react-icons/fa";
+import { PiTelevisionDuotone } from "react-icons/pi";
 
-// import { useCurrentStatus } from "@/hooks/use-current-status";
-import { Session } from "next-auth";
-import { currentRole } from "@/lib/auth";
-import { UserRole } from "@prisma/client";
 import { ModeToggle } from "@/components/mode-toggle";
+
+import RoleTypeBadge from "@/components/user-badge";
+import OrganizationName from "@/components/organization-name";
 
 const NavBar = () => {
 	// const scrolled = useScroll(5);
@@ -58,6 +57,7 @@ const NavBar = () => {
 
 const AuthStatus = () => {
 	const { status, data: session } = useSession();
+	// const { data: member, isLoading } = useUserMembershipInfo();
 	if (status === "loading") {
 		return <Skeleton className='w-[100px] h-[20px] rounded-full' />;
 	}
@@ -70,7 +70,7 @@ const AuthStatus = () => {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger>
-				<Avatar>
+				<Avatar className='w-8 h-8'>
 					<AvatarImage
 						src={session!.user!.image!}
 						className='cursor-pointer bg-secondary'
@@ -83,11 +83,19 @@ const AuthStatus = () => {
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className='mx-2' align='center'>
 				<DropdownMenuLabel>
-					<p className='text-sm'>{session!.user!.email}</p>
+					<OrganizationName />
 				</DropdownMenuLabel>
+				<DropdownMenuGroup className='flex items-center mb-2'>
+					<User strokeWidth={1} className='ml-2 h-4 w-4 mr-2' />
+					<RoleTypeBadge
+						className='text-center mb-0'
+						status={session?.user.role!}
+					/>
+				</DropdownMenuGroup>
+				<DropdownMenuSeparator />
 				<DropdownMenuItem>
 					<Settings strokeWidth={1} className='h-4 w-4 mr-2' />
-					<Link href='/settings'>Setings</Link>
+					<Link href='/settings/user'>Setings</Link>
 				</DropdownMenuItem>
 				<DropdownMenuItem>
 					<LogOut strokeWidth={1} className='h-4 w-4 mr-2' />
@@ -97,46 +105,6 @@ const AuthStatus = () => {
 		</DropdownMenu>
 	);
 };
-
-// const AuthStatus = () => {
-// 	const { status, data: session } = useSession();
-
-// 	if (status === "loading")
-// 		return (
-// 			<Skeleton width='3rem' height='2rem'>
-// 				<Switch size='3' defaultChecked />
-// 			</Skeleton>
-// 		);
-// 	if (status === "unauthenticated")
-// 		return (
-// 			<Link className='nav-link' href='/api/auth/signin'>
-// 				Sign In
-// 			</Link>
-// 		);
-// 	return (
-// 		<Box>
-// 			<DropdownMenu.Root>
-// 				<DropdownMenu.Trigger>
-// 					<Avatar
-// 						src={session!.user!.image!}
-// 						fallback='?'
-// 						radius='full'
-// 						className='cursor-pointer'
-// 						referrerPolicy='no-referrer'
-// 					/>
-// 				</DropdownMenu.Trigger>
-// 				<DropdownMenu.Content>
-// 					<DropdownMenu.Label>
-// 						<Text size='2'>{session!.user!.email}</Text>
-// 					</DropdownMenu.Label>
-// 					<DropdownMenu.Item>
-// 						<Link href='/api/auth/signout'>Sign Out</Link>
-// 					</DropdownMenu.Item>
-// 				</DropdownMenu.Content>
-// 			</DropdownMenu.Root>
-// 		</Box>
-// 	);
-// };
 
 const NavLinks = () => {
 	const { status } = useSession();

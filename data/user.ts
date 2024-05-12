@@ -12,19 +12,22 @@ export const getUserByEmail = async (email: string) => {
 
 export const getUserById = async (userId: string) => {
 	try {
-		const user = await prisma.user.findUnique({ where: { id: userId } });
+		const user = await prisma.user.findUnique({
+			where: { id: userId },
+			include: { company: { select: { name: true } } },
+		});
 		return user;
 	} catch (error) {
 		return null;
 	}
 };
 
-export const getUserCurrentMembershipInfo = async (
+export const getUserMembershipInfo = async (
 	userId: string,
 	organizationId: string
 ) => {
-	"use server";
 	try {
+		if (!userId || organizationId) return null;
 		const fetchOrgData = await prisma.organizationMembership.findUnique({
 			where: {
 				userId_organizationId: {
@@ -32,10 +35,12 @@ export const getUserCurrentMembershipInfo = async (
 					organizationId,
 				},
 			},
+			include: {
+				organization: true,
+			},
 		});
 		return fetchOrgData;
 	} catch (error) {
-		console.log("error: ", error);
 		return null;
 	}
 };

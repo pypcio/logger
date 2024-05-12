@@ -71,11 +71,21 @@ const config = {
 					"0%,70%,100%": { opacity: "1" },
 					"20%,50%": { opacity: "0" },
 				},
+				"sidebar-open": {
+					from: { width: "4rem" }, // Adjust based on your sidebar's closed width
+					to: { width: "15rem" }, // Adjust based on your sidebar's open width
+				},
+				"sidebar-close": {
+					from: { width: "15rem" }, // Open width
+					to: { width: "4rem" }, // Closed width
+				},
 			},
 			animation: {
 				"accordion-down": "accordion-down 0.2s ease-out",
 				"accordion-up": "accordion-up 0.2s ease-out",
 				"caret-blink": "caret-blink 1.25s ease-out infinite",
+				"sidebar-open": "sidebar-open 0.3s ease-out ",
+				"sidebar-close": "sidebar-close 0.3s ease-out ",
 			},
 			fontFamily: {
 				sans: ["var(--font-sans)", ...fontFamily.sans],
