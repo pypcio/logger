@@ -32,6 +32,7 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { toast } from "@/components/ui/use-toast";
+import { accountFormSchema } from "@/schemas/forms-schema";
 
 const languages = [
 	{ label: "English", value: "en" },
@@ -44,23 +45,6 @@ const languages = [
 	{ label: "Korean", value: "ko" },
 	{ label: "Chinese", value: "zh" },
 ] as const;
-
-const accountFormSchema = z.object({
-	name: z
-		.string()
-		.min(2, {
-			message: "Name must be at least 2 characters.",
-		})
-		.max(30, {
-			message: "Name must not be longer than 30 characters.",
-		}),
-	dob: z.date({
-		required_error: "A date of birth is required.",
-	}),
-	language: z.string({
-		required_error: "Please select a language.",
-	}),
-});
 
 type AccountFormValues = z.infer<typeof accountFormSchema>;
 
@@ -136,7 +120,7 @@ export function AccountForm() {
 										mode='single'
 										selected={field.value}
 										onSelect={field.onChange}
-										disabled={(date) =>
+										disabled={(date: Date) =>
 											date > new Date() || date < new Date("1900-01-01")
 										}
 										initialFocus

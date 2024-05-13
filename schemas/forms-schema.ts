@@ -85,6 +85,44 @@ const createPlantSchema = z.object({
 		}),
 	description: z.optional(z.string().min(1).max(65535)),
 });
+
+const accountFormSchema = z.object({
+	name: z
+		.string()
+		.min(2, {
+			message: "Name must be at least 2 characters.",
+		})
+		.max(30, {
+			message: "Name must not be longer than 30 characters.",
+		}),
+	dob: z.date({
+		required_error: "A date of birth is required.",
+	}),
+	language: z.string({
+		required_error: "Please select a language.",
+	}),
+});
+
+const profileFormSchema = z.object({
+	username: z
+		.string()
+		.min(2, {
+			message: "Username must be at least 2 characters.",
+		})
+		.max(30, {
+			message: "Username must not be longer than 30 characters.",
+		}),
+	bio: z.string().max(160).min(4),
+	company: z
+		.string()
+		.min(2, {
+			message: "Company name must be at least 2 characters.",
+		})
+		.max(60, {
+			message: "Company name  must not be longer than 30 characters.",
+		}),
+});
+
 export {
 	loginUserSchema,
 	registerUserSchema,
@@ -93,4 +131,6 @@ export {
 	createOrgSchema,
 	resetSchema,
 	createPlantSchema,
+	profileFormSchema,
+	accountFormSchema,
 };
