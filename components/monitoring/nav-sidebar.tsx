@@ -18,7 +18,7 @@ import { DropdownMenuSeparator } from "../ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 const iconClass =
-	" rounded-full absolute -top-0 -right-1 lg:-right-2 center z-20  transition-colors duration-1000 ease-in-out m-0 p-0 shadow-2xl cursor-pointer hover:scale-105";
+	" rounded-full absolute top-1 -right-1 lg:-right-2 center z-20  transition-colors duration-1000 ease-in-out m-0 p-0 shadow-2xl cursor-pointer hover:scale-105 w-7 h-7";
 
 const SideNav = ({ plantId }: { plantId: string }) => {
 	const scrolled = useScroll(5);

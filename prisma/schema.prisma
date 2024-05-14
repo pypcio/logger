@@ -182,6 +182,7 @@ enum SysState {
 
 model User {
   id                      String                   @id @default(cuid())
+  username                String?                  @unique
   name                    String
   bio                     String?
   email                   String                   @unique
@@ -194,11 +195,12 @@ model User {
   accounts                Account[]
   sessions                Session[]
   authenticators          Authenticator[] // Optional for WebAuthn support
-  company                 Company?                 @relation(fields: [company_id], references: [id])
+  company                 Company?                 @relation("CompanyUsers", fields: [company_id], references: [id])
   createdAt               DateTime                 @default(now())
   updatedAt               DateTime                 @updatedAt
   // New relationship fields for organizations
   organizationMemberships OrganizationMembership[]
+  ownedCompany            Company?                 @relation("CompanyOwner")
 }
 
 model Account {
@@ -283,9 +285,11 @@ model Authenticator {
 }
 
 model Company {
-  id    String @id @default(cuid())
-  name  String
-  users User[]
+  id       String @id @default(cuid())
+  owner_id String @unique
+  name     String @unique
+  owner    User   @relation("CompanyOwner", fields: [owner_id], references: [id])
+  users    User[] @relation("CompanyUsers")
 }
 
 model Organization {

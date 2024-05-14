@@ -32,6 +32,7 @@ import { FaUser } from "react-icons/fa";
 import CopyToClipboardIcon from "../copy-to-clipboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Loader, LoaderCircle } from "lucide-react";
+import OrganizationName from "../organization-name";
 
 const SelectOrgMenu = () => {
 	const { data: session, update } = useSession();
@@ -51,6 +52,7 @@ const SelectOrgMenu = () => {
 								...session.user,
 								organizationId: member.organizationId,
 								role: member.role,
+								organizationName: member.organization.name,
 							},
 						});
 						setSuccess("Redirecting...");

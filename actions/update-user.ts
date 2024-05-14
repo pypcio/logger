@@ -5,13 +5,18 @@ import prisma from "@/prisma/client";
 
 export const getUserCurrentMembershipInfo = async (organizationId: string) => {
 	const session = await auth();
-	if (!session || !session.user.id) return null;
+	if (!session || !session.user.id) return { error: "User not logged in." };
 	try {
 		const fetchOrgData = await prisma.organizationMembership.findUnique({
 			where: {
 				userId_organizationId: {
 					userId: session.user.id,
 					organizationId,
+				},
+			},
+			include: {
+				organization: {
+					select: { name: true },
 				},
 			},
 		});

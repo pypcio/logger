@@ -25,7 +25,7 @@ import { PiTelevisionDuotone } from "react-icons/pi";
 import { ModeToggle } from "@/components/mode-toggle";
 
 import RoleTypeBadge from "@/components/user-badge";
-import OrganizationName from "@/components/organization-name";
+// import OrganizationName from "@/components/organization-name";
 
 const NavBar = () => {
 	// const scrolled = useScroll(5);
@@ -83,7 +83,9 @@ const AuthStatus = () => {
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className='mx-2' align='center'>
 				<DropdownMenuLabel>
-					<OrganizationName />
+					<p className='text-center'>
+						{session?.user.organizationName || "Organization not found"}
+					</p>
 				</DropdownMenuLabel>
 				<DropdownMenuGroup className='flex items-center mb-2'>
 					<User strokeWidth={1} className='ml-2 h-4 w-4 mr-2' />

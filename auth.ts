@@ -13,6 +13,7 @@ declare module "next-auth" {
 			role?: UserRole | null;
 			organizationId?: string | null;
 			company?: string | null;
+			organizationName: string | null;
 		} & DefaultSession["user"];
 	}
 }
@@ -22,6 +23,7 @@ declare module "next-auth/jwt" {
 		/** OpenID ID Token */
 		role?: UserRole | null;
 		organizationId?: string | null;
+		organizationName: string | null;
 		company?: string | null;
 	}
 }
@@ -74,8 +76,14 @@ export const {
 			if (token.sub && session.user) {
 				session.user.id = token.sub;
 			}
-			if (token.organizationId && token.role && session.user) {
+			if (
+				token.organizationId &&
+				token.role &&
+				session.user &&
+				token.organizationName
+			) {
 				session.user.organizationId = token.organizationId;
+				session.user.organizationName = token.organizationName;
 				session.user.role = token.role as UserRole;
 			}
 			if (token.company && session.user) {
@@ -85,22 +93,9 @@ export const {
 		},
 		async jwt({ token, trigger, session }) {
 			if (trigger === "update" && session) {
-				// console.log("update hej!: ");
-				// console.log("session: ", session);
 				token.organizationId = session.user.organizationId;
-				// if (!token.organizationId) {
-				// 	const member = await prisma.organizationMembership.findUnique({
-				// 		where: {
-				// 			userId_organizationId: {
-				// 				userId: session.user.id,
-				// 				organizationId: session.user.organizationId,
-				// 			},
-				// 		},
-				// 	});
+				token.organizationName = session.user.organizationName;
 				token.role = session.user.role;
-				// }
-				// token.plantId= session.plantId ?? null;
-				// console.log("token po: ", token);
 			}
 			// token.role = existingUser.role;
 			if (!token.sub || token.company) return token;

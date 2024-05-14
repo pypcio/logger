@@ -5,8 +5,9 @@ import { sendVerificationEmail } from "@/lib/email/mail";
 import { generateVerificationToken } from "@/lib/tokens";
 import prisma from "@/prisma/client";
 import { UserRole } from "@prisma/client";
+import * as z from "zod";
 
-export const register = async (values: any) => {
+export const register = async (values: z.infer<typeof registerUserSchema>) => {
 	const validateRegister = registerUserSchema.safeParse(values);
 	if (!validateRegister.success) {
 		return { error: "Invalid fields!" };
