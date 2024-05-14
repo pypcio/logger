@@ -201,6 +201,7 @@ model User {
   // New relationship fields for organizations
   organizationMemberships OrganizationMembership[]
   ownedCompany            Company?                 @relation("CompanyOwner")
+  request                 Request[]
 }
 
 model Account {
@@ -285,11 +286,12 @@ model Authenticator {
 }
 
 model Company {
-  id       String @id @default(cuid())
-  owner_id String @unique
-  name     String @unique
-  owner    User   @relation("CompanyOwner", fields: [owner_id], references: [id])
-  users    User[] @relation("CompanyUsers")
+  id       String    @id @default(cuid())
+  owner_id String    @unique
+  name     String    @unique
+  owner    User      @relation("CompanyOwner", fields: [owner_id], references: [id])
+  users    User[]    @relation("CompanyUsers")
+  requests Request[]
 }
 
 model Organization {
@@ -303,6 +305,7 @@ model Organization {
   members  OrganizationMembership[]
   plants   Plant[]
   location Location?                @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  requests Request[]
 }
 
 // New model to replace OrganizationUser
@@ -323,4 +326,24 @@ enum UserRole {
   ADMIN
   USER
   OWNER
+}
+
+model Request {
+  id             String        @id @default(cuid())
+  userId         String
+  companyId      String?
+  organizationId String?
+  status         RequestStatus @default(PENDING)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id])
+  company      Company?      @relation(fields: [companyId], references: [id])
+  organization Organization? @relation(fields: [organizationId], references: [id])
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }

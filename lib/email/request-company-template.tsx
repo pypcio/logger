@@ -16,7 +16,7 @@ const RequestAddToCompanyTemplate = ({ name }: Props) => {
 	return (
 		<Html>
 			<Tailwind>
-				<h3>Reset Password</h3>
+				<h3>Request for adding to Company</h3>
 				<Body className='bg-white'>
 					<Container>
 						<Text className='font-bold text-3xl'>

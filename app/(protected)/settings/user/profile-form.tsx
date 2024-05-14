@@ -30,11 +30,14 @@ import { profileFormSchema } from "@/schemas/forms-schema";
 import { useUserByAuth } from "@/lib/services/queries";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { updateProfile } from "@/actions/update-profile";
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export function ProfileForm() {
 	const { data: user, isLoading, error } = useUserByAuth();
+	const [isSubmitting, setSubmitting] = useState(false);
+	const [disableCompany, setDisableCompany] = useState(false);
 	const [defaultValues, setDefaultValues] =
 		useState<Partial<ProfileFormValues>>();
 
@@ -43,27 +46,41 @@ export function ProfileForm() {
 		defaultValues,
 		mode: "onChange",
 	});
-
 	useEffect(() => {
 		if (user) {
+			console.log("user: ", user);
 			const values: Partial<ProfileFormValues> = {
 				username: user?.username ?? "",
 				bio: user?.bio ?? "",
-				company: user?.company.name,
+				company: user?.company?.name ?? "",
 			};
+			setDisableCompany(values.company ? true : false);
 			setDefaultValues(values);
 			form.reset(values);
 		}
 	}, [user]);
 
-	function onSubmit(data: ProfileFormValues) {
-		toast({
-			title: "You submitted the following values:",
-			description: (
-				<pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
-					<code className='text-white'>{JSON.stringify(data, null, 2)}</code>
-				</pre>
-			),
+	function onSubmit(values: ProfileFormValues) {
+		setSubmitting(true);
+		updateProfile(values).then((data) => {
+			setSubmitting(false);
+			if (data?.error) {
+				form.reset();
+				toast({
+					variant: "destructive",
+					title: "Oh no! Could not update session!",
+					description: data?.error,
+				});
+			}
+
+			if (data?.success) {
+				form.reset();
+				toast({
+					variant: "default",
+					title: "Success!",
+					description: data?.success,
+				});
+			}
 		});
 	}
 
@@ -102,7 +119,11 @@ export function ProfileForm() {
 								{isLoading ? (
 									<Skeleton className='w-full h-6' />
 								) : (
-									<Input placeholder='Smart Company' {...field} />
+									<Input
+										disabled={disableCompany}
+										placeholder='Smart Company'
+										{...field}
+									/>
 								)}
 							</FormControl>
 							<FormDescription>
@@ -140,7 +161,9 @@ export function ProfileForm() {
 						</FormItem>
 					)}
 				/>
-				<Button type='submit'>Update profile</Button>
+				<Button disabled={isSubmitting || isLoading} type='submit'>
+					Update profile
+				</Button>
 			</form>
 		</Form>
 	);

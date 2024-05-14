@@ -150,7 +150,7 @@ const SelectOrgMenu = () => {
 										<Link
 											target='_blank'
 											href={`https://${session?.user.company}`}>
-											{session?.user.company || "<i> No Company </i>"}
+											{session?.user.company || "No Company"}
 										</Link>
 									</DataList.Value>
 								)}

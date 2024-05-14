@@ -82,19 +82,24 @@ const AuthStatus = () => {
 				</Avatar>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className='mx-2' align='center'>
-				<DropdownMenuLabel>
-					<p className='text-center'>
-						{session?.user.organizationName || "Organization not found"}
-					</p>
-				</DropdownMenuLabel>
-				<DropdownMenuGroup className='flex items-center mb-2'>
-					<User strokeWidth={1} className='ml-2 h-4 w-4 mr-2' />
-					<RoleTypeBadge
-						className='text-center mb-0'
-						status={session?.user.role!}
-					/>
-				</DropdownMenuGroup>
-				<DropdownMenuSeparator />
+				{session?.user.organizationName && session.user.role && (
+					<>
+						<DropdownMenuLabel>
+							<p className='text-center'>
+								{session?.user.organizationName || "Organization not found"}
+							</p>
+						</DropdownMenuLabel>
+						<DropdownMenuGroup className='flex items-center mb-2'>
+							<User strokeWidth={1} className='ml-2 h-4 w-4 mr-2' />
+							<RoleTypeBadge
+								className='text-center mb-0'
+								status={session?.user.role!}
+							/>
+						</DropdownMenuGroup>
+						<DropdownMenuSeparator />
+					</>
+				)}
+
 				<DropdownMenuItem>
 					<Settings strokeWidth={1} className='h-4 w-4 mr-2' />
 					<Link href='/settings/user'>Setings</Link>

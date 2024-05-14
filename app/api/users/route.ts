@@ -11,17 +11,30 @@ export async function GET(req: NextRequest) {
 			{ error: "You are not logged in" },
 			{ status: 401 }
 		);
-	const existingUser = await prisma.user.findUnique({
-		where: { id: user.id },
-		include: {
-			company: {
-				select: {
-					name: true,
+	try {
+		const existingUser = await prisma.user.findUnique({
+			where: { id: user.id },
+			include: {
+				company: {
+					select: {
+						name: true,
+					},
+				},
+				ownedCompany: {
+					select: {
+						name: true,
+					},
 				},
 			},
-		},
-	});
-	if (!existingUser) return NextResponse.json({ error: "User does not exist" });
-
-	return NextResponse.json(existingUser);
+		});
+		if (!existingUser)
+			return NextResponse.json({ error: "User does not exist" });
+		// Post-process to merge company information
+		const resultUser = {
+			...existingUser,
+			company: existingUser.company || existingUser.ownedCompany || null,
+		};
+		const { ownedCompany, ...safeUser } = resultUser;
+		return NextResponse.json(safeUser);
+	} catch (error) {}
 }
