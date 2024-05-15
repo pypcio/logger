@@ -340,6 +340,9 @@ model Request {
   user         User          @relation(fields: [userId], references: [id])
   company      Company?      @relation(fields: [companyId], references: [id])
   organization Organization? @relation(fields: [organizationId], references: [id])
+
+  @@unique([userId, companyId])
+  @@unique([userId, organizationId])
 }
 
 enum RequestStatus {

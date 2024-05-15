@@ -16,7 +16,7 @@ export const updateProfile = async (
 	if (!validateProfile.success) return { error: "Invalid fields!" };
 
 	const { username, bio, company } = validateProfile.data;
-	let isSendingEmail = false; //flag for sending email
+	let sendEmailMessage = ""; //flag for sending email
 	const existingCompany = await prisma.company.findFirst({
 		where: {
 			name: company,
@@ -34,28 +34,38 @@ export const updateProfile = async (
 	//update user profile info
 	try {
 		if (existingCompany) {
-			const createRequest = await prisma.request.create({
-				data: { userId: session.user.id, companyId: existingCompany.id },
+			//check if request was already sent:
+			const existingRequest = await prisma.request.findUnique({
+				where: {
+					userId_companyId: {
+						userId: session.user.id,
+						companyId: existingCompany.id,
+					},
+				},
 			});
-			if (createRequest) {
-				await sendRequestAddToCompany(
-					session.user.name,
-					existingCompany.owner.email
-				);
-				isSendingEmail = true;
+			if (existingRequest) {
+				sendEmailMessage = "Request already sent";
+			} else {
+				const createRequest = await prisma.request.create({
+					data: { userId: session.user.id, companyId: existingCompany.id },
+				});
+				if (createRequest) {
+					await sendRequestAddToCompany(
+						session.user.name,
+						existingCompany.owner.email
+					);
+					sendEmailMessage = `Sent request to ${existingCompany?.name}`;
+				}
 			}
 		}
 		const updateUser = await prisma.user.update({
 			where: { id: session.user.id },
 			data: { bio, username },
 		});
-		const message =
-			"Profile updated." + isSendingEmail
-				? ` Sent request to ${existingCompany?.name}`
-				: "";
+		const message = "Profile updated." + " " + sendEmailMessage;
 		//TO DO: send email to owner/admin of a company
 		return { success: message };
 	} catch (error) {
-		return { error: "Could not update profile." };
+		return { error: "Something went wrong." };
 	}
 };

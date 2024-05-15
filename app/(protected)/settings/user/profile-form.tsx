@@ -68,7 +68,7 @@ export function ProfileForm() {
 				form.reset();
 				toast({
 					variant: "destructive",
-					title: "Oh no! Could not update session!",
+					title: "Oh no! Could not update profile!",
 					description: data?.error,
 				});
 			}
