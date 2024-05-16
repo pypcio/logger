@@ -38,27 +38,32 @@ export function ProfileForm() {
 	const { data: user, isLoading, error } = useUserByAuth();
 	const [isSubmitting, setSubmitting] = useState(false);
 	const [disableCompany, setDisableCompany] = useState(false);
-	const [defaultValues, setDefaultValues] =
-		useState<Partial<ProfileFormValues>>();
+	const [defaultValues, setDefaultValues] = useState<
+		Partial<ProfileFormValues>
+	>({
+		username: "",
+		bio: "",
+		company: "",
+	});
 
 	const form = useForm<ProfileFormValues>({
 		resolver: zodResolver(profileFormSchema),
 		defaultValues,
 		mode: "onChange",
 	});
+
 	useEffect(() => {
 		if (user) {
-			console.log("user: ", user);
 			const values: Partial<ProfileFormValues> = {
 				username: user?.username ?? "",
 				bio: user?.bio ?? "",
 				company: user?.company?.name ?? "",
 			};
-			setDisableCompany(values.company ? true : false);
+			setDisableCompany(!!values.company);
 			setDefaultValues(values);
 			form.reset(values);
 		}
-	}, [user]);
+	}, [user, form]);
 
 	function onSubmit(values: ProfileFormValues) {
 		setSubmitting(true);

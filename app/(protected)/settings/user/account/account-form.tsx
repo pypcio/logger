@@ -36,6 +36,7 @@ import { accountFormSchema } from "@/schemas/forms-schema";
 import { useUserByAuth } from "@/lib/services/queries";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { updateAccount } from "@/actions/update-account";
 
 const languages = [
 	{ label: "English", value: "en" },
@@ -53,8 +54,11 @@ type AccountFormValues = z.infer<typeof accountFormSchema>;
 
 export function AccountForm() {
 	const { data: user, isLoading, error } = useUserByAuth();
-	const [defaultValues, setDefaultValues] =
-		useState<Partial<AccountFormValues>>();
+	const [isSubmitting, setSubmitting] = useState(false);
+	const [disableCompany, setDisableCompany] = useState(false);
+	const [defaultValues, setDefaultValues] = useState<
+		Partial<AccountFormValues>
+	>({ name: "" });
 	const form = useForm<AccountFormValues>({
 		resolver: zodResolver(accountFormSchema),
 		defaultValues,
@@ -68,16 +72,29 @@ export function AccountForm() {
 			setDefaultValues(values);
 			form.reset(values);
 		}
-	}, [user]);
+	}, [user, form]);
 
-	function onSubmit(data: AccountFormValues) {
-		toast({
-			title: "You submitted the following values:",
-			description: (
-				<pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
-					<code className='text-white'>{JSON.stringify(data, null, 2)}</code>
-				</pre>
-			),
+	function onSubmit(values: AccountFormValues) {
+		setSubmitting(true);
+		updateAccount(values).then((data) => {
+			setSubmitting(false);
+			if (data?.error) {
+				form.reset();
+				toast({
+					variant: "destructive",
+					title: "Oh no! Could not update account!",
+					description: data?.error,
+				});
+			}
+
+			if (data?.success) {
+				form.reset();
+				toast({
+					variant: "default",
+					title: "Success!",
+					description: data?.success,
+				});
+			}
 		});
 	}
 	return (
@@ -104,7 +121,9 @@ export function AccountForm() {
 						</FormItem>
 					)}
 				/>
-				<Button type='submit'>Update account</Button>
+				<Button disabled={isSubmitting || isLoading} type='submit'>
+					Update account
+				</Button>
 			</form>
 		</Form>
 	);

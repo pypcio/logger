@@ -29,4 +29,5 @@ export const useUserByAuth = () =>
 	useQuery({
 		queryKey: ["user"],
 		queryFn: getUserByAuth,
+		refetchOnMount: true,
 	});
