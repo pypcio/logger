@@ -25,6 +25,8 @@ model Plant {
   meters          Meter[]
   inverters       Inverter[]
   securityDevices SecurityDevice[]
+  actionControl   ActionControl[]
+  actionHistory   ActionHistory[]
   Organization    Organization?    @relation(fields: [organizationId], references: [id])
   location        Location?        @relation(fields: [locationId], references: [id], onDelete: Cascade)
 
@@ -349,4 +351,56 @@ enum RequestStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+model ActionHistory {
+  id              Int           @id @default(autoincrement())
+  actionControlId Int
+  plantId         String
+  actionId        Int
+  action          String
+  value           Float?
+  schedule        DateTime
+  status          ActionStatus
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  actionControl   ActionControl @relation(fields: [actionControlId], references: [id])
+  plant           Plant         @relation(fields: [plantId], references: [id])
+  actionRef       Action        @relation(fields: [actionId], references: [id])
+
+  @@index([actionControlId])
+  @@index([plantId])
+  @@index([actionId])
+}
+
+model ActionControl {
+  id            Int             @id @default(autoincrement())
+  plantId       String
+  actionId      Int
+  value         Float?
+  schedule      DateTime
+  status        ActionStatus    @default(SCHEDULED)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  action        Action          @relation(fields: [actionId], references: [id])
+  plant         Plant           @relation(fields: [plantId], references: [id])
+  actionHistory ActionHistory[]
+
+  @@index([plantId])
+  @@index([actionId])
+}
+
+enum ActionStatus {
+  SCHEDULED //when created
+  EXECUTED //when successfully executed
+  CANCELED //when user cancel/delete action, but remain in history
+  EXPIRED //when status don't change in 2 min after scheduled time
+  ERROR //when error state from logger
+}
+
+model Action {
+  id            Int             @id @default(autoincrement())
+  action        String
+  actionControl ActionControl[]
+  actionHistory ActionHistory[]
 }

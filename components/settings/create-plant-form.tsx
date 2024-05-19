@@ -18,7 +18,7 @@ import * as z from "zod";
 import CardWrapper from "../auth/CardWrapper";
 import FormError from "../form-error";
 import FormSuccess from "../form-success";
-import { Input } from "../ui/Input";
+import { Input } from "../ui/input";
 
 const CreatePlantForm = () => {
 	const [isSubmitting, setSubmitting] = useState(false);

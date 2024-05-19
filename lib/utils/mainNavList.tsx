@@ -2,6 +2,7 @@ import { BsSpeedometer } from "react-icons/bs";
 import { FaBug, FaChartArea } from "react-icons/fa";
 import { MainNavItem } from "../types/NavItems";
 import { IoMdSettings } from "react-icons/io";
+import { RiRemoteControlFill } from "react-icons/ri";
 export const MAIN_NAV_ITEMS: MainNavItem[] = [
 	// {
 	// 	title: "Logo",
@@ -25,6 +26,12 @@ export const MAIN_NAV_ITEMS: MainNavItem[] = [
 		path: "/settings",
 		protected: true,
 		icon: <IoMdSettings width='24' height='24' />,
+	},
+	{
+		title: "Control",
+		path: "/control",
+		protected: true,
+		icon: <RiRemoteControlFill width='24' height='24' />,
 	},
 	// {
 	// 	title: "Login",

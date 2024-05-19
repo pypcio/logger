@@ -18,7 +18,9 @@ interface Props {
 
 const RoleTypeBadge = ({ status, className }: Props) => {
 	return (
-		<Badge className={cn(className)} color={statusMap[status].color}>
+		<Badge
+			className={cn(className, "!rounded-[3px] !px-1")}
+			color={statusMap[status].color}>
 			{statusMap[status].label}
 		</Badge>
 	);

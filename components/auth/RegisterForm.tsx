@@ -15,7 +15,7 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
-import { Input } from "../ui/Input";
+import { Input } from "../ui/input";
 import CardWrapper from "./CardWrapper";
 import FormSuccess from "../form-success";
 import axios, { AxiosError } from "axios";

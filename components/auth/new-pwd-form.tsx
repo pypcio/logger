@@ -18,7 +18,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import FormError from "../form-error";
 import FormSuccess from "../form-success";
-import { Input } from "../ui/Input";
+import { Input } from "../ui/input";
 import CardWrapper from "./CardWrapper";
 
 const NewPwdForm = () => {

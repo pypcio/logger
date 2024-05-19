@@ -14,7 +14,7 @@ import { MainNavItem } from "@/lib/types/NavItems";
 import { cn } from "@/lib/utils";
 import { MAIN_NAV_ITEMS } from "@/lib/utils/mainNavList";
 import classnames from "classnames";
-import { LogOut, Settings, User } from "lucide-react";
+import { Building2, LogOut, Settings, User } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -25,6 +25,8 @@ import { PiTelevisionDuotone } from "react-icons/pi";
 import { ModeToggle } from "@/components/mode-toggle";
 
 import RoleTypeBadge from "@/components/user-badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 // import OrganizationName from "@/components/organization-name";
 
 const NavBar = () => {
@@ -69,44 +71,60 @@ const AuthStatus = () => {
 		);
 	return (
 		<DropdownMenu>
-			<DropdownMenuTrigger>
-				<Avatar className='w-8 h-8'>
-					<AvatarImage
-						src={session!.user!.image!}
-						className='cursor-pointer bg-secondary'
-						referrerPolicy='no-referrer'
-					/>
-					<AvatarFallback>
-						<FaUser />
-					</AvatarFallback>
-				</Avatar>
+			<DropdownMenuTrigger asChild>
+				<Button variant='ghost' className='relative h-8 w-8 rounded-full'>
+					<Avatar className='h-9 w-9'>
+						<AvatarImage
+							src={session!.user!.image!}
+							alt='user'
+							referrerPolicy='no-referrer'
+						/>
+						<AvatarFallback>
+							<FaUser />
+						</AvatarFallback>
+					</Avatar>
+				</Button>
 			</DropdownMenuTrigger>
-			<DropdownMenuContent className='mx-2' align='center'>
-				{session?.user.organizationName && session.user.role && (
-					<>
-						<DropdownMenuLabel>
-							<p className='text-center'>
-								{session?.user.organizationName || "Organization not found"}
+			<DropdownMenuContent className='w-56' align='end' forceMount>
+				<DropdownMenuLabel className='font-normal'>
+					<div className='flex flex-col space-y-1'>
+						<div className='flex h-5 items-center space-x-4 text-sm'>
+							<p className='text-sm font-medium leading-none'>
+								{session?.user.organizationName || ""}
 							</p>
-						</DropdownMenuLabel>
-						<DropdownMenuGroup className='flex items-center mb-2'>
-							<User strokeWidth={1} className='ml-2 h-4 w-4 mr-2' />
-							<RoleTypeBadge
-								className='text-center mb-0'
-								status={session?.user.role!}
-							/>
-						</DropdownMenuGroup>
-						<DropdownMenuSeparator />
-					</>
-				)}
-
-				<DropdownMenuItem>
-					<Settings strokeWidth={1} className='h-4 w-4 mr-2' />
-					<Link href='/settings/user'>Setings</Link>
-				</DropdownMenuItem>
+							<Separator orientation='vertical' />
+							{session?.user.role && (
+								<RoleTypeBadge
+									className='text-sm font-medium leading-none'
+									status={session?.user.role}
+								/>
+							)}
+						</div>
+						<p className='text-xs leading-none text-muted-foreground'>
+							{session?.user.email || ""}
+						</p>
+					</div>
+				</DropdownMenuLabel>
+				<DropdownMenuSeparator />
+				<DropdownMenuGroup>
+					<DropdownMenuItem>
+						<User strokeWidth={1} className='h-4 w-4 mr-2' />
+						<Link href='/settings/user'>Profile</Link>
+					</DropdownMenuItem>
+					{/* <DropdownMenuItem>Billing</DropdownMenuItem> */}
+					<DropdownMenuItem>
+						<Settings strokeWidth={1} className='h-4 w-4 mr-2' />
+						<Link href='/settings/user'>Settings</Link>
+					</DropdownMenuItem>
+					<DropdownMenuItem>
+						<Building2 strokeWidth={1} className='h-4 w-4 mr-2' />
+						<Link href='/settings/select-organization'>Organization</Link>
+					</DropdownMenuItem>
+				</DropdownMenuGroup>
+				<DropdownMenuSeparator />
 				<DropdownMenuItem>
 					<LogOut strokeWidth={1} className='h-4 w-4 mr-2' />
-					<p onClick={() => signOut()}>Logout</p>
+					Log out
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
