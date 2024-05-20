@@ -1,5 +1,6 @@
 "use server";
 
+import * as z from "zod";
 import { auth } from "@/auth";
 import {
 	getOrganizationById,
@@ -9,11 +10,19 @@ import prisma from "@/prisma/client";
 import { createPlantSchema } from "@/schemas/forms-schema";
 import { UserRole } from "@prisma/client";
 
-export const createPlant = async (values: any) => {
+export const createPlant = async (
+	values: z.infer<typeof createPlantSchema>
+) => {
 	const session = await auth();
-	if (!session) return { error: "You are not authorized" };
+	if (!session || !session.user.id || !session.user.name) {
+		return { error: "User not logged in." };
+	}
+	if (!session.user.organizationId || !session.user.role) {
+		return { error: "Select Organization first" };
+	}
 
-	const { user } = session;
+	if (session.user.role === UserRole.USER)
+		return { error: "You are not authorized." };
 
 	const validatePlant = createPlantSchema.safeParse(values);
 
@@ -21,7 +30,9 @@ export const createPlant = async (values: any) => {
 	const { name, description } = validatePlant.data;
 	//TO DO: redirect user to /settings/select-organization
 	// if (!user.organizationId) return { error: "Select organization first" };
-	const existingOrg = await getOrganizationById("clvqueek00002e27br1n2cheg");
+
+	const existingOrg = await getOrganizationById(session.user.organizationId);
+
 	if (!existingOrg) return { error: "Organization does not exist" };
 
 	// if (user.role === UserRole.USER || !user.role)

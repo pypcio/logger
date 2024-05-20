@@ -29,7 +29,7 @@ export const MAIN_NAV_ITEMS: MainNavItem[] = [
 	},
 	{
 		title: "Control",
-		path: "/control",
+		path: "/control-panel",
 		protected: true,
 		icon: <RiRemoteControlFill width='24' height='24' />,
 	},

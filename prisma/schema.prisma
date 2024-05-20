@@ -399,8 +399,9 @@ enum ActionStatus {
 }
 
 model Action {
-  id            Int             @id @default(autoincrement())
-  action        String
-  actionControl ActionControl[]
-  actionHistory ActionHistory[]
+  id        Int             @id @default(autoincrement())
+  name      String
+  unit      String
+  controls  ActionControl[]
+  histories ActionHistory[]
 }

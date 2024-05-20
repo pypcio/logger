@@ -28,7 +28,7 @@ export const login = async (
 ) => {
 	//redirect user if session exists.
 	const session = await auth();
-	if (session) return redirect(`${DEFAULT_LOGIN_REDIRECT}`);
+	if (!session) return { error: "User not logged in." };
 
 	const validateUser = loginUserSchema.safeParse(values);
 	if (!validateUser.success) return { error: "Invalid fields!" };

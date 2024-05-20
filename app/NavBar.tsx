@@ -86,26 +86,29 @@ const AuthStatus = () => {
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className='w-56' align='end' forceMount>
-				<DropdownMenuLabel className='font-normal'>
-					<div className='flex flex-col space-y-1'>
-						<div className='flex h-5 items-center space-x-4 text-sm'>
-							<p className='text-sm font-medium leading-none'>
-								{session?.user.organizationName || ""}
-							</p>
-							<Separator orientation='vertical' />
-							{session?.user.role && (
-								<RoleTypeBadge
-									className='text-sm font-medium leading-none'
-									status={session?.user.role}
-								/>
-							)}
-						</div>
-						<p className='text-xs leading-none text-muted-foreground'>
-							{session?.user.email || ""}
-						</p>
-					</div>
-				</DropdownMenuLabel>
-				<DropdownMenuSeparator />
+				{session?.user.organizationName && session?.user.role && (
+					<>
+						<DropdownMenuLabel className='font-normal'>
+							<div className='flex flex-col space-y-1'>
+								<div className='flex h-5 items-center space-x-4 text-sm'>
+									<p className='text-sm font-medium leading-none'>
+										{session?.user.organizationName}
+									</p>
+									<Separator orientation='vertical' />
+									<RoleTypeBadge
+										className='text-sm font-medium leading-none'
+										status={session?.user.role}
+									/>
+								</div>
+								<p className='text-xs leading-none text-muted-foreground'>
+									{session?.user.email || ""}
+								</p>
+							</div>
+						</DropdownMenuLabel>
+						<DropdownMenuSeparator />
+					</>
+				)}
+
 				<DropdownMenuGroup>
 					<DropdownMenuItem>
 						<User strokeWidth={1} className='h-4 w-4 mr-2' />
@@ -124,7 +127,7 @@ const AuthStatus = () => {
 				<DropdownMenuSeparator />
 				<DropdownMenuItem>
 					<LogOut strokeWidth={1} className='h-4 w-4 mr-2' />
-					Log out
+					<p onClick={() => signOut()}>Log out</p>
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>

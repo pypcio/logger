@@ -6,6 +6,7 @@ import {
 	Plant,
 	Inverter,
 	User,
+	ActionControl,
 } from "@prisma/client";
 import axios from "axios";
 import { currentUser } from "../auth";
@@ -37,6 +38,12 @@ export interface AllMemberhipsInfo {
 interface UserWithCompany extends User {
 	company: {
 		name: string;
+	};
+}
+interface PlantActionControl extends ActionControl {
+	action: {
+		name: string;
+		unit: string;
 	};
 }
 
@@ -74,4 +81,9 @@ export const getPlantWithDevicesById = async (plantId: string) => {
 export const getUserByAuth = async () => {
 	const data = (await axios.get<UserWithCompany>(`/api/users`)).data;
 	return data;
+};
+
+export const getPlantActionControl = async (plantId?: string | null) => {
+	const query = plantId ? `?plantId=${plantId}` : "";
+	return (await axios.get<PlantActionControl[]>(`/api/resources${query}`)).data;
 };

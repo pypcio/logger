@@ -25,7 +25,7 @@ async function getTasks() {
 	const data = await fs.readFile(dataPath);
 
 	const tasks = JSON.parse(data.toString());
-	console.log(z.array(taskSchema).parse(tasks));
+	// console.log(z.array(taskSchema).parse(tasks));
 	return z.array(taskSchema).parse(tasks);
 }
 
@@ -58,9 +58,7 @@ const TaskPage = async () => {
 							Here&apos;s a list of your tasks for this month!
 						</p>
 					</div>
-					<div className='flex items-center space-x-2'>
-						<UserNav />
-					</div>
+					<div className='flex items-center space-x-2'>{/* <UserNav /> */}</div>
 				</div>
 				{tasks && <DataTable data={tasks} columns={columns} />}
 			</div>

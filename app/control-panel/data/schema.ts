@@ -10,4 +10,13 @@ export const taskSchema = z.object({
 	priority: z.string(),
 });
 
+export const controlSchema = z.object({
+	id: z.string(),
+	action: z.string(),
+	status: z.string(),
+	schedule: z.date(),
+	value: z.number(),
+});
+
+export type Control = z.infer<typeof controlSchema>;
 export type Task = z.infer<typeof taskSchema>;
