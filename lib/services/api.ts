@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { z } from "zod";
 import {
 	Organization,
 	OrganizationMembership,
@@ -10,7 +11,8 @@ import {
 } from "@prisma/client";
 import axios from "axios";
 import { currentUser } from "../auth";
-
+import { ActionControlType } from "@/schemas/schemas-types";
+import { actionControlSchema } from "@/schemas/api-schema";
 export interface Device {
 	id: string;
 	name: string;
@@ -83,7 +85,18 @@ export const getUserByAuth = async () => {
 	return data;
 };
 
-export const getPlantActionControl = async (plantId?: string | null) => {
-	const query = plantId ? `?plantId=${plantId}` : "";
-	return (await axios.get<PlantActionControl[]>(`/api/resources${query}`)).data;
+export const getPlantActionControl = async (plantId?: string) => {
+	const result = (
+		await axios.get<PlantActionControl>(`/api/resources/${plantId}`)
+	).data;
+	return result;
+};
+
+export const getAllPlantActionControl = async (): Promise<
+	ActionControlType[]
+> => {
+	const result = (await axios.get(`/api/resources`)).data;
+	console.log("results: ", result);
+	const parsedData = z.array(actionControlSchema).parse(result);
+	return parsedData;
 };

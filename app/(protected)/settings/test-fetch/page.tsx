@@ -1,16 +1,15 @@
 "use client";
-import { usePlantActionControl } from "@/lib/services/queries";
+
+import { useAllPlantsActionControl } from "@/app/demo/query";
 
 const ExampleComponent = () => {
-	const plantId = "clvqxqvq2000213jwajvgff5v"; // example plant ID
-	const { data, isLoading, error } = usePlantActionControl(plantId);
-
+	const { data, isLoading, error } = useAllPlantsActionControl();
+	console.log("data: ", data);
 	if (isLoading) return <div>Loading...</div>;
 	if (error) return <div>Error: {error.message}</div>;
-
 	return (
 		<div>
-			{data?.map((actionControl) => (
+			{/* {data?.map((actionControl) => (
 				<div key={actionControl.id}>
 					<h2>{actionControl.action.name}</h2>
 					<p>Unit: {actionControl.action.unit}</p>
@@ -18,7 +17,7 @@ const ExampleComponent = () => {
 					<p>Value: {actionControl.value}</p>
 					<p>Schedule: {new Date(actionControl.schedule).toLocaleString()}</p>
 				</div>
-			))}
+			))} */}
 		</div>
 	);
 };

@@ -1,3 +1,4 @@
+import { ActionStatus } from "@prisma/client";
 import { z } from "zod";
 
 const plantSchema = z.object({
@@ -88,6 +89,17 @@ const updateOrganizationSchema = z.object({
 		.max(191, { message: "ID length not valid" }),
 });
 
+const actionStatusValues = Object.values(ActionStatus);
+const ActionStatusEnum = z.enum(actionStatusValues as [string, ...string[]]);
+const actionControlSchema = z.object({
+	id: z.number(),
+	action: z.string(),
+	status: ActionStatusEnum,
+	schedule: z.string().transform((val) => new Date(val)),
+	value: z.number().nullable(),
+	unit: z.string(),
+});
+
 export {
 	organizationSchema,
 	updateOrganizationSchema,
@@ -95,4 +107,5 @@ export {
 	loggerSchema,
 	inverterSchema,
 	meterSchema,
+	actionControlSchema,
 };
