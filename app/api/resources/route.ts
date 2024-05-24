@@ -8,6 +8,7 @@ const ActionStatusEnum = z.enum(actionStatusValues as [string, ...string[]]);
 
 const actionControlSchema = z.object({
 	id: z.number(),
+	name: z.string(),
 	action: z.string(),
 	status: ActionStatusEnum,
 	schedule: z.date(),
@@ -60,6 +61,14 @@ export async function GET(request: NextRequest) {
 						unit: true,
 					},
 				},
+				plant: {
+					select: {
+						name: true,
+					},
+				},
+			},
+			orderBy: {
+				schedule: "asc",
 			},
 		});
 
@@ -73,6 +82,7 @@ export async function GET(request: NextRequest) {
 		// Map and validate the data to fit the schema
 		const formattedData = actionControlForOrg.map((item) => ({
 			id: item.id,
+			name: item.plant.name,
 			action: item.action.name,
 			status: item.status,
 			value: item.value,

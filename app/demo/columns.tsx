@@ -12,6 +12,12 @@ import BadgeActionStatus from "@/components/data-table/badge";
 
 export const columns: ColumnDef<ActionControlType>[] = [
 	{
+		accessorKey: "name",
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title='Name' />
+		),
+	},
+	{
 		accessorKey: "action",
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title='Action' />
@@ -22,13 +28,24 @@ export const columns: ColumnDef<ActionControlType>[] = [
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title='Value' />
 		),
+		cell: ({ row }) => {
+			const value = row.getValue("value") as React.ReactNode;
+			const unit = row.original.unit;
+			return unit !== "boolean" ? (
+				<p>
+					{value} {unit}
+				</p>
+			) : (
+				<p>{value === 0 ? "Off" : "On"}</p>
+			);
+		},
 	},
-	{
-		accessorKey: "unit",
-		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title='Unit' />
-		),
-	},
+	// {
+	// 	accessorKey: "unit",
+	// 	header: ({ column }) => (
+	// 		<DataTableColumnHeader column={column} title='Unit' />
+	// 	),
+	// },
 	{
 		accessorKey: "status",
 		header: ({ column }) => (

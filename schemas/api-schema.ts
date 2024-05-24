@@ -93,6 +93,7 @@ const actionStatusValues = Object.values(ActionStatus);
 const ActionStatusEnum = z.enum(actionStatusValues as [string, ...string[]]);
 const actionControlSchema = z.object({
 	id: z.number(),
+	name: z.string(),
 	action: z.string(),
 	status: ActionStatusEnum,
 	schedule: z.string().transform((val) => new Date(val)),
