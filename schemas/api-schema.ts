@@ -1,6 +1,9 @@
-import { ActionStatus } from "@prisma/client";
+import {
+	Prisma,
+	ValueType as PrismaValueType,
+	ActionStatus as PrismaActionStatus,
+} from "@prisma/client";
 import { z } from "zod";
-
 const plantSchema = z.object({
 	name: z
 		.string()
@@ -89,17 +92,60 @@ const updateOrganizationSchema = z.object({
 		.max(191, { message: "ID length not valid" }),
 });
 
-const actionStatusValues = Object.values(ActionStatus);
-const ActionStatusEnum = z.enum(actionStatusValues as [string, ...string[]]);
-const actionControlSchema = z.object({
-	id: z.number(),
-	name: z.string(),
-	action: z.string(),
-	status: ActionStatusEnum,
-	schedule: z.string().transform((val) => new Date(val)),
-	value: z.number().nullable(),
-	unit: z.string(),
-});
+// const actionStatusValues = Object.values(ActionStatus);
+// const ActionStatusEnum = z.enum(actionStatusValues as [string, ...string[]]);
+// const actionControlSchema = z.object({
+// 	id: z.number(),
+// 	name: z.string(),
+// 	action: z.string(),
+// 	status: ActionStatusEnum,
+// 	schedule: z.string().transform((val) => new Date(val)),
+// 	value: z.number().nullable(),
+// 	unit: z.string(),
+// });
+
+// const actionStatusValues = Object.values(ActionStatus);
+// const ActionStatusEnum = z.enum(actionStatusValues);
+// const valueType = Object.values(ValueType);
+// const ValueTypeEnum = z.enum(valueType);
+
+// Extract enum values from Prisma
+const ValueType = z.nativeEnum(PrismaValueType);
+const ActionStatus = z.nativeEnum(PrismaActionStatus);
+
+const actionSchema = z
+	.object({
+		userId: z.string().max(100),
+		valueType: ValueType,
+		floatValue: z.number().nullable(),
+		intValue: z.number().nullable(),
+		boolValue: z.boolean().nullable(),
+		stringValue: z.string().nullable(),
+		unit: z.string().nullable(),
+		eventId: z.number(),
+		status: ActionStatus,
+		schedule: z.date(),
+	})
+	.refine(
+		(data) => {
+			switch (data.valueType) {
+				case "FLOAT":
+					return data.floatValue !== null;
+				case "INTEGER":
+					return data.intValue !== null;
+				case "BOOLEAN":
+					return data.boolValue !== null;
+				case "STRING":
+					return data.stringValue !== null;
+				default:
+					return false;
+			}
+		},
+		{
+			message: "Invalid value for the given valueType",
+			path: ["valueType"],
+		}
+	);
 
 export {
 	organizationSchema,
@@ -108,5 +154,6 @@ export {
 	loggerSchema,
 	inverterSchema,
 	meterSchema,
-	actionControlSchema,
+	// actionControlSchema,
+	actionSchema,
 };

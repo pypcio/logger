@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import {
-	getAllPlantActionControl,
 	getPlantActionControl,
 	getPlantWithDevicesById,
 	getUserByAuth,
@@ -35,12 +34,6 @@ export const usePlantActionControl = ({ plantId }: { plantId: string }) => {
 		enabled: !!plantId,
 	});
 };
-
-export const useAllPlantsActionControl = () =>
-	useQuery({
-		queryKey: ["allPlantsWithActions"],
-		queryFn: getAllPlantActionControl,
-	});
 
 export const useUserByAuth = () =>
 	useQuery({
