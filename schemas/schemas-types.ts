@@ -6,9 +6,10 @@ import {
 	loggerSchema,
 	inverterSchema,
 	meterSchema,
-	actionControlSchema,
+	actionSchema,
 } from "./api-schema";
 import { ActionStatus } from "@prisma/client";
+import { actionDataTableSchema } from "./data-table";
 
 export type BadgeColor =
 	| "gray"
@@ -44,7 +45,8 @@ export type PlantType = z.infer<typeof plantSchema>;
 export type LoggerType = z.infer<typeof loggerSchema>;
 export type InverterType = z.infer<typeof inverterSchema>;
 export type MeterType = z.infer<typeof meterSchema>;
-export type ActionControlType = z.infer<typeof actionControlSchema>;
+export type ActionType = z.infer<typeof actionSchema>;
+export type ActionDataTableType = z.infer<typeof actionDataTableSchema>;
 export const actionStatusColors: Record<ActionStatus, BadgeColor> = {
 	[ActionStatus.SCHEDULED]: "cyan",
 	[ActionStatus.EXECUTED]: "green",

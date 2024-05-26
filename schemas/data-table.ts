@@ -4,7 +4,8 @@ import { z } from "zod";
 // Define the schema for a single action data entry
 const actionDataTableSchema = z.object({
 	id: z.number(),
-	name: z.string(),
+	plant: z.string().nullable(),
+	device: z.string().nullable(),
 	action: z.string(),
 	status: z.nativeEnum(ActionStatus), // Assuming ActionStatus is already defined
 	value: z.union([z.string(), z.number(), z.null()]), // value can be string, number, or null

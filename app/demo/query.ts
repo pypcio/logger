@@ -1,7 +1,8 @@
-import { getAllPlantActionControl } from "@/lib/services/api";
+import { getOrganizationEntitiesActions } from "@/lib/services/api";
 import { useQuery } from "@tanstack/react-query";
-export const useAllPlantsActionControl = () =>
+export const useOrganizationEntitiesActions = (entityId: string | null) =>
 	useQuery({
-		queryKey: ["allPlantsWithActions"],
-		queryFn: getAllPlantActionControl,
+		queryKey: ["allPlantsWithActions", entityId],
+		queryFn: () => getOrganizationEntitiesActions(entityId),
+		enabled: !!entityId,
 	});

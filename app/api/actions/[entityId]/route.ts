@@ -137,7 +137,6 @@ export async function POST(
 	try {
 		const newAction = await prisma.action.create({
 			data: {
-				name: event.name,
 				valueType,
 				intValue,
 				boolValue,
@@ -215,13 +214,18 @@ export async function GET(
 		}
 		if (!entity)
 			return NextResponse.json({ error: "Entity not found." }, { status: 404 });
-		//fetch actions
+		//fetch eventGroup
 		const actions = await prisma.action.findMany({
 			where: { eventGroupId: eventGroup.id },
 			include: {
 				user: {
 					select: {
 						email: true,
+					},
+				},
+				event: {
+					select: {
+						name: true,
 					},
 				},
 			},
@@ -251,8 +255,9 @@ export async function GET(
 			}
 			return {
 				id: item.id,
-				name: entity.name,
-				action: item.name,
+				device: eventGroup.deviceName,
+				plant: eventGroup.plantName,
+				action: item.event.name,
 				status: item.status,
 				value,
 				user: item.user.email,

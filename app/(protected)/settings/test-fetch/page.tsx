@@ -1,9 +1,11 @@
 "use client";
 
-import { useAllPlantsActionControl } from "@/app/demo/query";
+import { useOrganizationEntitiesActions } from "@/app/demo/query";
 
 const ExampleComponent = () => {
-	const { data, isLoading, error } = useAllPlantsActionControl();
+	const { data, isLoading, error } = useOrganizationEntitiesActions(
+		"clvqua8rf0000e27bdi39x2ov"
+	);
 	console.log("data: ", data);
 	if (isLoading) return <div>Loading...</div>;
 	if (error) return <div>Error: {error.message}</div>;

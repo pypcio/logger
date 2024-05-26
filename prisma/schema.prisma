@@ -326,10 +326,11 @@ model Organization {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  members  OrganizationMembership[]
-  plants   Plant[]
-  location Location?                @relation(fields: [locationId], references: [id], onDelete: Cascade)
-  requests Request[]
+  members    OrganizationMembership[]
+  plants     Plant[]
+  location   Location?                @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  requests   Request[]
+  eventGroup EventGroup[]
 }
 
 // New model to replace OrganizationUser
@@ -380,7 +381,8 @@ model ActionHistory {
   actionId    Int
   actEvtGrpId String
   userId      String
-  name        String
+  device      String
+  title       String
   status      ActionStatus
   valueType   ValueType
   floatValue  Float?
@@ -424,7 +426,6 @@ model Event {
 model Action {
   eventGroupId  String
   id            Int             @default(autoincrement())
-  name          String
   userId        String
   valueType     ValueType
   floatValue    Float?
@@ -438,6 +439,7 @@ model Action {
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   event         Event           @relation(fields: [eventId], references: [id])
+  eventGroup    EventGroup      @relation(fields: [eventGroupId], references: [id])
   user          User            @relation(fields: [userId], references: [id])
   actionHistory ActionHistory[]
 
@@ -456,6 +458,10 @@ enum ValueType {
 model EventGroup {
   id             String          @id @default(cuid())
   name           String
+  deviceName     String
+  plantName      String
+  organizationId String
+  plantId        String
   deviceType     DeviceType?
   events         Event[]
   plant          Plant?
@@ -463,6 +469,11 @@ model EventGroup {
   securityDevice SecurityDevice?
   inverter       Inverter?
   meter          Meter?
+  organization   Organization    @relation(fields: [organizationId], references: [id])
+  action         Action[]
+
+  @@index([organizationId])
+  @@index([plantId])
 }
 
 enum DeviceType {

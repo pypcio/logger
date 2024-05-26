@@ -34,3 +34,9 @@ export function parseJsonSafely(input: any): any[] | null {
 	}
 	return null;
 }
+
+export enum EntityType {
+	organization = "organization",
+	plant = "plant",
+	entity = "entity",
+}

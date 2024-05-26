@@ -7,12 +7,18 @@ import {
 	Plant,
 	Inverter,
 	User,
-	ActionControl,
+	Action,
 } from "@prisma/client";
 import axios from "axios";
 import { currentUser } from "../auth";
-import { ActionControlType } from "@/schemas/schemas-types";
-import { actionControlSchema } from "@/schemas/api-schema";
+import {
+	ActionDataTableArrayType,
+	ActionDataTableType,
+	ActionType,
+} from "@/schemas/schemas-types";
+import { actionSchema } from "@/schemas/api-schema";
+import { EntityType } from "../utils";
+import { actionDataArraySchema } from "@/schemas/data-table";
 export interface Device {
 	id: string;
 	name: string;
@@ -40,12 +46,6 @@ export interface AllMemberhipsInfo {
 interface UserWithCompany extends User {
 	company: {
 		name: string;
-	};
-}
-interface PlantActionControl extends ActionControl {
-	action: {
-		name: string;
-		unit: string;
 	};
 }
 
@@ -85,18 +85,35 @@ export const getUserByAuth = async () => {
 	return data;
 };
 
-export const getPlantActionControl = async (plantId?: string) => {
+export const getEntityActions = async (entityId: string) => {
 	const result = (
-		await axios.get<PlantActionControl>(`/api/resources/${plantId}`)
+		await axios.get<ActionDataTableArrayType>(
+			`/api/actions?entityType=entity&entityId=${entityId}`
+		)
 	).data;
 	return result;
 };
 
-export const getAllPlantActionControl = async (): Promise<
-	ActionControlType[]
-> => {
-	const result = (await axios.get(`/api/resources`)).data;
-	console.log("results: ", result);
-	const parsedData = z.array(actionControlSchema).parse(result);
-	return parsedData;
+export const getPlantEntitiesActions = async (entityId: string) => {
+	const result = (
+		await axios.get<ActionDataTableArrayType>(
+			`/api/actions?entityType=plant&entityId=${entityId}`
+		)
+	).data;
+	return result;
+};
+
+export const getOrganizationEntitiesActions = async (
+	entityId: string | null
+): Promise<ActionDataTableArrayType> => {
+	if (!entityId) {
+		throw new Error("Organization ID is required");
+	}
+
+	const result = (
+		await axios.get<ActionDataTableArrayType>(
+			`/api/actions?entityType=organization&entityId=${entityId}`
+		)
+	).data;
+	return result;
 };
