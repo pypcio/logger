@@ -1,5 +1,8 @@
 import { z } from "zod";
-
+import {
+	ValueType as PrismaValueType,
+	ActionStatus as PrismaActionStatus,
+} from "@prisma/client";
 const loginUserSchema = z.object({
 	// organization: z.string().min(1, { message: "Organization is required" }),
 	email: z.string().email(),
@@ -116,6 +119,21 @@ const profileFormSchema = z.object({
 			message: "Company name  must not be longer than 30 characters.",
 		}),
 });
+const ValueType = z.nativeEnum(PrismaValueType);
+const ActionStatus = z.nativeEnum(PrismaActionStatus);
+
+const actionSchema = z.object({
+	eventGroupId: z.string(),
+	valueType: ValueType,
+	floatValue: z.number().nullable(),
+	intValue: z.number().nullable(),
+	boolValue: z.boolean().nullable(),
+	stringValue: z.string().nullable(),
+	unit: z.string().nullable(),
+	eventId: z.number().nullable(),
+	status: ActionStatus,
+	schedule: z.date().nullable(),
+});
 
 export {
 	loginUserSchema,
@@ -127,4 +145,5 @@ export {
 	createPlantSchema,
 	profileFormSchema,
 	accountFormSchema,
+	actionSchema,
 };

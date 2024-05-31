@@ -40,3 +40,26 @@ export enum EntityType {
 	plant = "plant",
 	entity = "entity",
 }
+
+import { ActionStatus } from "@prisma/client";
+
+// Helper function to convert enum value to desired label format
+const formatLabel = (value: string) => {
+	return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+};
+
+export const createActionOptions = () => {
+	const labels: { label: string; value: string }[] = [];
+
+	for (const key in ActionStatus) {
+		if (ActionStatus.hasOwnProperty(key)) {
+			const enumValue = ActionStatus[key as keyof typeof ActionStatus];
+			labels.push({
+				value: enumValue,
+				label: formatLabel(enumValue),
+			});
+		}
+	}
+
+	return labels;
+};

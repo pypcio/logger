@@ -113,9 +113,9 @@ const updateOrganizationSchema = z.object({
 const ValueType = z.nativeEnum(PrismaValueType);
 const ActionStatus = z.nativeEnum(PrismaActionStatus);
 
-const actionSchema = z
+const actionAPISchema = z
 	.object({
-		userId: z.string().max(100),
+		eventGroupId: z.string(),
 		valueType: ValueType,
 		floatValue: z.number().nullable(),
 		intValue: z.number().nullable(),
@@ -155,5 +155,5 @@ export {
 	inverterSchema,
 	meterSchema,
 	// actionControlSchema,
-	actionSchema,
+	actionAPISchema,
 };

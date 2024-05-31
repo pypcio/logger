@@ -1,28 +1,35 @@
+import { actionDataTableSchema } from "@/schemas/data-table";
 import { z } from "zod";
 
-import { ActionStatus } from "@prisma/client";
-const actionStatusValues = Object.values(ActionStatus);
-const ActionStatusEnum = z.enum(actionStatusValues as [string, ...string[]]);
-
-// Define the schema
-export const controlSchema = z.object({
-	id: z.string(),
-	action: z.string(),
-	status: ActionStatusEnum,
-	schedule: z.date(),
-	value: z.number().nullable(), // value can be null
-	unit: z.string(),
+export const actionDataTableViewSchema = actionDataTableSchema.extend({
+	schedule: actionDataTableSchema.shape.schedule
+		.refine(
+			(val) => {
+				// Check if it's a valid date string or a Date object
+				if (typeof val === "string") {
+					return !isNaN(Date.parse(val));
+				} else if (val instanceof Date) {
+					return true;
+				}
+				return false;
+			},
+			{
+				message: "Invalid date string or Date object",
+			}
+		)
+		.transform((val) => {
+			// Transform string to Date, leave Date object as is
+			if (typeof val === "string") {
+				return new Date(val);
+			}
+			return val;
+		}),
 });
 
-export type Control = z.infer<typeof controlSchema>;
-
-// We're keeping a simple non-relational schema here.
-// IRL, you will have a schema for your data models.
-export const taskSchema = z.object({
-	id: z.string(),
-	title: z.string(),
-	status: z.string(),
-	label: z.string(),
-	priority: z.string(),
-});
-export type Task = z.infer<typeof taskSchema>;
+export const actionDataTableViewArraySchema = z.array(
+	actionDataTableViewSchema
+);
+export type ActionDataTableViewType = z.infer<typeof actionDataTableViewSchema>;
+export type ActionDataTableViewArrayType = z.infer<
+	typeof actionDataTableViewArraySchema
+>;

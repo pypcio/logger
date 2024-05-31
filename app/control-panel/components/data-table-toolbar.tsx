@@ -6,8 +6,8 @@ import { Table } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTableViewOptions } from "./data-table-view-options";
-
-import { priorities, statuses } from "../data/data";
+import { createActionOptions } from "@/lib/utils";
+// import { priorities, statuses } from "../data/data";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
 
 interface DataTableToolbarProps<TData> {
@@ -18,15 +18,15 @@ export function DataTableToolbar<TData>({
 	table,
 }: DataTableToolbarProps<TData>) {
 	const isFiltered = table.getState().columnFilters.length > 0;
-
+	const actionStatuses = createActionOptions();
 	return (
 		<div className='flex items-center justify-between'>
 			<div className='flex flex-1 items-center space-x-2'>
 				<Input
-					placeholder='Filter tasks...'
-					value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
+					placeholder='Filter actions...'
+					value={(table.getColumn("action")?.getFilterValue() as string) ?? ""}
 					onChange={(event) =>
-						table.getColumn("title")?.setFilterValue(event.target.value)
+						table.getColumn("action")?.setFilterValue(event.target.value)
 					}
 					className='h-8 w-[150px] lg:w-[250px]'
 				/>
@@ -34,16 +34,16 @@ export function DataTableToolbar<TData>({
 					<DataTableFacetedFilter
 						column={table.getColumn("status")}
 						title='Status'
-						options={statuses}
+						options={actionStatuses}
 					/>
 				)}
-				{table.getColumn("priority") && (
+				{/* {table.getColumn("priority") && (
 					<DataTableFacetedFilter
 						column={table.getColumn("priority")}
 						title='Priority'
 						options={priorities}
 					/>
-				)}
+				)} */}
 				{isFiltered && (
 					<Button
 						variant='ghost'

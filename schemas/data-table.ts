@@ -10,7 +10,7 @@ const actionDataTableSchema = z.object({
 	status: z.nativeEnum(ActionStatus), // Assuming ActionStatus is already defined
 	value: z.union([z.string(), z.number(), z.null()]), // value can be string, number, or null
 	user: z.string().email(),
-	schedule: z.date(),
+	schedule: z.union([z.string(), z.date()]),
 	unit: z.string().nullable(), // unit can be null
 });
 

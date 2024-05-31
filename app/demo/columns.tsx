@@ -1,15 +1,12 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import {
-	ActionDataTableType,
-	actionStatusColors,
-} from "@/schemas/schemas-types";
+import { ActionDataTableType } from "@/schemas/schemas-types";
 import { Badge } from "@radix-ui/themes";
 import { DataTableColumnHeader } from "../control-panel/components/data-table-column-header";
 import { formatSexyDate } from "@/lib/utils";
 import { ActionStatus } from "@prisma/client";
-import BadgeActionStatus from "@/components/data-table/badge";
+import BadgeActionStatus from "@/components/data-table/action/badge";
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 
@@ -19,6 +16,7 @@ export const columns: ColumnDef<ActionDataTableType>[] = [
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title='Plant' />
 		),
+		enableSorting: false,
 	},
 	{
 		accessorKey: "device",
@@ -26,12 +24,7 @@ export const columns: ColumnDef<ActionDataTableType>[] = [
 			<DataTableColumnHeader column={column} title='Device' />
 		),
 	},
-	{
-		accessorKey: "name",
-		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title='Name' />
-		),
-	},
+
 	{
 		accessorKey: "action",
 		header: ({ column }) => (
@@ -59,8 +52,11 @@ export const columns: ColumnDef<ActionDataTableType>[] = [
 			<DataTableColumnHeader column={column} title='Status' />
 		),
 		cell: ({ row }) => {
-			const status = row.getValue("status") as ActionStatus;
-			return <BadgeActionStatus label={status} />;
+			const status = row.getValue("status");
+			return <BadgeActionStatus label={status as ActionStatus} />;
+		},
+		filterFn: (row, id, value) => {
+			return value.includes(row.getValue(id));
 		},
 	},
 	{
@@ -81,6 +77,9 @@ export const columns: ColumnDef<ActionDataTableType>[] = [
 		cell: ({ row }) => {
 			const schedule = new Date(row.getValue("schedule"));
 			return <p>{formatSexyDate(schedule)}</p>;
+		},
+		filterFn: (row, id, value) => {
+			return value.includes(row.getValue(id));
 		},
 	},
 ];

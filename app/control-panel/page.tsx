@@ -1,41 +1,34 @@
-import { promises as fs } from "fs";
-import path from "path";
+"use client";
+import { useEffect, useState } from "react";
+import { useUserByAuth } from "@/lib/services/queries";
 import { Metadata } from "next";
-import Image from "next/image";
-import { z } from "zod";
-
 import { columns } from "./components/columns";
 import { DataTable } from "./components/data-table";
-import { UserNav } from "./components/user-nav";
-import { taskSchema } from "./data/schema";
+import { useOrganizationEntitiesActions } from "./data/query";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
 
-export const metadata: Metadata = {
-	title: "Tasks",
-	description: "A task and issue tracker build using Tanstack Table.",
-};
+export default function DemoPage() {
+	const { data: session, status } = useSession();
+	const [organizationId, setOrganizationId] = useState<string | null>(null);
 
-// Simulate a database read for tasks.
-async function getTasks() {
-	const dataPath = process.env.DATA_PATH;
+	// Update organizationId when session is available
+	useEffect(() => {
+		if (status === "authenticated" && session?.user?.organizationId) {
+			setOrganizationId(session.user.organizationId);
+		}
+	}, [session, status]);
 
-	if (!dataPath) {
-		throw new Error("DATA_PATH environment variable is not defined");
-	}
-
-	const data = await fs.readFile(dataPath);
-
-	const tasks = JSON.parse(data.toString());
-	// console.log(z.array(taskSchema).parse(tasks));
-	return z.array(taskSchema).parse(tasks);
-}
-
-const TaskPage = async () => {
-	const tasks = await getTasks();
+	const {
+		data: actions,
+		isLoading,
+		error,
+	} = useOrganizationEntitiesActions(organizationId);
 
 	return (
 		<>
 			<div className='md:hidden'>
-				<Image
+				{/* <Image
 					src=''
 					width={1280}
 					height={998}
@@ -48,7 +41,7 @@ const TaskPage = async () => {
 					height={998}
 					alt='Playground'
 					className='hidden dark:block'
-				/>
+				/> */}
 			</div>
 			<div className='hidden h-full flex-1 flex-col space-y-8 p-8 md:flex'>
 				<div className='flex items-center justify-between space-y-2'>
@@ -60,10 +53,8 @@ const TaskPage = async () => {
 					</div>
 					<div className='flex items-center space-x-2'>{/* <UserNav /> */}</div>
 				</div>
-				{tasks && <DataTable data={tasks} columns={columns} />}
+				{actions && <DataTable data={actions} columns={columns} />}
 			</div>
 		</>
 	);
-};
-
-export default TaskPage;
+}

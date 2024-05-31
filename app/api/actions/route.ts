@@ -1,10 +1,11 @@
 import { currentUser } from "@/lib/auth";
 import { parseJsonSafely } from "@/lib/utils";
 import prisma from "@/prisma/client";
-import { actionSchema } from "@/schemas/api-schema";
+import { actionAPISchema } from "@/schemas/api-schema";
 import { UserRole } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { actionDataArraySchema } from "@/schemas/data-table";
+import { actionDataTableViewArraySchema } from "@/app/control-panel/data/schema";
 //get actions from entity
 export async function GET(request: NextRequest) {
 	const searchParams = request.nextUrl.searchParams;
@@ -135,7 +136,7 @@ export async function GET(request: NextRequest) {
 		});
 		// Validate formatted data
 		try {
-			const parsedData = actionDataArraySchema.parse(formattedData);
+			const parsedData = actionDataTableViewArraySchema.parse(formattedData);
 			return NextResponse.json(parsedData);
 		} catch (error) {
 			return NextResponse.json(

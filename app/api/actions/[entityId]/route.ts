@@ -1,11 +1,12 @@
 import { currentUser } from "@/lib/auth";
 import { parseJsonSafely } from "@/lib/utils";
 import prisma from "@/prisma/client";
-import { actionSchema } from "@/schemas/api-schema";
-import { UserRole } from "@prisma/client";
+import { actionAPISchema } from "@/schemas/api-schema";
+import { ActionStatus, UserRole } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { actionDataArraySchema } from "@/schemas/data-table";
 import { z } from "zod";
+import { actionDataTableViewSchema } from "@/app/control-panel/data/schema";
 
 export async function POST(
 	request: NextRequest,
@@ -27,7 +28,7 @@ export async function POST(
 		return NextResponse.json({ error: "User not permitted" }, { status: 403 });
 	}
 	const body = await request.json();
-	const validateAction = actionSchema.safeParse(body);
+	const validateAction = actionAPISchema.safeParse(body);
 	if (!validateAction.success)
 		return NextResponse.json(validateAction.error.errors, { status: 400 });
 	const {
@@ -155,11 +156,13 @@ export async function POST(
 		return NextResponse.json({ error: "could not create new Action." });
 	}
 }
-//get actions from entity
-export async function GET(
+
+export async function PATCH(
 	request: NextRequest,
 	{ params }: { params: { entityId: string } }
 ) {
+	const searchParams = request.nextUrl.searchParams;
+	const actionId = parseInt(searchParams.get("actionId") ?? "");
 	const user = await currentUser();
 	if (!user) {
 		return NextResponse.json(
@@ -167,118 +170,132 @@ export async function GET(
 			{ status: 401 }
 		);
 	}
-	if (user.role === UserRole.USER || !user.role || !user.organizationId) {
+	if (
+		user.role === UserRole.USER ||
+		!user.id ||
+		!user.role ||
+		!user.organizationId
+	) {
 		return NextResponse.json({ error: "User not permitted" }, { status: 403 });
 	}
+	//TURN ON AFTER TESTING!
+	//permission
+	// if (!user.role || !user.organizationId) {
+	// 	return NextResponse.json({ error: "User not permitted" }, { status: 403 });
+	// }
+	if (!actionId || !params.entityId) {
+		return NextResponse.json(
+			{ error: "Invalid query parameters" },
+			{ status: 400 }
+		);
+	}
 
+	const body = await request.json();
+	const validateAction = actionAPISchema.safeParse(body);
+	if (!validateAction.success)
+		return NextResponse.json(validateAction.error.errors, { status: 400 });
+	const {
+		boolValue,
+		eventId,
+		floatValue,
+		intValue,
+		stringValue,
+		schedule,
+		valueType,
+	} = validateAction.data;
 	try {
 		const eventGroupId = params.entityId + "-group";
-		const eventGroup = await prisma.eventGroup.findUnique({
-			where: { id: eventGroupId },
+		const action = await prisma.action.findUnique({
+			where: { eventGroupId_id: { id: actionId, eventGroupId } },
 		});
-		if (!eventGroup)
-			return NextResponse.json({ error: "Incorrent entity's event group." });
-		//fetch Entity information:
-		let entity = null;
-		switch (eventGroup.deviceType) {
-			case "PLANT":
-				entity = await prisma.plant.findUnique({
-					where: { id: params.entityId },
-				});
-				break;
-			case "INVERTER":
-				entity = await prisma.inverter.findUnique({
-					where: { id: params.entityId },
-				});
-				break;
-			case "LOGGER":
-				entity = await prisma.logger.findUnique({
-					where: { id: params.entityId },
-				});
-				break;
-			case "METER":
-				entity = await prisma.meter.findUnique({
-					where: { id: params.entityId },
-				});
-				break;
-			case "SECURITY_DEVICE":
-				entity = await prisma.securityDevice.findUnique({
-					where: { id: params.entityId },
-				});
-				break;
-			default:
-				return NextResponse.json(
-					{ error: "Invalid Device Type" },
-					{ status: 400 }
-				);
-		}
-		if (!entity)
-			return NextResponse.json({ error: "Entity not found." }, { status: 404 });
-		//fetch eventGroup
-		const actions = await prisma.action.findMany({
-			where: { eventGroupId: eventGroup.id },
-			include: {
-				user: {
-					select: {
-						email: true,
-					},
-				},
-				event: {
-					select: {
-						name: true,
-					},
-				},
-			},
-			orderBy: { schedule: "desc" },
-		});
-		if (!actions.length)
-			return NextResponse.json({ error: "No Action Found." }, { status: 404 });
-
-		// Map and validate the data to fit the schema
-		const formattedData = actions.map((item) => {
-			let value = null;
-			switch (item.valueType) {
-				case "BOOLEAN":
-					if (item.boolValue) {
-						value = item.boolValue ? item.stringValue : null;
-					}
-					break;
-				case "FLOAT":
-					value = item.floatValue;
-					break;
-				case "INTEGER":
-					value = item.intValue;
-					break;
-				case "STRING":
-					value = item.stringValue;
-					break;
-			}
-			return {
-				id: item.id,
-				device: eventGroup.deviceName,
-				plant: eventGroup.plantName,
-				action: item.event.name,
-				status: item.status,
-				value,
-				user: item.user.email,
-				schedule: item.schedule,
-				unit: item.unit,
-			};
-		});
-		// Validate formatted data
-		try {
-			const parsedData = actionDataArraySchema.parse(formattedData);
-			return NextResponse.json(parsedData);
-		} catch (error) {
+		if (!action)
 			return NextResponse.json(
-				{ error: "Data validation failed." },
-				{ status: 400 }
+				{ error: "Could not find action to update." },
+				{ status: 404 }
 			);
-		}
+
+		const updatedAction = await prisma.action.update({
+			where: {
+				eventGroupId_id: { id: action.id, eventGroupId: action.eventGroupId },
+			},
+			data: {
+				boolValue,
+				eventId,
+				floatValue,
+				intValue,
+				stringValue,
+				schedule,
+				valueType,
+			},
+		});
+		if (!updatedAction)
+			return NextResponse.json(
+				{ error: "Could not update action." },
+				{ status: 500 }
+			);
+		return NextResponse.json(updatedAction, { status: 200 });
 	} catch (error) {
-		console.error(error);
 		return NextResponse.json(
-			{ error: "Could not fetch data" },
+			{ error: "Something went wrong while trying to update." },
+			{ status: 500 }
+		);
+	}
+}
+
+export async function DELETE(
+	request: NextRequest,
+	{ params }: { params: { entityId: string } }
+) {
+	const searchParams = request.nextUrl.searchParams;
+	const actionId = parseInt(searchParams.get("actionId") ?? "");
+	const user = await currentUser();
+	if (!user) {
+		return NextResponse.json(
+			{ error: "You are not logged in." },
+			{ status: 401 }
+		);
+	}
+	if (
+		user.role === UserRole.USER ||
+		!user.id ||
+		!user.role ||
+		!user.organizationId
+	) {
+		return NextResponse.json({ error: "User not permitted" }, { status: 403 });
+	}
+	//TURN ON AFTER TESTING!
+	//permission
+	// if (!user.role || !user.organizationId) {
+	// 	return NextResponse.json({ error: "User not permitted" }, { status: 403 });
+	// }
+	if (!actionId || !params.entityId) {
+		return NextResponse.json(
+			{ error: "Invalid query parameters" },
+			{ status: 400 }
+		);
+	}
+	try {
+		const eventGroupId = params.entityId + "-group";
+		const action = await prisma.action.findUnique({
+			where: {
+				eventGroupId_id: { id: actionId, eventGroupId },
+				status: ActionStatus.SCHEDULED,
+			},
+		});
+		if (!action)
+			return NextResponse.json(
+				{ error: "Could not find action to delete." },
+				{ status: 404 }
+			);
+		await prisma.action.delete({
+			where: {
+				eventGroupId_id: { id: action.id, eventGroupId: action.eventGroupId },
+			},
+		});
+		return NextResponse.json({});
+	} catch (error) {
+		return NextResponse.json(
+			{ error: "Could not delete action." },
 			{ status: 500 }
 		);
 	}
