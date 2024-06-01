@@ -1,23 +1,30 @@
 "use server";
 
+import * as z from "zod";
 import { auth } from "@/auth";
 import { getOrganizationByName } from "@/data/organization";
 import prisma from "@/prisma/client";
 import { createOrgSchema } from "@/schemas/forms-schema";
 import { UserRole } from "@prisma/client";
 
-export const createOrg = async (values: any) => {
+export const createOrg = async (values: z.infer<typeof createOrgSchema>) => {
 	const session = await auth();
-	if (!session) return { error: "You are not authorized" };
+	if (!session || !session.user.id || !session.user.name) {
+		return { error: "User not logged in." };
+	}
+	if (!session.user.organizationId || !session.user.role) {
+		return { error: "Select Organization first" };
+	}
 
-	const { user } = session;
+	if (session.user.role === UserRole.USER)
+		return { error: "You are not authorized." };
 
 	const validateOrganization = createOrgSchema.safeParse(values);
 
 	if (!validateOrganization.success) return { error: "Invalid name" };
 
 	const existingUser = await prisma.user.findUnique({
-		where: { id: user.id },
+		where: { id: session.user.id },
 	});
 
 	if (!existingUser) return { error: "User does not exists" };

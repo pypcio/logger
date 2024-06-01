@@ -25,25 +25,31 @@ model Plant {
   meters          Meter[]
   inverters       Inverter[]
   securityDevices SecurityDevice[]
-  Organization    Organization?    @relation(fields: [organizationId], references: [id])
+  eventGroupId    String?          @unique
+  eventGroup      EventGroup?      @relation(fields: [eventGroupId], references: [id])
+  Organization    Organization     @relation(fields: [organizationId], references: [id])
   location        Location?        @relation(fields: [locationId], references: [id], onDelete: Cascade)
 
   @@unique([name, organizationId])
 }
 
 model Logger {
-  id          String      @id @default(cuid())
-  plant_id    String
-  name        String
-  model       String?
-  producent   String?
-  description String?     @db.Text
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  plant       Plant       @relation(fields: [plant_id], references: [id], onDelete: Cascade)
-  logger_logs LoggerLog[]
+  id           String      @id @default(cuid())
+  plant_id     String
+  name         String
+  model        String?
+  producent    String?
+  description  String?     @db.Text
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  eventGroupId String?     @unique
+  eventGroup   EventGroup? @relation(fields: [eventGroupId], references: [id])
+  // eventGroup   EventGroup? @relation("loggerEvent")
+  plant        Plant       @relation(fields: [plant_id], references: [id], onDelete: Cascade)
+  logger_logs  LoggerLog[]
 
   @@unique([name, plant_id])
+  @@index([plant_id])
 }
 
 model Location {
@@ -74,21 +80,26 @@ model LoggerLog {
   pv_generation_total Float?
 
   logger Logger @relation(fields: [logger_id], references: [id])
+
+  @@index([logger_id])
 }
 
 model Meter {
-  id          String     @id @default(cuid())
-  plant_id    String
-  name        String
-  model       String?
-  producent   String?
-  description String?    @db.Text
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  meter_logs  MeterLog[]
-  plant       Plant      @relation(fields: [plant_id], references: [id], onDelete: Cascade)
+  id           String      @id @default(cuid())
+  plant_id     String
+  name         String
+  model        String?
+  producent    String?
+  description  String?     @db.Text
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  eventGroupId String?     @unique
+  eventGroup   EventGroup? @relation(fields: [eventGroupId], references: [id])
+  meter_logs   MeterLog[]
+  plant        Plant       @relation(fields: [plant_id], references: [id], onDelete: Cascade)
 
   @@unique([name, plant_id])
+  @@index([plant_id])
 }
 
 model MeterLog {
@@ -109,6 +120,8 @@ model MeterLog {
   r_power_l2 Float?
   r_power_l3 Float?
   meter      Meter    @relation(fields: [meter_id], references: [id])
+
+  @@index([meter_id])
 }
 
 model Inverter {
@@ -121,9 +134,12 @@ model Inverter {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   inverter_logs InverterLog[]
+  eventGroupId  String?       @unique
+  eventGroup    EventGroup?   @relation(fields: [eventGroupId], references: [id])
   plant         Plant         @relation(fields: [plant_id], references: [id], onDelete: Cascade)
 
   @@unique([name, plant_id])
+  @@index([plant_id])
 }
 
 model InverterLog {
@@ -138,26 +154,31 @@ model InverterLog {
   r_power_l1  Float?
 
   inverter Inverter @relation(fields: [inverter_id], references: [id])
+
+  @@index([inverter_id])
 }
 
 model SecurityDevice {
-  id            String              @id @default(cuid())
-  plant_id      String
-  name          String
-  model         String?
-  producent     String?
-  description   String?             @db.Text
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
-  security_logs SecurityDeviceLog[]
-  plant         Plant               @relation(fields: [plant_id], references: [id], onDelete: Cascade)
+  id           String              @id @default(cuid())
+  plant_id     String
+  name         String
+  model        String?
+  producent    String?
+  description  String?             @db.Text
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  eventGroupId String?             @unique
+  eventGroup   EventGroup?         @relation(fields: [eventGroupId], references: [id])
+  securityLogs SecurityDeviceLog[]
+  plant        Plant               @relation(fields: [plant_id], references: [id], onDelete: Cascade)
 
   @@unique([name, plant_id])
+  @@index([plant_id])
 }
 
 model SecurityDeviceLog {
   id          Int      @id @default(autoincrement())
-  inverter_id String
+  security_id String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   frequency   Float?
@@ -166,7 +187,9 @@ model SecurityDeviceLog {
   a_power_l1  Float?
   r_power_l1  Float?
 
-  device SecurityDevice @relation(fields: [inverter_id], references: [id])
+  device SecurityDevice @relation(fields: [security_id], references: [id])
+
+  @@index([security_id])
 }
 
 enum SysState {
@@ -182,7 +205,9 @@ enum SysState {
 
 model User {
   id                      String                   @id @default(cuid())
+  username                String?                  @unique
   name                    String
+  bio                     String?
   email                   String                   @unique
   emailVerified           DateTime?
   hashedPassword          String?
@@ -193,11 +218,14 @@ model User {
   accounts                Account[]
   sessions                Session[]
   authenticators          Authenticator[] // Optional for WebAuthn support
-  company                 Company?                 @relation(fields: [company_id], references: [id])
+  company                 Company?                 @relation("CompanyUsers", fields: [company_id], references: [id])
   createdAt               DateTime                 @default(now())
   updatedAt               DateTime                 @updatedAt
   // New relationship fields for organizations
   organizationMemberships OrganizationMembership[]
+  ownedCompany            Company?                 @relation("CompanyOwner")
+  request                 Request[]
+  action                  Action[]
 }
 
 model Account {
@@ -282,9 +310,12 @@ model Authenticator {
 }
 
 model Company {
-  id    String @id @default(cuid())
-  name  String
-  users User[]
+  id       String    @id @default(cuid())
+  owner_id String    @unique
+  name     String    @unique
+  owner    User      @relation("CompanyOwner", fields: [owner_id], references: [id])
+  users    User[]    @relation("CompanyUsers")
+  requests Request[]
 }
 
 model Organization {
@@ -295,9 +326,11 @@ model Organization {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  members  OrganizationMembership[]
-  plants   Plant[]
-  location Location?                @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  members    OrganizationMembership[]
+  plants     Plant[]
+  location   Location?                @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  requests   Request[]
+  eventGroup EventGroup[]
 }
 
 // New model to replace OrganizationUser
@@ -319,3 +352,161 @@ enum UserRole {
   USER
   OWNER
 }
+
+model Request {
+  id             String        @id @default(cuid())
+  userId         String
+  companyId      String?
+  organizationId String?
+  status         RequestStatus @default(PENDING)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id])
+  company      Company?      @relation(fields: [companyId], references: [id])
+  organization Organization? @relation(fields: [organizationId], references: [id])
+
+  @@unique([userId, companyId])
+  @@unique([userId, organizationId])
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model ActionHistory {
+  id          Int          @id @default(autoincrement())
+  actionId    Int
+  actEvtGrpId String
+  userId      String
+  device      String
+  title       String
+  status      ActionStatus
+  valueType   ValueType
+  floatValue  Float?
+  intValue    Int?
+  boolValue   Boolean?
+  stringValue String?
+  unit        String?
+  schedule    DateTime
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  action      Action?      @relation(fields: [actionId, actEvtGrpId], references: [id, eventGroupId])
+
+  @@index([actionId, actEvtGrpId])
+}
+
+enum ActionStatus {
+  SCHEDULED // when created
+  EXECUTED // when successfully executed
+  CANCELED // when user cancels/deletes action, but remains in history
+  EXPIRED // when status doesn't change within 2 min after scheduled time
+  ERROR // when error state from logger
+}
+
+model Event {
+  id               Int        @id @default(autoincrement())
+  name             String
+  valueType        ValueType
+  rangeStart       Float?
+  rangeEnd         Float?
+  step             Float?
+  predefinedValues Json?
+  unit             String?
+  actions          Action[]
+  eventGroupId     String
+  eventGroup       EventGroup @relation(fields: [eventGroupId], references: [id])
+
+  @@unique([name, eventGroupId])
+  @@index([eventGroupId])
+}
+
+model Action {
+  eventGroupId  String
+  id            Int             @default(autoincrement())
+  userId        String
+  valueType     ValueType
+  floatValue    Float?
+  intValue      Int?
+  boolValue     Boolean?
+  stringValue   String?
+  unit          String?
+  eventId       Int
+  status        ActionStatus    @default(SCHEDULED)
+  schedule      DateTime        @default(now())
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  event         Event           @relation(fields: [eventId], references: [id])
+  eventGroup    EventGroup      @relation(fields: [eventGroupId], references: [id])
+  user          User            @relation(fields: [userId], references: [id])
+  actionHistory ActionHistory[]
+
+  @@id([eventGroupId, id])
+  @@index([eventId])
+  @@index([userId])
+}
+
+enum ValueType {
+  FLOAT
+  INTEGER
+  BOOLEAN
+  STRING
+}
+
+model EventGroup {
+  id             String          @id @default(cuid())
+  name           String
+  deviceName     String
+  plantName      String
+  organizationId String
+  plantId        String
+  deviceType     DeviceType?
+  events         Event[]
+  plant          Plant?
+  logger         Logger?
+  securityDevice SecurityDevice?
+  inverter       Inverter?
+  meter          Meter?
+  organization   Organization    @relation(fields: [organizationId], references: [id])
+  action         Action[]
+
+  @@index([organizationId])
+  @@index([plantId])
+}
+
+enum DeviceType {
+  PLANT
+  LOGGER
+  SECURITY_DEVICE
+  METER
+  INVERTER
+}
+
+// model EventConfigurations {
+//   id               Int       @id @default(autoincrement())
+//   eventId          Int
+//   name             String
+//   valueType        ValueType
+//   rangeStart       Float?
+//   rangeEnd         Float?
+//   step             Float?
+//   predefinedValues String[]
+//   unit             String?
+//   event            Event     @relation(fields: [eventId], references: [id])
+
+//   @@unique([name, eventId])
+// }
+
+// model ActionValue {
+//   id          String    @id @default(cuid())
+//   actionId    String
+//   valueType   ValueType
+//   floatValue  Float?
+//   intValue    Int?
+//   boolValue   Boolean?
+//   stringValue String?
+//   unit        String?
+//   action      Action    @relation(fields: [actionId], references: [id])
+// }

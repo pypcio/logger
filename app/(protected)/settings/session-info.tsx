@@ -1,6 +1,5 @@
 "use client";
 
-import { useSessionUser } from "@/hooks/use-current-user";
 import { useSession } from "next-auth/react";
 
 const SessionInfo = () => {

@@ -1,5 +1,9 @@
+import {
+	Prisma,
+	ValueType as PrismaValueType,
+	ActionStatus as PrismaActionStatus,
+} from "@prisma/client";
 import { z } from "zod";
-
 const plantSchema = z.object({
 	name: z
 		.string()
@@ -88,6 +92,59 @@ const updateOrganizationSchema = z.object({
 		.max(191, { message: "ID length not valid" }),
 });
 
+// const actionStatusValues = Object.values(ActionStatus);
+// const ActionStatusEnum = z.enum(actionStatusValues as [string, ...string[]]);
+// const actionControlSchema = z.object({
+// 	id: z.number(),
+// 	name: z.string(),
+// 	action: z.string(),
+// 	status: ActionStatusEnum,
+// 	schedule: z.string().transform((val) => new Date(val)),
+// 	value: z.number().nullable(),
+// 	unit: z.string(),
+// });
+
+// const actionStatusValues = Object.values(ActionStatus);
+// const ActionStatusEnum = z.enum(actionStatusValues);
+// const valueType = Object.values(ValueType);
+// const ValueTypeEnum = z.enum(valueType);
+
+// Extract enum values from Prisma
+const ValueType = z.nativeEnum(PrismaValueType);
+const ActionStatus = z.nativeEnum(PrismaActionStatus);
+
+const actionAPISchema = z
+	.object({
+		eventGroupId: z.string(),
+		valueType: ValueType,
+		floatValue: z.coerce.number().nullable().optional(),
+		intValue: z.coerce.number().nullable().optional(),
+		boolValue: z.coerce.boolean().nullable().optional(),
+		stringValue: z.string().nullable().optional(),
+		eventId: z.coerce.number(),
+		schedule: z.coerce.date().optional(),
+	})
+	.refine(
+		(data) => {
+			switch (data.valueType) {
+				case "FLOAT":
+					return data.floatValue !== null;
+				case "INTEGER":
+					return data.intValue !== null;
+				case "BOOLEAN":
+					return data.boolValue !== null;
+				case "STRING":
+					return data.stringValue !== null;
+				default:
+					return false;
+			}
+		},
+		{
+			message: "Invalid value for the given valueType",
+			path: ["valueType"],
+		}
+	);
+
 export {
 	organizationSchema,
 	updateOrganizationSchema,
@@ -95,4 +152,6 @@ export {
 	loggerSchema,
 	inverterSchema,
 	meterSchema,
+	// actionControlSchema,
+	actionAPISchema,
 };

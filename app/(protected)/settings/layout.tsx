@@ -7,10 +7,10 @@ import { Container } from "@radix-ui/themes";
 
 const SettingsLayout = async ({ children }: PropsWithChildren) => {
 	return (
-		<div className='w-full h-full flex flex-col first-line:gap-5 justify-center items-center p-6 '>
-			<Container className='w-full h-auto flex flex-col justify-center items-center'>
-				{children}
-			</Container>
+		<div className='container flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0 w-full'>
+			<div className='flex-1 '>{children}</div>
+			{/* <Container className='w-full h-auto flex flex-col justify-center items-center'> */}
+			{/* </Container> */}
 			{/* <div className='flex gap-5'>
 				<LoginButton />
 				<LogoutButton />

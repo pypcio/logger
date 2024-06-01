@@ -7,10 +7,10 @@ const FillerPage = () => {
 	const items = Array.from({ length: 20 }, (_, index) => `Item ${index + 1}`);
 
 	return (
-		<div className='flex flex-col h-full overflow-y-auto p-4 '>
+		<div className='flex flex-col h-full overflow-y-auto p-4 justify-center items-center w-full'>
 			<h1>Long Content Component</h1>
-			<ul>
-				{items.map((item) => (
+			<ul className='m-4'>
+				{/* {items.map((item) => (
 					<li
 						key={item}
 						style={{
@@ -73,7 +73,8 @@ const FillerPage = () => {
 							deleniti delectus cumque.
 						</Text>
 					</li>
-				))}
+				))} */}
+				Siemanko Widzowie
 			</ul>
 		</div>
 	);

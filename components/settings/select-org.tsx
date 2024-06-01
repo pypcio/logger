@@ -31,6 +31,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { FaUser } from "react-icons/fa";
 import CopyToClipboardIcon from "../copy-to-clipboard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Loader, LoaderCircle } from "lucide-react";
+import OrganizationName from "../organization-name";
+
 const SelectOrgMenu = () => {
 	const { data: session, update } = useSession();
 	const router = useRouter();
@@ -49,6 +52,7 @@ const SelectOrgMenu = () => {
 								...session.user,
 								organizationId: member.organizationId,
 								role: member.role,
+								organizationName: member.organization.name,
 							},
 						});
 						setSuccess("Redirecting...");
@@ -72,16 +76,13 @@ const SelectOrgMenu = () => {
 			});
 		}
 	};
-	//testing
-	const text_id = "u_2J89JSA4GJ";
-	// const isLoading = false;
-	// const membershipsInfo: any = [];
-	const { data: user, isLoading: isUserLoading } = useUserByAuth();
+
+	// const { data: user, isLoading: isUserLoading } = useUserByAuth();
 	const { data: membershipsInfo, error, isLoading } = useUserMembershipsInfo();
 
 	return (
-		<div className='flex flex-col justify-center items-center w-full min-w-[450px]'>
-			<div className='flex flex-col justify- items-start bg-white w-5/6 mb-8 pl-0 p-4 shadow-md overflow-hidden'>
+		<div className='container relative flex flex-col justify-center items-center my-12'>
+			<div className='flex justify-center items-start border rounded-lg w-5/6 mb-8 p-4 shadow-md overflow-hidden'>
 				<div className=' flex gap-16 justify-center items-center px-16'>
 					<Avatar className='w-28 h-28 flex-0 m-auto'>
 						<AvatarImage
@@ -93,11 +94,11 @@ const SelectOrgMenu = () => {
 							<FaUser className='w-28 h-28 opacity-50' />
 						</AvatarFallback>
 					</Avatar>
-					<div className='w-full overflow-auto min-w-[200px]'>
+					<div className='w-full overflow-auto min-w-[200px] text-sm'>
 						<DataList.Root size='1'>
 							<DataList.Item align='center'>
 								<DataList.Label minWidth='88px'>Status</DataList.Label>
-								{isUserLoading ? (
+								{isLoading ? (
 									<Skeleton className='h-3 w-30'></Skeleton>
 								) : (
 									<DataList.Value>
@@ -109,43 +110,47 @@ const SelectOrgMenu = () => {
 							</DataList.Item>
 							<DataList.Item>
 								<DataList.Label minWidth='88px'>ID</DataList.Label>
-								{isUserLoading ? (
+								{isLoading ? (
 									<Skeleton className='h-3 w-32'></Skeleton>
 								) : (
 									<DataList.Value>
-										<Flex align='center' gap='2'>
-											<Code variant='ghost'>{user?.id}</Code>
-											<CopyToClipboardIcon text={user?.id!} />
+										<Flex align='center' gap='4'>
+											<Code variant='ghost'>{session?.user.id}</Code>
+											<CopyToClipboardIcon text={session?.user.id!} />
 										</Flex>
 									</DataList.Value>
 								)}
 							</DataList.Item>
 							<DataList.Item>
 								<DataList.Label minWidth='88px'>Name</DataList.Label>
-								{isUserLoading ? (
+								{isLoading ? (
 									<Skeleton className='h-3 w-32'></Skeleton>
 								) : (
-									<DataList.Value>{user?.name}</DataList.Value>
+									<DataList.Value>{session?.user.name}</DataList.Value>
 								)}
 							</DataList.Item>
 							<DataList.Item>
 								<DataList.Label minWidth='88px'>Email</DataList.Label>
-								{isUserLoading ? (
+								{isLoading ? (
 									<Skeleton className='h-3 w-32'></Skeleton>
 								) : (
 									<DataList.Value>
-										<Link href={user?.email}>{user?.email}</Link>
+										<Link href={session?.user.email || ""}>
+											{session?.user.email}
+										</Link>
 									</DataList.Value>
 								)}
 							</DataList.Item>
 							<DataList.Item>
 								<DataList.Label minWidth='88px'>Company</DataList.Label>
-								{isUserLoading ? (
+								{isLoading ? (
 									<Skeleton className='h-3 w-32'></Skeleton>
 								) : (
 									<DataList.Value>
-										<Link target='_blank' href={`https://${user?.company_id}`}>
-											{user?.company.name || "<i> No Company </i>"}
+										<Link
+											target='_blank'
+											href={`https://${session?.user.company}`}>
+											{session?.user.company || "No Company"}
 										</Link>
 									</DataList.Value>
 								)}
@@ -154,20 +159,20 @@ const SelectOrgMenu = () => {
 					</div>
 				</div>
 			</div>
-			<div className='flex flex-col justify-center items-center w-5/6 rounded-lg border shadow-md py-8 bg-white'>
+			<div className='flex flex-col justify-center items-center w-5/6 rounded-lg border shadow-md py-8 '>
 				<p className=' w-full text-center mb-2 font-semibold'>
 					Select Organization
 				</p>
-				<div className='h-auto flex w-4/6 flex-col justify-center items-center rounded-lg border border-neutral-500 m-auto'>
+				<div className='h-auto flex w-4/6 flex-col justify-center items-center my-4'>
 					<Command className=' w-full p-4 m-auto h-full'>
 						<CommandInput placeholder='Type a plant or search...' />
-						<div className='rounded-lg  border  max-h-48 overflow-y-auto'>
+						<div className='rounded-lg  border  h-full overflow-y-auto'>
 							<CommandList className='h-full'>
 								<CommandEmpty>
 									{isLoading ? (
 										<Flex gap='2' align='center' justify='center'>
-											<Spinner size='3' />{" "}
-											<span className='text-sm'>Loading...</span>
+											<LoaderCircle className='animate-spin text-muted' />{" "}
+											{/* <span className='text-sm'>Loading...</span> */}
 										</Flex>
 									) : (
 										<p className='text-sm text-muted-foreground'>
@@ -184,8 +189,8 @@ const SelectOrgMenu = () => {
 											<CommandGroup
 												key={organization.id}
 												heading={organization.name}>
-												{organization.plants.length > 0 &&
-													organization.plants.map((plant) => (
+												{organization.plants!.length > 0 &&
+													organization.plants!.map((plant) => (
 														<CommandItem key={plant.id}>
 															<button
 																onClick={() =>

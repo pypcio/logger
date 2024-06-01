@@ -1,5 +1,8 @@
 import { z } from "zod";
-
+import {
+	ValueType as PrismaValueType,
+	ActionStatus as PrismaActionStatus,
+} from "@prisma/client";
 const loginUserSchema = z.object({
 	// organization: z.string().min(1, { message: "Organization is required" }),
 	email: z.string().email(),
@@ -85,6 +88,61 @@ const createPlantSchema = z.object({
 		}),
 	description: z.optional(z.string().min(1).max(65535)),
 });
+
+const accountFormSchema = z.object({
+	name: z
+		.string()
+		.min(2, {
+			message: "Name must be at least 2 characters.",
+		})
+		.max(30, {
+			message: "Name must not be longer than 30 characters.",
+		}),
+});
+
+const profileFormSchema = z.object({
+	username: z
+		.string()
+		.min(2, {
+			message: "Name must be at least 2 characters.",
+		})
+		.max(30, {
+			message: "Name must not be longer than 30 characters.",
+		}),
+	bio: z.string().max(160).min(4),
+	company: z
+		.string()
+		.min(2, {
+			message: "Company name must be at least 2 characters.",
+		})
+		.max(60, {
+			message: "Company name  must not be longer than 30 characters.",
+		}),
+});
+const ValueType = z.nativeEnum(PrismaValueType);
+const ActionStatus = z.nativeEnum(PrismaActionStatus);
+
+const actionSchema = z.object({
+	eventGroupId: z.string(),
+	floatValue: z.coerce.number().optional(),
+	intValue: z.coerce.number().optional(),
+	boolValue: z.coerce.boolean().optional(),
+	stringValue: z.string().optional(),
+	eventId: z.coerce.number().nullable(),
+	schedule: z.coerce.date().optional(),
+});
+const actionSchemaValidation = z.object({
+	eventGroupId: z.string(),
+	valueType: ValueType,
+	floatValue: z.string().nullable(),
+	intValue: z.string().nullable(),
+	boolValue: z.boolean().nullable(),
+	stringValue: z.string().nullable(),
+	unit: z.string().nullable(),
+	eventId: z.number().nullable(),
+	status: ActionStatus,
+	schedule: z.date().nullable(),
+});
 export {
 	loginUserSchema,
 	registerUserSchema,
@@ -93,4 +151,8 @@ export {
 	createOrgSchema,
 	resetSchema,
 	createPlantSchema,
+	profileFormSchema,
+	accountFormSchema,
+	actionSchema,
+	actionSchemaValidation,
 };
