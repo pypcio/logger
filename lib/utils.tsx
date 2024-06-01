@@ -34,6 +34,10 @@ export function parseJsonSafely(input: any): any[] | null {
 	}
 	return null;
 }
+//remove group supix from string
+export function removeGroupSuffix(str: string): string {
+	return str.endsWith("-group") ? str.slice(0, -6) : str;
+}
 
 export enum EntityType {
 	organization = "organization",
@@ -42,6 +46,7 @@ export enum EntityType {
 }
 
 import { ActionStatus } from "@prisma/client";
+import { Column, ColumnDef } from "@tanstack/react-table";
 
 // Helper function to convert enum value to desired label format
 const formatLabel = (value: string) => {
@@ -63,3 +68,17 @@ export const createActionOptions = () => {
 
 	return labels;
 };
+
+export function useDeviceOptions() {
+	const labels: { label: string; value: string }[] = [];
+
+	for (const key in ActionStatus) {
+		if (ActionStatus.hasOwnProperty(key)) {
+			const enumValue = ActionStatus[key as keyof typeof ActionStatus];
+			labels.push({
+				value: enumValue,
+				label: formatLabel(enumValue),
+			});
+		}
+	}
+}

@@ -10,7 +10,7 @@ export const useEvents = (eventGroupId: string | undefined) =>
 		enabled: !!eventGroupId,
 	});
 
-export const useEvent = (eventId: number | null) =>
+export const useEvent = (eventId: number | null | undefined) =>
 	useQuery({
 		queryKey: ["event", eventId],
 		queryFn: () => getEventById(eventId),
@@ -18,22 +18,16 @@ export const useEvent = (eventId: number | null) =>
 	});
 
 // Hook for POST request
-export const useCreateAction = ({
-	entityId,
-	data,
-}: {
-	entityId: string;
-	data: ActionType;
-}) => {
+export const useCreateAction = (data: ActionType) => {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationKey: ["allPlantsWithActions", entityId],
-		mutationFn: () => createAction(entityId, data),
-		onSuccess: (data: ActionType, variables: any) => {
-			queryClient.setQueryData(
-				["allPlantsWithActions", { id: variables.id }],
-				data
-			);
-		},
+		mutationKey: ["allPlantsWithActions"],
+		mutationFn: () => createAction(data),
+		// onSuccess: (data: ActionType, variables: any) => {
+		// 	queryClient.setQueryData(
+		// 		["allPlantsWithActions", { id: variables.id }],
+		// 		data
+		// 	);
+		// },
 	});
 };

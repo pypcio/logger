@@ -17,6 +17,13 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
+import { toast } from "@/components/ui/use-toast";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -28,18 +35,25 @@ import CardWrapper from "@/components/auth/CardWrapper";
 import BackButton from "@/components/auth/BackButton";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { Action, Event } from "@prisma/client";
+import { Action, DeviceType, Event } from "@prisma/client";
 import React from "react";
 import { actionSchema } from "@/schemas/forms-schema";
 import { ActionType } from "@/schemas/schemas-types";
 import Link from "next/link";
 import prisma from "@/prisma/client";
 import { useEvent, useEvents } from "@/app/control-panel/new/query";
+import { createAction } from "@/lib/services/api";
 import { parseJsonSafely } from "@/lib/utils";
-type ActionFormType = z.infer<typeof actionSchema>;
+import { Separator } from "@/components/ui/separator";
+import { useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 type EventGroup = {
 	id: string;
 	deviceName: string;
+	deviceType: DeviceType | null;
+	organization: {
+		name: string;
+	};
 };
 const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 	const router = useRouter();
@@ -47,23 +61,15 @@ const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 	const [isSubmitting, setSubmitting] = useState(false);
 	const [onError, setError] = useState<string | undefined>("");
 	const [onSuccess, setSuccess] = useState<string | undefined>("");
-	const [predefinedValues, setPredefinedValues] = useState<Array<string>>();
-	// const [eventGroupId, setEventGroupId] = useState<string | undefined>("");
-	// const [defaultValues, setDefaultValues] = useState<Partial<ActionFormType>>({
-	// 	eventGroupId: "",
-	// 	boolValue: null,
-	// 	floatValue: null,
-	// 	intValue: null,
-	// 	stringValue: null,
-	// 	unit: null,
-	// 	schedule: null,
-	// });
+	const [eventGroupId, setEventGroupId] = useState<string | undefined>();
+	const [eventId, setEventId] = useState<number | undefined | null>();
+	const queryClient = useQueryClient();
 	const form = useForm<z.infer<typeof actionSchema>>({
 		resolver: zodResolver(actionSchema),
 		// defaultValues,
 	});
-	const eventId = form.watch("eventId");
-	const eventGroupId = form.watch("eventGroupId");
+	// const eventId = form.watch("eventId");
+	// const eventGroupId = form.watch("eventGroupId");
 	const { data: events, isLoading, isError, error } = useEvents(eventGroupId);
 	const {
 		data: event,
@@ -75,38 +81,58 @@ const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 		setError("");
 		setSuccess("");
 		setSubmitting(true);
-		console.log("values: ", values);
-		// createOrg(values).then((data) => {
-		// 	setSubmitting(false);
-		// 	if (data?.error) {
-		// 		form.reset();
-		// 		setError(data.error);
-		// 	}
+		let message = "";
+		let title = "";
+		let variant: "default" | "destructive" = "default";
+		try {
+			if (event) {
+				const enhancedValues = {
+					...values,
+					valueType: event.valueType,
+				};
 
-		// 	if (data?.success) {
-		// 		form.reset();
-		// 		setSuccess(data.success);
-		// 		// router.push("/dashboard")
-		// 		// router.refresh();
-		// 	}
-		// });
-	}
-	useEffect(() => {
-		if (event) {
-			console.log("predefinedValues: ", typeof event.predefinedValues);
-			const predValues = event?.predefinedValues
-				? parseJsonSafely(event.predefinedValues)
-				: null;
-			if (predValues) {
-				setPredefinedValues(predValues);
+				if (event.valueType === "BOOLEAN") {
+					const parsedValues = event.predefinedValues as any[];
+					if (parsedValues?.indexOf(enhancedValues.stringValue) === 0)
+						enhancedValues.boolValue = false;
+					else enhancedValues.boolValue = true;
+				}
+				const response = await axios.post(`/api/actions`, enhancedValues);
+				console.log("response: ", response);
+				if (response.status >= 200 && response.status < 300) {
+					// setSuccess("Action updated successfully!");
+					message = "Action updated successfully!";
+					title = "Success";
+				} else {
+					// setError(`Failed to update action. Error: ${response.statusText}`);
+					message = `Failed to update action. Error: ${response.statusText}`;
+					title = "Oh no! Could not create action!";
+					variant = "destructive";
+				}
 			}
+		} catch (e) {
+			// setError("Failed to update action. Please check the form for errors.");
+			message = "Failed to update action. Please check the form for errors.";
+			title = "Oh no! Could not create action!";
+			variant = "destructive";
+		} finally {
+			setSubmitting(false);
+			setEventGroupId("");
+			setEventId(null);
+			form.reset();
+			// router.refresh();
+			queryClient.resetQueries({ queryKey: ["event", "events"] });
+			toast({
+				variant: variant,
+				title: title,
+				description: message,
+			});
 		}
-	}, [event]);
-	console.log("event: ", event);
+	}
 	return (
 		<div className='flex-1 flex items-center justify-center'>
 			<CardWrapper
-				mainLabel=''
+				mainLabel={`${eventGroups[0].organization.name}`}
 				headerLabel='Create Action'
 				backButtonLabel='Go back'
 				backButtonHref='/control-panel'
@@ -124,7 +150,7 @@ const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 										<FormLabel>Device: </FormLabel>
 										<Select
 											onValueChange={(evGrpId: string) => {
-												// setEventGroupId(evGrpId);
+												setEventGroupId(evGrpId);
 												form.setValue("eventGroupId", evGrpId);
 												form.resetField("eventId");
 											}}
@@ -140,7 +166,17 @@ const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 														<SelectItem
 															key={eventGroup.id}
 															value={eventGroup.id}>
-															{eventGroup.deviceName}
+															<div className='flex h-5 items-center space-x-4 text-sm'>
+																<p className='text-sm font-medium leading-none'>
+																	{eventGroup.deviceName}
+																</p>
+																<Separator orientation='vertical' />
+																<p className='text-sm font-medium leading-none text-gray-400'>
+																	{eventGroup.deviceType
+																		?.toLowerCase()
+																		.replace(/_/g, " ")}
+																</p>
+															</div>
 														</SelectItem>
 													))}
 											</SelectContent>
@@ -156,11 +192,11 @@ const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 										<FormLabel>Event: </FormLabel>
 										<Select
 											onValueChange={(evId: string) => {
-												// setEventGroupId(evGrpId);
-												form.resetField("boolValue");
-												form.resetField("stringValue");
-												form.resetField("intValue");
-												form.resetField("floatValue");
+												setEventId(parseInt(evId));
+												// form.resetField("boolValue");
+												// form.resetField("stringValue");
+												// form.resetField("intValue");
+												// form.resetField("floatValue");
 												form.setValue("eventId", parseInt(evId));
 											}}
 											defaultValue={field?.value?.toString()}
@@ -196,7 +232,9 @@ const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 										name='stringValue'
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Value</FormLabel>
+												<FormLabel>
+													Value {event.unit ? ` (${event.unit})` : ""}
+												</FormLabel>
 												<FormControl>
 													<Select
 														onValueChange={field.onChange}
@@ -229,16 +267,18 @@ const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 										disabled={!eventGroupId || isSubmitting}
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Value</FormLabel>
+												<FormLabel>
+													Value {event.unit ? ` (${event.unit})` : ""}
+												</FormLabel>
 												<FormControl>
 													<Input
 														type='number'
-														min={event.rangeStart ?? ""}
-														max={event.rangeEnd ?? ""}
-														step={event.step ?? "any"}
+														min={event.rangeStart!}
+														max={event.rangeEnd!}
+														step={event.step ?? undefined}
 														placeholder={`Enter a value between ${event.rangeStart} and ${event.rangeEnd}`}
 														{...field}
-														value={field.value ?? ""}
+														// defaultValue={event.rangeStart ?? undefined}
 													/>
 												</FormControl>
 												<FormMessage />
@@ -253,16 +293,19 @@ const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 										disabled={!eventGroupId || isSubmitting}
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Value</FormLabel>
+												<FormLabel>
+													Value {event.unit ? ` (${event.unit})` : ""}
+												</FormLabel>
 												<FormControl>
 													<Input
 														type='number'
-														min={event.rangeStart ?? ""}
-														max={event.rangeEnd ?? ""}
-														step={event.step ?? "1"}
+														min={event.rangeStart!}
+														max={event.rangeEnd!}
+														step={event.step ?? 1}
 														placeholder={`Enter an integer between ${event.rangeStart} and ${event.rangeEnd}`}
 														{...field}
-														value={field.value ?? ""}
+														// value={field.value ?? undefined}
+														// defaultValue={event.rangeStart ?? undefined}
 													/>
 												</FormControl>
 												<FormMessage />
@@ -273,14 +316,16 @@ const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 								{event && event.valueType === "BOOLEAN" && (
 									<FormField
 										control={form.control}
-										name='boolValue'
+										name='stringValue'
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Value</FormLabel>
+												<FormLabel>
+													Value {event.unit ? ` (${event.unit})` : ""}
+												</FormLabel>
 												<FormControl>
 													<Select
 														onValueChange={field.onChange}
-														defaultValue={field.value?.toString() ?? ""}
+														defaultValue={field.value?.toString()}
 														disabled={!eventGroupId || isSubmitting}>
 														<SelectTrigger>
 															<SelectValue placeholder='Select status' />
@@ -290,7 +335,7 @@ const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 																event.predefinedValues.map((label, index) => (
 																	<SelectItem
 																		key={index}
-																		value={index.toString()}>
+																		value={label!.toString()}>
 																		{label?.toString()}
 																	</SelectItem>
 																))}
@@ -303,8 +348,27 @@ const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 									/>
 								)}
 							</div>
+							{event && (
+								<FormField
+									control={form.control}
+									name='schedule'
+									disabled={!eventGroupId || isSubmitting}
+									render={({ field }) => (
+										<FormItem className='flex flex-col'>
+											<FormLabel>Date</FormLabel>
+											<DateTimePicker
+												date={new Date()}
+												setDate={(date: Date | undefined) => {
+													field.onChange(date);
+												}}
+											/>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							)}
 						</div>
-						{<FormError message={onError || isError ? error?.message : ""} />}
+						{<FormError message={onError} />}
 						{<FormSuccess message={onSuccess} />}
 						<Button className='w-full' type='submit' disabled={isSubmitting}>
 							Submit

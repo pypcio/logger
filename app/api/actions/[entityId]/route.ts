@@ -37,8 +37,7 @@ export async function POST(
 		floatValue,
 		intValue,
 		stringValue,
-		schedule,
-		status,
+		schedule: optionalSchedule,
 		valueType,
 	} = validateAction.data;
 	// Fetch the event configuration
@@ -49,6 +48,7 @@ export async function POST(
 			{ status: 404 }
 		);
 	const valueTypeEvent = event.valueType;
+	const schedule = optionalSchedule ?? new Date();
 	let boolValueToString = null;
 	const unit = event.unit;
 	const predefinedValues = event.predefinedValues
@@ -144,7 +144,6 @@ export async function POST(
 				floatValue,
 				stringValue: stringValue ?? boolValueToString,
 				schedule,
-				status,
 				unit,
 				eventId,
 				eventGroupId: params.entityId,

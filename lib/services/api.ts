@@ -124,8 +124,8 @@ export const getOrganizationEntitiesActions = async (
 };
 
 // POST request
-export const createAction = async (entityId: string, data: ActionType) => {
-	return (await axios.post(`/api/actions/${entityId}`, data)).data;
+export const createAction = async (data: ActionType) => {
+	return (await axios.post(`/api/actions`, data)).data;
 };
 
 // PATCH request
@@ -154,7 +154,9 @@ export const getEventsByGroupId = async (
 	).data;
 };
 
-export const getEventById = async (eventId: number | null): Promise<Event> => {
+export const getEventById = async (
+	eventId: number | null | undefined
+): Promise<Event> => {
 	if (!eventId) {
 		throw new Error("Event ID is required.");
 	}

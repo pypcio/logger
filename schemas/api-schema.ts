@@ -117,14 +117,12 @@ const actionAPISchema = z
 	.object({
 		eventGroupId: z.string(),
 		valueType: ValueType,
-		floatValue: z.number().nullable(),
-		intValue: z.number().nullable(),
-		boolValue: z.boolean().nullable(),
-		stringValue: z.string().nullable(),
-		unit: z.string().nullable(),
-		eventId: z.number(),
-		status: ActionStatus,
-		schedule: z.date(),
+		floatValue: z.coerce.number().nullable().optional(),
+		intValue: z.coerce.number().nullable().optional(),
+		boolValue: z.coerce.boolean().nullable().optional(),
+		stringValue: z.string().nullable().optional(),
+		eventId: z.coerce.number(),
+		schedule: z.coerce.date().optional(),
 	})
 	.refine(
 		(data) => {

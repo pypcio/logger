@@ -124,9 +124,18 @@ const ActionStatus = z.nativeEnum(PrismaActionStatus);
 
 const actionSchema = z.object({
 	eventGroupId: z.string(),
+	floatValue: z.coerce.number().optional(),
+	intValue: z.coerce.number().optional(),
+	boolValue: z.coerce.boolean().optional(),
+	stringValue: z.string().optional(),
+	eventId: z.coerce.number().nullable(),
+	schedule: z.coerce.date().optional(),
+});
+const actionSchemaValidation = z.object({
+	eventGroupId: z.string(),
 	valueType: ValueType,
-	floatValue: z.number().nullable(),
-	intValue: z.number().nullable(),
+	floatValue: z.string().nullable(),
+	intValue: z.string().nullable(),
 	boolValue: z.boolean().nullable(),
 	stringValue: z.string().nullable(),
 	unit: z.string().nullable(),
@@ -134,7 +143,6 @@ const actionSchema = z.object({
 	status: ActionStatus,
 	schedule: z.date().nullable(),
 });
-
 export {
 	loginUserSchema,
 	registerUserSchema,
@@ -146,4 +154,5 @@ export {
 	profileFormSchema,
 	accountFormSchema,
 	actionSchema,
+	actionSchemaValidation,
 };

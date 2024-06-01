@@ -14,7 +14,12 @@ const ActionForm = dynamic(
 const fetchEventGroups = cache((organizationId: string) =>
 	prisma.eventGroup.findMany({
 		where: { organizationId },
-		select: { id: true, deviceName: true },
+		select: {
+			id: true,
+			deviceName: true,
+			deviceType: true,
+			organization: { select: { name: true } },
+		},
 	})
 );
 
