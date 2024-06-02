@@ -400,6 +400,7 @@ model ActionHistory {
 
 enum ActionStatus {
   SCHEDULED // when created
+  PENDING // when executing
   EXECUTED // when successfully executed
   CANCELED // when user cancels/deletes action, but remains in history
   EXPIRED // when status doesn't change within 2 min after scheduled time
