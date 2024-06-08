@@ -400,6 +400,7 @@ model ActionHistory {
 
 enum ActionStatus {
   SCHEDULED // when created
+  PENDING // when executing
   EXECUTED // when successfully executed
   CANCELED // when user cancels/deletes action, but remains in history
   EXPIRED // when status doesn't change within 2 min after scheduled time
@@ -415,6 +416,7 @@ model Event {
   step             Float?
   predefinedValues Json?
   unit             String?
+  topic            EventTopic
   actions          Action[]
   eventGroupId     String
   eventGroup       EventGroup @relation(fields: [eventGroupId], references: [id])
@@ -456,24 +458,35 @@ enum ValueType {
 }
 
 model EventGroup {
-  id             String          @id @default(cuid())
-  name           String
-  deviceName     String
-  plantName      String
-  organizationId String
-  plantId        String
-  deviceType     DeviceType?
-  events         Event[]
-  plant          Plant?
-  logger         Logger?
-  securityDevice SecurityDevice?
-  inverter       Inverter?
-  meter          Meter?
-  organization   Organization    @relation(fields: [organizationId], references: [id])
-  action         Action[]
+  id               String            @id @default(cuid())
+  name             String
+  deviceName       String
+  plantName        String
+  organizationId   String
+  plantId          String
+  deviceType       DeviceType?
+  events           Event[]
+  plant            Plant?
+  logger           Logger?
+  securityDevice   SecurityDevice?
+  inverter         Inverter?
+  meter            Meter?
+  organization     Organization      @relation(fields: [organizationId], references: [id])
+  action           Action[]
+  eventGroupMapper EventGroupMapper?
 
   @@index([organizationId])
   @@index([plantId])
+}
+
+model EventGroupMapper {
+  eventGroupId String     @unique
+  slaveId      Int
+  masterId     Int
+  eventGroup   EventGroup @relation(fields: [eventGroupId], references: [id], onDelete: Cascade)
+
+  @@id([eventGroupId])
+  @@unique([slaveId, masterId])
 }
 
 enum DeviceType {
@@ -482,6 +495,30 @@ enum DeviceType {
   SECURITY_DEVICE
   METER
   INVERTER
+}
+
+enum EventTopic {
+  AMBIENT_TEMPERATURE
+  BATTERY_HEALTH
+  BATTERY_LEVEL
+  CURRENT
+  EFFICIENCY
+  ENERGY_OUTPUT
+  FREQUENCY
+  LOG_INTERVAL
+  MOTION_DETECTED
+  NETWORK_STATUS
+  OUTPUT_POWER
+  PANEL_TEMPERATURE
+  POWER
+  SIGNAL_STRENGTH
+  SOLAR_IRRADIANCE
+  STATUS
+  STORAGE_CAPACITY
+  SWITCH_BREAKER
+  TAMPER_ALERT
+  TEMPERATURE
+  VOLTAGE
 }
 
 // model EventConfigurations {

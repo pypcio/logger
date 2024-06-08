@@ -16,7 +16,9 @@ export const getUserCurrentMembershipInfo = async (organizationId: string) => {
 			},
 			include: {
 				organization: {
-					select: { name: true },
+					select: {
+						name: true,
+					},
 				},
 			},
 		});

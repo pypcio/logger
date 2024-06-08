@@ -22,15 +22,17 @@ interface DataTableViewOptionsProps<TData> {
 export function DataTableViewOptions<TData>({
 	table,
 }: DataTableViewOptionsProps<TData>) {
-	const router = useRouter();
 	return (
 		<div className='flex gap-2'>
 			<Button
 				size='sm'
 				className='h-8 border-dashed bg-primary'
-				onClick={() => router.push("/control-panel/new")}>
+				// onClick={() => router.push("/control-panel/new")}
+			>
 				<FilePlusIcon className='mr-2 h-4 w-4' />
-				New Action
+				<a className='m-0 p-0' href='/control-panel/new'>
+					New Action
+				</a>
 			</Button>
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
