@@ -153,6 +153,7 @@ const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 												setEventGroupId(evGrpId);
 												form.setValue("eventGroupId", evGrpId);
 												form.resetField("eventId");
+												setEventId(null);
 											}}
 											defaultValue={field.value}>
 											<FormControl>
@@ -226,7 +227,7 @@ const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 								)}
 							/>
 							<div>
-								{event && event.valueType === "STRING" && (
+								{event && eventId && event.valueType === "STRING" && (
 									<FormField
 										control={form.control}
 										name='stringValue'
@@ -260,7 +261,7 @@ const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 										)}
 									/>
 								)}
-								{event && event.valueType === "FLOAT" && (
+								{event && eventId && event.valueType === "FLOAT" && (
 									<FormField
 										control={form.control}
 										name='floatValue'
