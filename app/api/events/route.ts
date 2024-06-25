@@ -1,15 +1,10 @@
 import { currentUser } from "@/lib/auth";
-import { parseJsonSafely } from "@/lib/utils";
 import prisma from "@/prisma/client";
-import { actionSchema } from "@/schemas/api-schema";
-import { UserRole } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
-import { actionDataArraySchema } from "@/schemas/data-table";
-import { actionDataTableViewArraySchema } from "@/app/control-panel/data/schema";
 //get actions from entity
 export async function GET(request: NextRequest) {
 	const searchParams = request.nextUrl.searchParams;
-	const eventGroupId = searchParams.get("eventGroupId");
+	const deviceId = searchParams.get("deviceId");
 	const user = await currentUser();
 	if (!user) {
 		return NextResponse.json(
@@ -20,7 +15,7 @@ export async function GET(request: NextRequest) {
 	// if (!user.role || !user.organizationId) {
 	// 	return NextResponse.json({ error: "User not permitted" }, { status: 403 });
 	// }
-	if (!eventGroupId) {
+	if (!deviceId) {
 		return NextResponse.json(
 			{ error: "Invalid query parameters" },
 			{ status: 400 }
@@ -28,16 +23,8 @@ export async function GET(request: NextRequest) {
 	}
 	//filter eventGroups based on filters:
 	try {
-		const eventGroup = await prisma.eventGroup.findUnique({
-			where: { id: eventGroupId },
-		});
-		if (!eventGroup)
-			return NextResponse.json(
-				{ error: "EventGroup not found." },
-				{ status: 404 }
-			);
 		const events = await prisma.event.findMany({
-			where: { eventGroupId: eventGroup.id },
+			where: { deviceId },
 			select: { id: true, name: true },
 		});
 		if (!events.length)

@@ -1,20 +1,26 @@
 import { currentUser } from "@/lib/auth";
 import prisma from "@/prisma/client";
 import { plantSchema } from "@/schemas/api-schema";
-import { UserRole } from "@prisma/client";
+import { Prisma, UserRole } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
-	const body = await request.json();
 	const user = await currentUser();
-	if (!user)
+	if (!user) {
 		return NextResponse.json(
-			{ error: "You are not logged in" },
+			{ error: "You are not logged in." },
 			{ status: 401 }
 		);
-	//check if user has permission from session
-	if (user.role === UserRole.USER || !user.role)
+	}
+	if (
+		// user.role === UserRole.USER ||
+		!user.id ||
+		!user.role ||
+		!user.organizationId
+	) {
 		return NextResponse.json({ error: "User not permitted" }, { status: 403 });
+	}
+	const body = await request.json();
 
 	const plantValidation = plantSchema.safeParse(body);
 	if (!plantValidation.success) {
@@ -22,50 +28,59 @@ export async function POST(request: NextRequest) {
 	}
 	const { name, description } = plantValidation.data;
 
-	//check organization
-	const existingOrganization = await prisma.organization.findUnique({
-		where: { id: user.organizationId! },
-	});
-	if (!existingOrganization)
-		return NextResponse.json(
-			{ error: "Organization not found" },
-			{ status: 404 }
-		);
+	try {
+		//check organization
+		const existingOrganization = await prisma.organization.findUnique({
+			where: { id: user.organizationId! },
+		});
+		if (!existingOrganization)
+			return NextResponse.json(
+				{ error: "Organization not found" },
+				{ status: 404 }
+			);
 
-	//check if plant exists
-	const findPlant = await prisma.plant.findUnique({
-		where: {
-			name_organizationId: {
-				name: name,
+		const newPlant = await prisma.plant.create({
+			data: {
+				name: body.name,
+				description,
 				organizationId: existingOrganization.id,
 			},
-		},
-	});
-	if (findPlant) {
+		});
+		return NextResponse.json(newPlant, { status: 201 });
+	} catch (error) {
+		if (
+			error instanceof Prisma.PrismaClientKnownRequestError &&
+			error.code === "P2002"
+		) {
+			// P2002 is the error code for unique constraint violations
+			return NextResponse.json(
+				{ error: "Name already in use." },
+				{ status: 400 }
+			);
+		}
 		return NextResponse.json(
-			{ error: "Plant already exists." },
-			{ status: 400 }
+			{ error: "Internal server error." },
+			{ status: 500 }
 		);
 	}
-	const newPlant = await prisma.plant.create({
-		data: {
-			name: body.name,
-			description,
-			//org_id : sessionParams.org_id
-		},
-	});
-	return NextResponse.json(newPlant, { status: 201 });
 }
 
 export async function GET(request: NextRequest) {
 	const user = await currentUser();
-	if (!user)
+	if (!user) {
 		return NextResponse.json(
-			{ error: "You are not logged in" },
+			{ error: "You are not logged in." },
 			{ status: 401 }
 		);
-	if (user.role === UserRole.USER || !user.role || !user.organizationId)
+	}
+	if (
+		// user.role === UserRole.USER ||
+		!user.id ||
+		!user.role ||
+		!user.organizationId
+	) {
 		return NextResponse.json({ error: "User not permitted" }, { status: 403 });
+	}
 
 	const allPlants = await prisma.plant.findMany({
 		where: { organizationId: user.organizationId },

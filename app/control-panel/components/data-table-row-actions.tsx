@@ -48,7 +48,9 @@ export function DataTableRowActions<TData>({
 				<DropdownMenuSeparator />
 				<DropdownMenuItem className='my-0 py-0'>
 					<Button
-						disabled={action.status !== "SCHEDULED"}
+						disabled={
+							action.status !== "SCHEDULED" || action.schedule <= new Date()
+						}
 						variant='ghost'
 						size='sm'
 						className='pl-0 py-0'

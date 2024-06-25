@@ -55,13 +55,24 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+	const searchParams = request.nextUrl.searchParams;
+	const plants = searchParams.get("plants") ?? "";
+	const devices = searchParams.get("devices") ?? "";
 	const user = await currentUser();
-	if (!user)
+	if (!user) {
 		return NextResponse.json(
-			{ error: "You are not logged in" },
+			{ error: "You are not logged in." },
 			{ status: 401 }
 		);
-
+	}
+	if (
+		// user.role === UserRole.USER ||
+		!user.id ||
+		!user.role ||
+		!user.organizationId
+	) {
+		return NextResponse.json({ error: "User not permitted" }, { status: 403 });
+	}
 	const fetchedOrgData = await prisma.organizationMembership.findMany({
 		where: {
 			userId: user.id,

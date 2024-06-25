@@ -47,21 +47,21 @@ import { parseJsonSafely } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-type EventGroup = {
+type Device = {
 	id: string;
-	deviceName: string;
+	name: string;
 	deviceType: DeviceType | null;
-	organization: {
-		name: string;
+	plant: {
+		organization: {
+			name: string;
+		};
 	};
 };
-const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
-	const router = useRouter();
-	const params = useSearchParams();
+const ActionForm = ({ devices }: { devices: Device[] }) => {
 	const [isSubmitting, setSubmitting] = useState(false);
 	const [onError, setError] = useState<string | undefined>("");
 	const [onSuccess, setSuccess] = useState<string | undefined>("");
-	const [eventGroupId, setEventGroupId] = useState<string | undefined>();
+	const [deviceId, setDeviceId] = useState<string | undefined>();
 	const [eventId, setEventId] = useState<number | undefined | null>();
 	const queryClient = useQueryClient();
 	const form = useForm<z.infer<typeof actionSchema>>({
@@ -70,13 +70,13 @@ const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 	});
 	// const eventId = form.watch("eventId");
 	// const eventGroupId = form.watch("eventGroupId");
-	const { data: events, isLoading, isError, error } = useEvents(eventGroupId);
+	const { data: events, isLoading, isError, error } = useEvents(deviceId);
 	const {
 		data: event,
 		isLoading: isLoadingEvent,
 		isError: isErrorEvent,
 		error: eventError,
-	} = useEvent(eventId);
+	} = useEvent(eventId, deviceId);
 	async function onSubmit(values: z.infer<typeof actionSchema>) {
 		setError("");
 		setSuccess("");
@@ -117,7 +117,7 @@ const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 			variant = "destructive";
 		} finally {
 			setSubmitting(false);
-			setEventGroupId("");
+			setDeviceId("");
 			setEventId(null);
 			form.reset();
 			// router.refresh();
@@ -132,7 +132,7 @@ const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 	return (
 		<div className='flex-1 flex items-center justify-center'>
 			<CardWrapper
-				mainLabel={`${eventGroups[0].organization.name}`}
+				mainLabel={`${devices[0].plant.organization.name}`}
 				headerLabel='Create Action'
 				backButtonLabel='Go back'
 				backButtonHref='/control-panel'
@@ -144,14 +144,14 @@ const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 						<div className='space-y-6'>
 							<FormField
 								control={form.control}
-								name='eventGroupId'
+								name='deviceId'
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Device: </FormLabel>
 										<Select
 											onValueChange={(evGrpId: string) => {
-												setEventGroupId(evGrpId);
-												form.setValue("eventGroupId", evGrpId);
+												setDeviceId(evGrpId);
+												form.setValue("deviceId", evGrpId);
 												form.resetField("eventId");
 												setEventId(null);
 											}}
@@ -162,18 +162,16 @@ const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
-												{eventGroups &&
-													eventGroups.map((eventGroup) => (
-														<SelectItem
-															key={eventGroup.id}
-															value={eventGroup.id}>
+												{devices &&
+													devices.map((device) => (
+														<SelectItem key={device.id} value={device.id}>
 															<div className='flex h-5 items-center space-x-4 text-sm'>
 																<p className='text-sm font-medium leading-none'>
-																	{eventGroup.deviceName}
+																	{device.name}
 																</p>
 																<Separator orientation='vertical' />
 																<p className='text-sm font-medium leading-none text-gray-400'>
-																	{eventGroup.deviceType
+																	{device.deviceType
 																		?.toLowerCase()
 																		.replace(/_/g, " ")}
 																</p>
@@ -201,7 +199,7 @@ const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 												form.setValue("eventId", parseInt(evId));
 											}}
 											defaultValue={field?.value?.toString()}
-											disabled={!eventGroupId || isSubmitting}>
+											disabled={!deviceId || isSubmitting}>
 											<FormControl>
 												<SelectTrigger>
 													<SelectValue placeholder='Select event' />
@@ -240,7 +238,7 @@ const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 													<Select
 														onValueChange={field.onChange}
 														defaultValue={field.value?.toString() ?? ""}
-														disabled={!eventGroupId || isSubmitting}>
+														disabled={!deviceId || isSubmitting}>
 														<SelectTrigger>
 															<SelectValue placeholder='Select value' />
 														</SelectTrigger>
@@ -265,7 +263,7 @@ const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 									<FormField
 										control={form.control}
 										name='floatValue'
-										disabled={!eventGroupId || isSubmitting}
+										disabled={!deviceId || isSubmitting}
 										render={({ field }) => (
 											<FormItem>
 												<FormLabel>
@@ -291,7 +289,7 @@ const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 									<FormField
 										control={form.control}
 										name='intValue'
-										disabled={!eventGroupId || isSubmitting}
+										disabled={!deviceId || isSubmitting}
 										render={({ field }) => (
 											<FormItem>
 												<FormLabel>
@@ -327,7 +325,7 @@ const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 													<Select
 														onValueChange={field.onChange}
 														defaultValue={field.value?.toString()}
-														disabled={!eventGroupId || isSubmitting}>
+														disabled={!deviceId || isSubmitting}>
 														<SelectTrigger>
 															<SelectValue placeholder='Select status' />
 														</SelectTrigger>
@@ -353,7 +351,7 @@ const ActionForm = ({ eventGroups }: { eventGroups: EventGroup[] }) => {
 								<FormField
 									control={form.control}
 									name='schedule'
-									disabled={!eventGroupId || isSubmitting}
+									disabled={!deviceId || isSubmitting}
 									render={({ field }) => (
 										<FormItem className='flex flex-col'>
 											<FormLabel>Date</FormLabel>

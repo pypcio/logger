@@ -5,6 +5,9 @@ import { columns } from "./components/columns";
 import { DataTable } from "./components/data-table";
 import LoadingPanelPage from "./components/spinner-page";
 import { useOrganizationEntitiesActions } from "./data/query";
+import { Button } from "@/components/ui/button";
+import { FilePlusIcon } from "@radix-ui/react-icons";
+import NoActionPage from "./components/no-action-page";
 
 export default function DemoPage() {
 	const { data: session, status } = useSession();
@@ -38,8 +41,10 @@ export default function DemoPage() {
 				</div>
 				{actions ? (
 					<DataTable data={actions} columns={columns} />
-				) : (
+				) : isLoading ? (
 					<LoadingPanelPage />
+				) : (
+					<NoActionPage />
 				)}
 				{/* <LoadingPanelPage /> */}
 			</div>

@@ -2,91 +2,54 @@ import { currentUser } from "@/lib/auth";
 import { parseJsonSafely, removeGroupSuffix } from "@/lib/utils";
 import prisma from "@/prisma/client";
 import { actionAPISchema } from "@/schemas/api-schema";
-import { UserRole } from "@prisma/client";
+import { ActionStatus, UserRole } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { actionDataArraySchema } from "@/schemas/data-table";
 import { actionDataTableViewArraySchema } from "@/app/control-panel/data/schema";
+import { publishEvent } from "@/lib/services/api";
+import { PublishEventType } from "@/schemas/schemas-types";
 
-//get actions from entity
+//get actions for organization
 export async function GET(request: NextRequest) {
 	const searchParams = request.nextUrl.searchParams;
-	const entityType = searchParams.get("entityType");
-	const entityId = searchParams.get("entityId");
 	const user = await currentUser();
+
 	if (!user) {
 		return NextResponse.json(
 			{ error: "You are not logged in." },
 			{ status: 401 }
 		);
 	}
+	if (
+		// user.role === UserRole.USER ||
+		!user.id ||
+		!user.role ||
+		!user.organizationId
+	) {
+		return NextResponse.json({ error: "User not permitted" }, { status: 403 });
+	}
 	// if (!user.role || !user.organizationId) {
 	// 	return NextResponse.json({ error: "User not permitted" }, { status: 403 });
 	// }
-	if (!entityType || !entityId) {
-		return NextResponse.json(
-			{ error: "Invalid query parameters" },
-			{ status: 400 }
-		);
-	}
 	//filter eventGroups based on filters:
 	try {
-		let eventGroups = [];
-		switch (entityType) {
-			case "organization":
-				eventGroups = await prisma.eventGroup.findMany({
-					where: {
-						organizationId: entityId,
-					},
-				});
-				if (eventGroups.length === 0) {
-					return NextResponse.json(
-						{ error: "No Event Group for Organization." },
-						{ status: 404 }
-					);
-				}
-				break;
-			case "plant":
-				eventGroups = await prisma.eventGroup.findMany({
-					where: { plantId: entityId },
-				});
-				if (eventGroups.length === 0) {
-					return NextResponse.json(
-						{ error: "No Event Group for Plant." },
-						{ status: 404 }
-					);
-				}
-				break;
-			case "entity":
-				const eventGroupId = entityId + "-group";
-				const eventGroup = await prisma.eventGroup.findUnique({
-					where: { id: eventGroupId },
-				});
-				if (!eventGroup) {
-					return NextResponse.json(
-						{ error: "Entity event group not found." },
-						{ status: 404 }
-					);
-				}
-				eventGroups = [eventGroup]; // Normalize to an array
-				break;
-			default:
-				return NextResponse.json(
-					{ error: "Invalid entity type." },
-					{ status: 400 }
-				);
-		}
-		const eventGroupIds = eventGroups.map((group) => group.id);
-
 		const actions = await prisma.action.findMany({
 			where: {
-				eventGroupId: {
-					in: eventGroupIds,
+				device: {
+					plant: {
+						organizationId: user.organizationId,
+					},
 				},
 			},
 			include: {
-				user: {
+				device: {
 					select: {
-						email: true,
+						name: true,
+						plant: {
+							select: {
+								name: true,
+							},
+						},
 					},
 				},
 				event: {
@@ -94,45 +57,40 @@ export async function GET(request: NextRequest) {
 						name: true,
 					},
 				},
-				eventGroup: {
-					select: {
-						deviceName: true,
-						plantName: true,
-					},
-				},
 			},
 			orderBy: { schedule: "desc" },
 		});
+
 		if (!actions.length)
 			return NextResponse.json({ error: "No Action Found." }, { status: 404 });
 
 		// Map and validate the data to fit the schema
-		const formattedData = actions.map((item) => {
+		const formattedData = actions.map((action) => {
 			let value = null;
-			switch (item.valueType) {
+			switch (action.valueType) {
 				case "BOOLEAN":
-					value = item.stringValue ?? null;
+					value = action.stringValue ?? null;
 					break;
 				case "FLOAT":
-					value = item.floatValue;
+					value = action.floatValue;
 					break;
 				case "INTEGER":
-					value = item.intValue;
+					value = action.intValue;
 					break;
 				case "STRING":
-					value = item.stringValue;
+					value = action.stringValue;
 					break;
 			}
 			return {
-				id: item.id,
-				device: item.eventGroup.deviceName,
-				plant: item.eventGroup.plantName,
-				action: item.event.name,
-				status: item.status,
+				id: action.id,
+				device: action.device.name,
+				plant: action.device.plant.name,
+				action: action.event.name,
+				status: action.status,
 				value,
-				user: item.user.email,
-				schedule: item.schedule,
-				unit: item.unit,
+				user: action.email,
+				schedule: action.schedule,
+				unit: action.unit,
 			};
 		});
 		// Validate formatted data
@@ -170,13 +128,15 @@ export async function POST(request: NextRequest) {
 		return NextResponse.json({ error: "User not permitted" }, { status: 403 });
 	}
 	const body = await request.json();
+	// console.log("content: ", body);
 	const validateAction = actionAPISchema.safeParse(body);
-	if (!validateAction.success)
+	if (!validateAction.success) {
 		return NextResponse.json(validateAction.error.errors, { status: 400 });
+	}
 	const {
 		boolValue,
 		eventId,
-		eventGroupId,
+		deviceId,
 		floatValue,
 		intValue,
 		stringValue,
@@ -184,7 +144,9 @@ export async function POST(request: NextRequest) {
 		valueType,
 	} = validateAction.data;
 	// Fetch the event configuration
-	const event = await prisma.event.findUnique({ where: { id: eventId } });
+	const event = await prisma.event.findUnique({
+		where: { deviceId_id: { id: eventId, deviceId } },
+	});
 	if (!event)
 		return NextResponse.json(
 			{ error: "Event does not exist." },
@@ -193,6 +155,7 @@ export async function POST(request: NextRequest) {
 	const valueTypeEvent = event.valueType;
 	const schedule = optionalSchedule ?? new Date();
 	let boolValueToString = null;
+	let sendValue = null;
 	const unit = event.unit;
 	const predefinedValues = event.predefinedValues
 		? parseJsonSafely(event.predefinedValues)
@@ -227,6 +190,7 @@ export async function POST(request: NextRequest) {
 					{ status: 400 }
 				);
 			}
+			sendValue = floatValue;
 			break;
 		case "INTEGER":
 			if (event.rangeStart !== null && intValue! < event.rangeStart) {
@@ -256,6 +220,7 @@ export async function POST(request: NextRequest) {
 					{ status: 400 }
 				);
 			}
+			sendValue = intValue;
 			break;
 		case "BOOLEAN":
 			if (predefinedValues) {
@@ -265,6 +230,7 @@ export async function POST(request: NextRequest) {
 					boolValueToString = predefinedValues[1] || "true";
 				}
 			}
+			sendValue = boolValue;
 			break;
 		case "STRING":
 			if (predefinedValues && !predefinedValues.includes(stringValue)) {
@@ -273,29 +239,92 @@ export async function POST(request: NextRequest) {
 					{ status: 400 }
 				);
 			}
+			sendValue = stringValue;
 			break;
 		default:
 			return NextResponse.json({ error: "Invalid valueType" }, { status: 400 });
 	}
-	//create new Action
+
+	//--------------------------------------------------------------------
+	//publish message, and if success, create action with status 'pending'
 	try {
-		const newAction = await prisma.action.create({
-			data: {
-				valueType,
-				intValue,
-				boolValue,
-				floatValue,
-				stringValue: stringValue ?? boolValueToString,
-				schedule,
-				unit,
-				eventId,
-				eventGroupId,
-				userId: user.id,
-			},
-		});
-		// console.log("new action: ", newAction);
-		return NextResponse.json(newAction, { status: 201 });
+		if (schedule <= new Date()) {
+			//call device mapper
+			const deviceAssigment = await prisma.deviceAssigment.findUnique({
+				where: { device_id: deviceId },
+			});
+			if (!deviceAssigment)
+				return NextResponse.json(
+					{
+						error: "Device is not assigned. Please contact first.",
+					},
+					{ status: 400 }
+				);
+			const payload: PublishEventType = {
+				slave_id: deviceAssigment.slave_id,
+				oper: event.topic,
+				value: sendValue!,
+			};
+			//publish message
+			try {
+				const publish = await publishEvent(deviceAssigment.master_id, [
+					payload,
+				]);
+				if (publish.status >= 200 && publish.status < 300) {
+					// on success
+					const newAction = await prisma.action.create({
+						data: {
+							valueType,
+							intValue,
+							boolValue,
+							floatValue,
+							stringValue: stringValue ?? boolValueToString,
+							status: ActionStatus["PENDING"],
+							schedule,
+							unit,
+							eventId,
+							deviceId,
+							email: user.email!,
+						},
+					});
+					return NextResponse.json(newAction, { status: 201 });
+				} else {
+					// on failure
+					return NextResponse.json(
+						{ error: `Could not publish message: ${publish.statusText}` },
+						{ status: publish.status }
+					);
+				}
+			} catch (error: any) {
+				// Handle the error properly
+				return NextResponse.json(
+					{ error: `Could not publish message: ${error.message}` },
+					{ status: 500 }
+				);
+			}
+		} else {
+			//create new Action
+			const newAction = await prisma.action.create({
+				data: {
+					valueType,
+					intValue,
+					boolValue,
+					floatValue,
+					stringValue: stringValue ?? boolValueToString,
+					schedule,
+					unit,
+					eventId,
+					deviceId,
+					email: user.email!,
+				},
+			});
+			// console.log("new action: ", newAction);
+			return NextResponse.json(newAction, { status: 201 });
+		}
 	} catch (error) {
-		return NextResponse.json({ error: "could not create new Action." });
+		return NextResponse.json(
+			{ error: "could not create new Action." },
+			{ status: 500 }
+		);
 	}
 }

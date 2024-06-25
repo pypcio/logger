@@ -8,28 +8,17 @@ export async function POST(
 	request: NextRequest,
 	{ params }: { params: { orgId: string } }
 ) {
-	const body = await request.json();
 	const user = await currentUser();
 	if (!user)
 		return NextResponse.json(
 			{ error: "You are not logged in" },
 			{ status: 401 }
 		);
-	//check if organization exisits
-	const existingOrganization = await prisma.organization.findUnique({
-		where: { id: params.orgId },
-	});
-	if (!existingOrganization)
-		return NextResponse.json(
-			{ error: "Organization not found" },
-			{ status: 404 }
-		);
-	// check if user has permission
 	const validMembership = await prisma.organizationMembership.findUnique({
 		where: {
 			userId_organizationId: {
 				userId: user.id!,
-				organizationId: existingOrganization.id,
+				organizationId: params.orgId,
 			},
 		},
 	});
@@ -42,6 +31,7 @@ export async function POST(
 	if (validMembership.role === UserRole.USER)
 		return NextResponse.json({ error: "User not permitted" }, { status: 403 });
 
+	const body = await request.json();
 	const plantValidation = plantSchema.safeParse(body);
 	if (!plantValidation.success) {
 		return NextResponse.json(plantValidation.error.errors, { status: 400 });
@@ -53,7 +43,7 @@ export async function POST(
 		where: {
 			name_organizationId: {
 				name: name,
-				organizationId: existingOrganization.id,
+				organizationId: validMembership.organizationId,
 			},
 		},
 	});
@@ -69,6 +59,7 @@ export async function POST(
 		data: {
 			name: body.name,
 			description,
+			organizationId: params.orgId,
 			//org_id : sessionParams.org_id
 		},
 	});
@@ -87,32 +78,36 @@ export async function GET(
 			{ error: "You are not logged in" },
 			{ status: 401 }
 		);
-	//check if organization exisits
-	const existingOrganization = await prisma.organization.findUnique({
-		where: { id: params.orgId },
-	});
-	if (!existingOrganization)
-		return NextResponse.json(
-			{ error: "Organization not found" },
-			{ status: 404 }
-		);
 	// check if user has permission
-	const validMembership = await prisma.organizationMembership.findUnique({
-		where: {
-			userId_organizationId: {
-				userId: user.id!,
-				organizationId: existingOrganization.id,
+	try {
+		const validMembership = await prisma.organizationMembership.findUnique({
+			where: {
+				userId_organizationId: {
+					userId: user.id!,
+					organizationId: params.orgId,
+				},
 			},
-		},
-	});
-	if (!validMembership)
-		return NextResponse.json(
-			{ error: "User does not belong to Organization" },
-			{ status: 400 }
-		);
+		});
+		if (!validMembership)
+			return NextResponse.json(
+				{ error: "User does not belong to Organization" },
+				{ status: 400 }
+			);
 
-	const allPlants = await prisma.plant.findMany({
-		where: { organizationId: params.orgId },
-	});
-	return NextResponse.json(allPlants, { status: 200 });
+		if (validMembership.role === UserRole.USER)
+			return NextResponse.json(
+				{ error: "User not permitted" },
+				{ status: 403 }
+			);
+
+		const allPlants = await prisma.plant.findMany({
+			where: { organizationId: validMembership.organizationId },
+		});
+		return NextResponse.json(allPlants, { status: 200 });
+	} catch (error) {
+		return NextResponse.json(
+			{ error: "Internal server error." },
+			{ status: 500 }
+		);
+	}
 }

@@ -1,20 +1,23 @@
-import { getEventById, getEventsByGroupId } from "@/lib/services/api";
+import { getEventById, getEventsByDeviceId } from "@/lib/services/api";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 import { createAction, updateAction, deleteAction } from "@/lib/services/api";
 import { ActionType } from "@/schemas/schemas-types";
-export const useEvents = (eventGroupId: string | undefined) =>
+export const useEvents = (deviceId: string | undefined) =>
 	useQuery({
-		queryKey: ["events", eventGroupId],
-		queryFn: () => getEventsByGroupId(eventGroupId),
-		enabled: !!eventGroupId,
+		queryKey: ["events", deviceId],
+		queryFn: () => getEventsByDeviceId(deviceId),
+		enabled: !!deviceId,
 	});
 
-export const useEvent = (eventId: number | null | undefined) =>
+export const useEvent = (
+	eventId: number | null | undefined,
+	deviceId: string | undefined
+) =>
 	useQuery({
-		queryKey: ["event", eventId],
-		queryFn: () => getEventById(eventId),
-		enabled: !!eventId,
+		queryKey: ["event", eventId, deviceId],
+		queryFn: () => getEventById(eventId, deviceId),
+		enabled: !!eventId || !!deviceId,
 	});
 
 // Hook for POST request

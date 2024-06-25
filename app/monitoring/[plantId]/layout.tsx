@@ -15,7 +15,9 @@ const Layout = ({ children, params: { plantId } }: Props) => {
 		<div
 			className='flex w-full'
 			style={{ height: `calc(100vh - var(--navbar-height))` }}>
-			<SideNav plantId={plantId} />
+			{/*
+			//TO DO: adjust sidebar- type of device is in param DeviceType
+			<SideNav plantId={plantId} /> */}
 			{children}
 		</div>
 	);

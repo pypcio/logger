@@ -7,11 +7,13 @@ export async function GET(
 	request: NextRequest,
 	{ params }: { params: { eventId: string } }
 ) {
+	const searchParams = request.nextUrl.searchParams;
+	const deviceId = searchParams.get("deviceId");
 	const eventId = parseInt(params.eventId);
 	const user = await currentUser();
 
-	if (!eventId) {
-		return NextResponse.json({ error: "Invalid Event ID" }, { status: 400 });
+	if (!eventId || !deviceId) {
+		return NextResponse.json({ error: "Invalid params" }, { status: 400 });
 	}
 	if (!user) {
 		return NextResponse.json(
@@ -28,7 +30,9 @@ export async function GET(
 	// 	return NextResponse.json({ error: "User not permitted" }, { status: 403 });
 	// }
 	try {
-		const event = await prisma.event.findUnique({ where: { id: eventId } });
+		const event = await prisma.event.findUnique({
+			where: { deviceId_id: { id: eventId, deviceId } },
+		});
 		if (!event)
 			return NextResponse.json({ error: "Event not found." }, { status: 404 });
 		return NextResponse.json(event);

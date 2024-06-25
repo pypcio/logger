@@ -1,21 +1,23 @@
 import { auth } from "@/auth";
 import { z } from "zod";
+import { Buffer } from "buffer";
 import {
 	Organization,
 	OrganizationMembership,
 	UserRole,
 	Plant,
-	Inverter,
 	User,
 	Action,
 	Event,
 } from "@prisma/client";
-import axios from "axios";
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { currentUser } from "../auth";
 import {
 	ActionDataTableArrayType,
 	ActionDataTableType,
 	ActionType,
+	PublishEventsType,
+	PublishEventType,
 } from "@/schemas/schemas-types";
 import { actionAPISchema } from "@/schemas/api-schema";
 import { EntityType } from "../utils";
@@ -117,7 +119,7 @@ export const getOrganizationEntitiesActions = async (
 
 	const result = (
 		await axios.get<ActionDataTableViewArrayType>(
-			`/api/actions?entityType=organization&entityId=${entityId}`
+			`/api/organizations/${entityId}/actions`
 		)
 	).data;
 	return result;
@@ -143,22 +145,72 @@ export const deleteAction = async (entityId: string, id: string) => {
 	return (await axios.delete(`/api/actions/${entityId}?actionId=${id}`)).data;
 };
 
-export const getEventsByGroupId = async (
-	eventGroupId: string | undefined
+export const getEventsByDeviceId = async (
+	deviceId: string | undefined
 ): Promise<EventSelect[]> => {
-	if (!eventGroupId) {
+	if (!deviceId) {
 		throw new Error("EventGroup ID is required.");
 	}
-	return (
-		await axios.get<EventSelect[]>(`/api/events?eventGroupId=${eventGroupId}`)
-	).data;
+	return (await axios.get<EventSelect[]>(`/api/events?deviceId=${deviceId}`))
+		.data;
 };
 
 export const getEventById = async (
-	eventId: number | null | undefined
+	eventId: number | null | undefined,
+	deviceId: string | undefined
 ): Promise<Event> => {
 	if (!eventId) {
 		throw new Error("Event ID is required.");
 	}
-	return (await axios.get<Event>(`/api/events/${eventId}`)).data;
+	return (await axios.get<Event>(`/api/events/${eventId}?deviceId=${deviceId}`))
+		.data;
+};
+
+/**
+ * Get All Plants by OrganizationId
+ * @returns
+ */
+export const getPlantsBySessionOrg = async (): Promise<Plant[]> => {
+	return (await axios.get<Plant[]>(`/api/plants`)).data;
+};
+
+/**
+ * Publish event to EMQX broker
+ * @param masterId @param payloads @param qos
+ * @returns
+ */
+export const publishEvent = async (
+	masterId: number,
+	payloads: PublishEventType[],
+	qos = 1
+): Promise<AxiosResponse> => {
+	if (masterId) {
+		const instance = axios.create({
+			baseURL: process.env.MQTT_API_ENDPOINT,
+			timeout: 1000,
+			auth: {
+				username: process.env.EMQX_APP_ID!,
+				password: process.env.EMQX_APP_SECRET!,
+			},
+		});
+
+		// Transform each payload to the expected string format
+		const data = payloads.map((event) => ({
+			topic: `event/${masterId}`,
+			qos,
+			payload: JSON.stringify(event),
+		}));
+
+		console.log("data: ", data);
+
+		try {
+			return await instance.post("/publish/bulk", data);
+		} catch (error) {
+			// console.log("error:", error);
+			// Here we rethrow the error to be handled by the caller
+			throw error;
+		}
+	} else {
+		return Promise.reject(new Error("masterId is required"));
+	}
 };

@@ -3,6 +3,7 @@ import {
 	ValueType as PrismaValueType,
 	ActionStatus as PrismaActionStatus,
 } from "@prisma/client";
+import { DeviceType } from "./api-schema";
 const loginUserSchema = z.object({
 	// organization: z.string().min(1, { message: "Organization is required" }),
 	email: z.string().email(),
@@ -89,6 +90,36 @@ const createPlantSchema = z.object({
 	description: z.optional(z.string().min(1).max(65535)),
 });
 
+const createDeviceSchema = z.object({
+	name: z
+		.string()
+		.min(1, { message: "Device name is required" })
+		.max(191, { message: "Name is too long" })
+		.trim()
+		.refine((name) => !name.includes("  "), {
+			message: "Consecutive spaces are not allowed",
+		}),
+	model: z
+		.string()
+		.min(1, {
+			message: "Model must be at least 2 characters.",
+		})
+		.max(191, {
+			message: "Model too long.",
+		})
+		.optional(),
+	producent: z
+		.string()
+		.min(1, {
+			message: "Producent must be at least 1 characters.",
+		})
+		.max(191, {
+			message: "Producent too long.",
+		})
+		.optional(),
+	deviceType: DeviceType,
+});
+
 const accountFormSchema = z.object({
 	name: z
 		.string()
@@ -123,7 +154,7 @@ const ValueType = z.nativeEnum(PrismaValueType);
 const ActionStatus = z.nativeEnum(PrismaActionStatus);
 
 const actionSchema = z.object({
-	eventGroupId: z.string(),
+	deviceId: z.string(),
 	floatValue: z.coerce.number().optional(),
 	intValue: z.coerce.number().optional(),
 	boolValue: z.coerce.boolean().optional(),
@@ -132,7 +163,7 @@ const actionSchema = z.object({
 	schedule: z.coerce.date().optional(),
 });
 const actionSchemaValidation = z.object({
-	eventGroupId: z.string(),
+	deviceId: z.string(),
 	valueType: ValueType,
 	floatValue: z.string().nullable(),
 	intValue: z.string().nullable(),
@@ -155,4 +186,5 @@ export {
 	accountFormSchema,
 	actionSchema,
 	actionSchemaValidation,
+	createDeviceSchema,
 };

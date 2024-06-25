@@ -3,10 +3,9 @@ import {
 	organizationSchema,
 	updateOrganizationSchema,
 	plantSchema,
-	loggerSchema,
-	inverterSchema,
-	meterSchema,
 	actionAPISchema,
+	publishEventsSchema,
+	publishEventSchema,
 } from "./api-schema";
 import { ActionStatus } from "@prisma/client";
 import { actionDataArraySchema, actionDataTableSchema } from "./data-table";
@@ -42,13 +41,13 @@ export type BadgeColor =
 export type OrganizationType = z.infer<typeof organizationSchema>;
 export type UpdateOrganizationType = z.infer<typeof updateOrganizationSchema>;
 export type PlantType = z.infer<typeof plantSchema>;
-export type LoggerType = z.infer<typeof loggerSchema>;
-export type InverterType = z.infer<typeof inverterSchema>;
-export type MeterType = z.infer<typeof meterSchema>;
 export type ActionType = z.infer<typeof actionAPISchema>;
 export type ActionDataTableType = z.infer<typeof actionDataTableSchema>;
 export type ActionDataTableArrayType = z.infer<typeof actionDataArraySchema>;
+export type PublishEventsType = z.infer<typeof publishEventsSchema>;
+export type PublishEventType = z.infer<typeof publishEventSchema>;
 export const actionStatusColors: Record<string, BadgeColor> = {
+	[ActionStatus.PENDING]: "gray",
 	[ActionStatus.SCHEDULED]: "cyan",
 	[ActionStatus.EXECUTED]: "green",
 	[ActionStatus.CANCELED]: "crimson",

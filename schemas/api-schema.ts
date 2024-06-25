@@ -1,9 +1,13 @@
 import {
 	Prisma,
 	ValueType as PrismaValueType,
+	DeviceType as PrismaDeviceType,
 	ActionStatus as PrismaActionStatus,
+	EventInstruction as PrismaEventInstruction,
 } from "@prisma/client";
 import { z } from "zod";
+export const DeviceType = z.nativeEnum(PrismaDeviceType);
+
 const plantSchema = z.object({
 	name: z
 		.string()
@@ -14,56 +18,20 @@ const plantSchema = z.object({
 			message: "Consecutive spaces are not allowed",
 		}),
 	description: z.string().min(1).max(65535).nullish(),
-	// organizationId: z
-	// 	.string()
-	// 	.min(1, "Organization is required")
-	// 	.max(255)
-	// 	.nullish(),
 });
 
-const loggerSchema = z.object({
+const deviceSchema = z.object({
 	name: z
 		.string()
-		.min(1, { message: "Logger name is required" })
+		.min(1, { message: "Device name is required" })
 		.max(191, { message: "Name is too long" })
 		.trim() // Removes leading and trailing whitespace
 		.refine((name) => !name.includes("  "), {
 			message: "Consecutive spaces are not allowed",
 		}),
-	description: z.string().min(1).max(65535).nullish(),
-	plant_id: z.string().min(1, "Plant is required").max(255),
 	model: z.string().min(1).max(191).nullish(),
 	producent: z.string().min(1).max(191).nullish(),
-});
-
-const inverterSchema = z.object({
-	name: z
-		.string()
-		.min(1, { message: "Inverter name is required" })
-		.max(191, { message: "Name is too long" })
-		.trim() // Removes leading and trailing whitespace
-		.refine((name) => !name.includes("  "), {
-			message: "Consecutive spaces are not allowed",
-		}),
-	description: z.string().min(1).max(65535).nullish(),
-	plant_id: z.string().min(1, "Plant is required").max(255),
-	model: z.string().min(1).max(191).nullish(),
-	producent: z.string().min(1).max(191).nullish(),
-});
-
-const meterSchema = z.object({
-	name: z
-		.string()
-		.min(1, { message: "Meter name is required" })
-		.max(191, { message: "Name is too long" })
-		.trim() // Removes leading and trailing whitespace
-		.refine((name) => !name.includes("  "), {
-			message: "Consecutive spaces are not allowed",
-		}),
-	description: z.string().min(1).max(65535).nullish(),
-	plant_id: z.string().min(1, "Plant is required").max(255),
-	model: z.string().min(1).max(191).nullish(),
-	producent: z.string().min(1).max(191).nullish(),
+	deviceType: DeviceType,
 });
 
 const organizationSchema = z.object({
@@ -115,7 +83,7 @@ const ActionStatus = z.nativeEnum(PrismaActionStatus);
 
 const actionAPISchema = z
 	.object({
-		eventGroupId: z.string(),
+		deviceId: z.string(),
 		valueType: ValueType,
 		floatValue: z.coerce.number().nullable().optional(),
 		intValue: z.coerce.number().nullable().optional(),
@@ -144,14 +112,19 @@ const actionAPISchema = z
 			path: ["valueType"],
 		}
 	);
-
+const EventInstruction = z.nativeEnum(PrismaEventInstruction);
+const publishEventSchema = z.object({
+	slave_id: z.number(),
+	oper: EventInstruction,
+	value: z.union([z.string(), z.number(), z.boolean()]),
+});
+const publishEventsSchema = z.array(publishEventSchema);
 export {
 	organizationSchema,
 	updateOrganizationSchema,
 	plantSchema,
-	loggerSchema,
-	inverterSchema,
-	meterSchema,
-	// actionControlSchema,
+	deviceSchema,
 	actionAPISchema,
+	publishEventSchema,
+	publishEventsSchema,
 };

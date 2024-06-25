@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import {
+	getPlantsBySessionOrg,
 	getPlantWithDevicesById,
 	getUserByAuth,
 	// getUserMembershipInfo,
@@ -30,4 +31,10 @@ export const useUserByAuth = () =>
 		queryKey: ["user"],
 		queryFn: getUserByAuth,
 		refetchOnMount: true,
+	});
+
+export const usePlants = () =>
+	useQuery({
+		queryKey: ["plants"],
+		queryFn: getPlantsBySessionOrg,
 	});

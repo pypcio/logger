@@ -49,3 +49,20 @@ export async function DELETE(
 
 	return NextResponse.json({});
 }
+
+export async function GET(
+	request: NextRequest,
+	{ params }: { params: { plantId: string } }
+) {
+	try {
+		const plant = await prisma.plant.findUnique({
+			where: { id: params.plantId },
+		});
+		return NextResponse.json(plant);
+	} catch (error) {
+		return NextResponse.json(
+			{ error: "Internal server error." },
+			{ status: 500 }
+		);
+	}
+}

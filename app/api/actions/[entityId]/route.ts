@@ -20,7 +20,7 @@ export async function POST(
 		);
 	}
 	if (
-		user.role === UserRole.USER ||
+		// user.role === UserRole.USER ||
 		!user.id ||
 		!user.role ||
 		!user.organizationId
@@ -41,7 +41,9 @@ export async function POST(
 		valueType,
 	} = validateAction.data;
 	// Fetch the event configuration
-	const event = await prisma.event.findUnique({ where: { id: eventId } });
+	const event = await prisma.event.findUnique({
+		where: { deviceId_id: { id: eventId, deviceId: params.entityId } },
+	});
 	if (!event)
 		return NextResponse.json(
 			{ error: "Event does not exist." },
@@ -146,10 +148,11 @@ export async function POST(
 				schedule,
 				unit,
 				eventId,
-				eventGroupId: params.entityId,
-				userId: user.id,
+				deviceId: params.entityId,
+				email: user.email!,
 			},
 		});
+		// console.log("new action: ", newAction);
 		return NextResponse.json(newAction, { status: 201 });
 	} catch (error) {
 		return NextResponse.json({ error: "could not create new Action." });
@@ -203,20 +206,8 @@ export async function PATCH(
 		valueType,
 	} = validateAction.data;
 	try {
-		const eventGroupId = params.entityId + "-group";
-		const action = await prisma.action.findUnique({
-			where: { eventGroupId_id: { id: actionId, eventGroupId } },
-		});
-		if (!action)
-			return NextResponse.json(
-				{ error: "Could not find action to update." },
-				{ status: 404 }
-			);
-
 		const updatedAction = await prisma.action.update({
-			where: {
-				eventGroupId_id: { id: action.id, eventGroupId: action.eventGroupId },
-			},
+			where: { deviceId_id: { id: actionId, deviceId: params.entityId } },
 			data: {
 				boolValue,
 				eventId,
@@ -274,21 +265,10 @@ export async function DELETE(
 		);
 	}
 	try {
-		const eventGroupId = params.entityId + "-group";
-		const action = await prisma.action.findUnique({
-			where: {
-				eventGroupId_id: { id: actionId, eventGroupId },
-				status: ActionStatus.SCHEDULED,
-			},
-		});
-		if (!action)
-			return NextResponse.json(
-				{ error: "Could not find action to delete." },
-				{ status: 404 }
-			);
 		await prisma.action.delete({
 			where: {
-				eventGroupId_id: { id: action.id, eventGroupId: action.eventGroupId },
+				deviceId_id: { id: actionId, deviceId: params.entityId },
+				status: ActionStatus.SCHEDULED,
 			},
 		});
 		return NextResponse.json({});

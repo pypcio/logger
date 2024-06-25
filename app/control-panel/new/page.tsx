@@ -11,14 +11,20 @@ const ActionForm = dynamic(
 		loading: () => <ActionFormSkeleton />,
 	}
 );
-const fetchEventGroups = cache((organizationId: string) =>
-	prisma.eventGroup.findMany({
-		where: { organizationId },
+const fetchDevices = cache((organizationId: string) =>
+	prisma.device.findMany({
+		where: { plant: { organizationId } },
 		select: {
 			id: true,
-			deviceName: true,
+			name: true,
 			deviceType: true,
-			organization: { select: { name: true } },
+			plant: {
+				select: {
+					organization: {
+						select: { name: true },
+					},
+				},
+			},
 		},
 	})
 );
@@ -26,12 +32,12 @@ const fetchEventGroups = cache((organizationId: string) =>
 const NewActionPage = async () => {
 	const session = await auth();
 	if (session && session.user.organizationId) {
-		const eventGroups = await fetchEventGroups(session.user.organizationId);
+		const devices = await fetchDevices(session.user.organizationId);
 		// if (eventGroups) notFound();
 		// console.log("eventGroup: ", eventGroups);
 		return (
 			<div className='container flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0  my-12 w-full'>
-				<ActionForm eventGroups={eventGroups} />
+				<ActionForm devices={devices} />
 			</div>
 		);
 	}
